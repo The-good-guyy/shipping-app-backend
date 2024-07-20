@@ -1,8 +1,41 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/shipping_routes_app/src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/shipping_routes_app/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/shipping_routes_app",
+  "projects": {
+    "shipping_routes_app": {
+      "type": "application",
+      "root": "apps/shipping_routes_app",
+      "entryFile": "main",
+      "sourceRoot": "apps/shipping_routes_app/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/shipping_routes_app/tsconfig.app.json"
+      }
+    },
+    "auth_service": {
+      "type": "application",
+      "root": "apps/auth_service",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth_service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth_service/tsconfig.app.json"
+      }
+    },
+    "api_gateway": {
+      "type": "application",
+      "root": "apps/api_gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/api_gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api_gateway/tsconfig.app.json"
+      }
+    }
   }
 }
