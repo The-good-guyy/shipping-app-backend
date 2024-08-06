@@ -3,7 +3,7 @@ import { AuthServiceController } from './auth_service.controller';
 import { AuthServiceService } from './auth_service.service';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -11,7 +11,7 @@ import { UsersModule } from './users/users.module';
       envFilePath: ['./env/postgres.env'],
     }),
     DatabaseModule,
-    UsersModule,
+    AuthModule,
   ],
   controllers: [AuthServiceController],
   providers: [AuthServiceService],
