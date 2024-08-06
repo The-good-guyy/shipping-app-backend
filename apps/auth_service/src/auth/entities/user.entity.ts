@@ -11,9 +11,9 @@ export class User {
   uuid: string;
 
   @Column({ unique: true })
-  gmail: string;
+  email: string;
 
-  @Column({ unique: true })
+  @Column()
   username: string;
 
   @Column()
@@ -25,4 +25,7 @@ export class User {
     default: UserRole.UNVERIFIED,
   })
   role: UserRole;
+
+  @Column()
+  createdAt: Date;
 }
