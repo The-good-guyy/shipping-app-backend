@@ -13,6 +13,7 @@ import * as redisStore from 'cache-manager-redis-store';
 @Module({
   imports: [
     CacheModule.register<RedisClientOptions>({
+      isGlobal: true,
       store: redisStore,
       socket: {
         host: 'localhost',

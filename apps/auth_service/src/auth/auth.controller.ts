@@ -1,66 +1,54 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Get,
+} from '@nestjs/common';
+import { Tokens } from './types';
 import { AuthService } from './auth.service';
-import { createUserDto } from './dto';
+import { createUserDto, loginUserDto } from './dto';
+import { AtGuard, RtGuard } from 'libs/common/guard';
+import { GetCurrentUser } from 'libs/common/decorators';
+import { userDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-  @Post('signin/local')
-  signInLocal(@Body() createUserDto: createUserDto) {
-    return this.authService.signInLocal(createUserDto);
+  @Post('local/signup')
+  @HttpCode(HttpStatus.CREATED)
+  signInLocal(@Body() createUserDto: createUserDto): Promise<Tokens> {
+    return this.authService.signUpLocal(createUserDto);
+  }
+  @Post('local/sigin')
+  @HttpCode(HttpStatus.OK)
+  siginLocal(@Body() loginUserDto: loginUserDto): Promise<Tokens> {
+    return this.authService.signInLocal(loginUserDto);
+  }
+  @UseGuards(AtGuard)
+  @Post('/logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@GetCurrentUser('sub') userId: string): Promise<boolean> {
+    return this.authService.logout(userId);
+  }
+
+  @UseGuards(RtGuard)
+  @Post('/refresh')
+  @HttpCode(HttpStatus.OK)
+  refreshTokens(
+    @GetCurrentUser('sub') userId: string,
+    @GetCurrentUser('refreshToken') refreshToken: string,
+  ): Promise<Tokens> {
+    return this.authService.refreshTokens(userId, refreshToken);
+  }
+
+  @UseGuards(AtGuard)
+  @Get('/getMe')
+  @HttpCode(HttpStatus.OK)
+  getMe(@GetCurrentUser('sub') userId: string): Promise<Partial<userDto>> {
+    console.log(userId);
+    return this.authService.getMe(userId);
   }
 }
-
-// import {
-//   Controller,
-//   Post,
-//   Body,
-//   HttpCode,
-//   HttpStatus,
-//   UseGuards,
-//   Req,
-//   Res,
-// } from '@nestjs/common';
-// import { Response } from 'express';
-// import { AuthService } from './auth.service';
-// import { AuthDto } from './dto/auth.dto';
-// import { Tokens } from './types';
-// import { AtGuard, RtGuard } from 'src/common/guard';
-// import { GetCurrentUser } from 'src/common/decorators';
-
-// @Controller('auth')
-// export class AuthController {
-//   constructor(private authService: AuthService) {}
-//   @Post('local/signup')
-//   @HttpCode(HttpStatus.CREATED)
-//   signupLocal(
-//     @Body() authDto: AuthDto,
-//     @Res({ passthrough: true }) response: Response,
-//   ): Promise<Tokens> {
-//     return this.authService.signupLocal(authDto, response);
-//   }
-
-//   @Post('local/sigin')
-//   @HttpCode(HttpStatus.OK)
-//   siginLocal(@Body() authDto: AuthDto): Promise<Tokens> {
-//     return this.authService.signinLocal(authDto);
-//   }
-
-//   @UseGuards(AtGuard)
-//   @Post('/logout')
-//   @HttpCode(HttpStatus.OK)
-//   logout(@GetCurrentUser('sub') userId: number): Promise<boolean> {
-//     return this.authService.logout(userId);
-//   }
-
-//   @UseGuards(RtGuard)
-//   @Post('/refresh')
-//   @HttpCode(HttpStatus.OK)
-//   refreshTokens(
-//     @GetCurrentUser('sub') userId: number,
-//     @GetCurrentUser('refreshToken') refreshToken: string,
-//   ): Promise<Tokens> {
-//     // console.log(refreshToken);
-//     return this.authService.refreshTokens(userId, refreshToken);
-//   }
-// }

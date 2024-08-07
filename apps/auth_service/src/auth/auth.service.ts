@@ -27,7 +27,7 @@ export class AuthService {
   hashData(data: string) {
     return bcrypt.hash(data, 10);
   }
-  async updateRtHash(userId: string, rt: string) {
+  updateRtHash(userId: string, rt: string) {
     this.cacheManager.set(userId, rt, {
       ttl: 60 * 60 * 24 * 27,
     });
@@ -51,7 +51,7 @@ export class AuthService {
       refresh_token: rt,
     };
   }
-  async signInLocal(createUserDto: createUserDto) {
+  async signUpLocal(createUserDto: createUserDto) {
     const user = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
     });
@@ -69,9 +69,11 @@ export class AuthService {
       newUser.role,
     );
     this.updateRtHash(newUser.uuid, tokens.refresh_token);
+    // console.log(newUser.uuid);
+    // console.log(await this.cacheManager.get(newUser.uuid));
     return tokens;
   }
-  async signinLocal(loginUserDto: loginUserDto): Promise<Tokens> {
+  async signInLocal(loginUserDto: loginUserDto): Promise<Tokens> {
     const user = await this.usersRepository.findOne({
       where: { email: loginUserDto.email },
     });
@@ -85,7 +87,7 @@ export class AuthService {
     await this.updateRtHash(user.uuid, tokens.refresh_token);
     return tokens;
   }
-  async logout(userId: number): Promise<boolean> {
+  async logout(userId: string): Promise<boolean> {
     this.cacheManager.del(userId);
     return true;
   }
@@ -93,14 +95,23 @@ export class AuthService {
     const user = await this.usersRepository.findOne({
       where: { uuid: userId },
     });
+    // console.log(userId);
+    // console.log(user);
     if (!user) throw new ForbiddenException('Access Denied');
     const cachedItem = await this.cacheManager.get(userId);
-    if (!cachedItem && cachedItem !== rt) {
+    if (!cachedItem || cachedItem !== rt) {
       this.cacheManager.del(userId);
       throw new ForbiddenException('Access Denied');
     }
     const tokens = await this.getTokens(user.uuid, user.email, user.role);
-    await this.updateRtHash(user.uuid, tokens.refresh_token);
+    this.updateRtHash(user.uuid, tokens.refresh_token);
     return tokens;
+  }
+  async getMe(userId: string) {
+    const user = await this.usersRepository.findOne({
+      where: { uuid: userId },
+      select: ['uuid', 'username', 'role', 'email'],
+    });
+    return user;
   }
 }
