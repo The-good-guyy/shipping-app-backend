@@ -1,9 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-export enum UserRole {
-  ADMIN = 'admin',
-  USER = 'user',
-  UNVERIFIED = 'unverified',
-}
+import { UserRole } from '../common/constraints';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')

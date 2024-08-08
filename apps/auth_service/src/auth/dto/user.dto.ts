@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsEmail, IsEnum, IsDate } from 'class-validator';
-import { UserRole } from '../entities/user.entity';
+import { UserRole } from '../common/constraints';
 export class userDto {
   @IsNotEmpty()
   @IsEmail()
