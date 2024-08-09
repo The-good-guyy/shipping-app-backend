@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import { UserRole } from '../common/constraints';
+import { UserRole } from '../../common/constraints';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')

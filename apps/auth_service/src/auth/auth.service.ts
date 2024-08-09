@@ -5,7 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { createUserDto, loginUserDto } from './dto';
-import { EntityManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -20,7 +20,6 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private entityManager: EntityManager,
     private jwtService: JwtService,
     private config: ConfigService,
   ) {}

@@ -10,8 +10,8 @@ import {
 import { Tokens } from './types';
 import { AuthService } from './auth.service';
 import { createUserDto, loginUserDto } from './dto';
-import { AtGuard, RtGuard } from 'libs/common/guard';
-import { GetCurrentUser } from 'libs/common/decorators';
+import { AtGuard, RtGuard } from '../common/guard';
+import { GetCurrentUser } from '../common/decorators';
 import { userDto } from './dto';
 
 @Controller('auth')
