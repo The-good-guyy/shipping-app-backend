@@ -7,6 +7,10 @@ import {
 } from 'typeorm';
 import { Role } from './role.entity';
 import { IsString } from 'class-validator';
+import {
+  PermissionAction,
+  PermissionObject,
+} from 'apps/auth_service/src/common/constraints';
 @Entity({ name: 'permission' })
 export class Permission {
   @PrimaryGeneratedColumn()
@@ -16,15 +20,21 @@ export class Permission {
   @IsString()
   permission: string;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: PermissionAction,
+  })
   @IsString()
-  action: string;
+  action: PermissionAction;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: PermissionObject,
+  })
   @IsString()
-  object: string;
+  object: PermissionObject;
 
-  @ManyToMany(() => Role)
+  @ManyToMany(() => Role, { cascade: true })
   @JoinTable()
   role: Role[];
 }

@@ -8,7 +8,7 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { Role } from './role.entity';
-@Entity({ name: 'users' })
+@Entity({ name: 'user' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
@@ -19,21 +19,24 @@ export class User {
   @Column()
   username: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
-  @Column()
+  @Column({
+    default:
+      'https://firebasestorage.googleapis.com/v0/b/mern-blog-project-28a14.appspot.com/o/profileImage.jpg?alt=media&token=4b00eeb1-6eb8-4c2d-9ba5-1c5fcf7e3d49',
+  })
   profileImage: string;
 
-  @OneToOne(() => Role)
+  @OneToOne(() => Role, { cascade: true })
   @JoinColumn()
   role: Role;
 
   @Column()
-  createdAt?: Date;
+  createdAt: Date;
 
   @Column()
-  updatedAt?: Date;
+  updatedAt: Date;
 
   @BeforeInsert()
   protected setCreatedAt(): void {
