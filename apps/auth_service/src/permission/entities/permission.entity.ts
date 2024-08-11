@@ -2,10 +2,9 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  ManyToMany,
-  JoinTable,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
-import { Role } from './role.entity';
 import { IsString } from 'class-validator';
 import {
   PermissionAction,
@@ -34,7 +33,23 @@ export class Permission {
   @IsString()
   object: PermissionObject;
 
-  @ManyToMany(() => Role, { cascade: true })
-  @JoinTable()
-  role: Role[];
+  // @ManyToMany(() => Role, { cascade: true })
+  // @JoinTable()
+  // role: Role[];
+
+  @Column()
+  createdAt: Date;
+
+  @Column()
+  updatedAt: Date;
+
+  @BeforeInsert()
+  protected setCreatedAt(): void {
+    this.createdAt = new Date();
+  }
+
+  @BeforeUpdate()
+  protected setUpdatedAt(): void {
+    this.updatedAt = new Date();
+  }
 }

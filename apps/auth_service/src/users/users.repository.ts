@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { EErrorMessage } from '../common/constraints';
+import { getCols } from '../common/helpers';
 @Injectable()
 export class UserRepository {
   constructor(
@@ -33,9 +34,31 @@ export class UserRepository {
     //   return await this.usersRepository.save({ ...user, ...input });
     return await this.usersRepository.update(userId, input);
   }
-  async findByCode(userId: string) {
+  // async findByCode(userId: string) {
+  //   const user = await this.usersRepository.findOne({
+  //     where: { uuid: userId },
+  //     relations: {
+  //       role: {
+  //         permission: true,
+  //       },
+  //     },
+  //   });
+  //   if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+  //   return user;
+  // }
+  async findByCode(userId: string, fields: (keyof User)[] = []) {
+    if (!Array.isArray(fields) || !fields.length) {
+      fields = getCols(this.usersRepository);
+      fields = fields.filter((obj) => obj != 'password');
+    }
     const user = await this.usersRepository.findOne({
       where: { uuid: userId },
+      select: fields,
+      relations: {
+        role: {
+          permission: true,
+        },
+      },
     });
     if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
     return user;
@@ -46,5 +69,9 @@ export class UserRepository {
     });
     if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
     return await this.usersRepository.save({ ...user, password });
+  }
+  getColsUser() {
+    const fields = getCols(this.usersRepository);
+    return fields;
   }
 }

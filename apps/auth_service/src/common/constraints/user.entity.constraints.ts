@@ -9,8 +9,10 @@ export enum PermissionAction {
   DELETE = 'delete',
   UPDATE = 'update',
   MANAGE = 'manage',
+  NONE = 'none',
 }
 export enum PermissionObject {
   USER = 'user',
   ROUTE = 'route',
+  NONE = 'none',
 }
