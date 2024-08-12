@@ -6,6 +6,7 @@ import { EErrorMessage } from '../common/constraints';
 import { createRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
 import { UserRole } from '../common/constraints';
+import { stringToEnum } from '../common/helpers';
 @Injectable()
 export class RoleRepository {
   constructor(
@@ -23,18 +24,35 @@ export class RoleRepository {
     newRole = await this.roleRepository.save(newRole);
     return newRole;
   }
-  async remove() {}
+  async remove(roleId: string): Promise<void> {
+    const role = await this.roleRepository.findOne({
+      where: { id: roleId },
+    });
+    if (role) this.roleRepository.delete(role);
+  }
   async update() {}
   async findByCode(roleId: string) {
-    const role = await this.roleRepository.findOne({ where: { id: roleId } });
+    const role = await this.roleRepository.findOne({
+      where: { id: roleId },
+      relations: ['permission'],
+    });
     return role;
   }
+  async asignPermission(role: Role, permissions: Permission[]) {
+    const updatedRole = this.roleRepository.create({
+      ...role,
+      permission: permissions,
+    });
+    return await this.roleRepository.save(updatedRole);
+  }
   async findByName(roleName: string) {
-    if (!Object.values(UserRole)?.includes(roleName)) {
-      // Do stuff here
+    const enumValue = stringToEnum(UserRole, roleName);
+    if (!enumValue) {
+      throw new NotFoundException(EErrorMessage.SOME_ROLES_NOT_FOUND);
     }
     const role = await this.roleRepository.findOne({
-      where: { role: roleName },
+      where: { role: enumValue },
+      relations: ['permission'],
     });
     return role;
   }
