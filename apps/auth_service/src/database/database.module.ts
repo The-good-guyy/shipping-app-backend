@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 // import { User } from '../auth/entities/user.entity';
 // import { User } from '../users/entities/user.entity';
 // import { Role } from '../users/entities/role.entity';
-import { Permission } from '../users/entities/permission.entity';
+import { Permission } from '../permission/entities/permission.entity';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({

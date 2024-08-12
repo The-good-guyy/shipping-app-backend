@@ -3,7 +3,8 @@ import { AuthServiceController } from './auth_service.controller';
 import { AuthServiceService } from './auth_service.service';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
+// import { AuthModule } from './auth/auth.module';
+import { PermissionModule } from './permission/permission.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
@@ -24,7 +25,8 @@ import * as redisStore from 'cache-manager-redis-store';
       envFilePath: ['./env/postgres.env', './env/jwt.env'],
     }),
     DatabaseModule,
-    AuthModule,
+    PermissionModule,
+    // AuthModule,
   ],
   controllers: [AuthServiceController],
   providers: [AuthServiceService],

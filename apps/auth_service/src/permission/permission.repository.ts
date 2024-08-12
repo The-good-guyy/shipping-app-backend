@@ -15,9 +15,10 @@ export class PermissionRepository {
       where: { permission: createPermissionDto.permission },
     });
     if (permission) throw new NotFoundException(EErrorMessage.ENTITY_EXISTED);
-    const newPermission = this.permissionRepository.create({
+    let newPermission = this.permissionRepository.create({
       ...createPermissionDto,
     });
+    newPermission = await this.permissionRepository.save(newPermission);
     return newPermission;
   }
   async remove(permissionId: string): Promise<void> {
@@ -27,7 +28,10 @@ export class PermissionRepository {
     if (permission) this.permissionRepository.delete(permission);
   }
   async update(permissionId: string, input: Partial<udpatePermissionDto>) {
-    return await this.permissionRepository.update(permissionId, input);
+    return await this.permissionRepository.update(permissionId, {
+      ...input,
+      updatedAt: new Date(),
+    });
   }
   async findByCode(permissionId: string) {
     const permission = await this.permissionRepository.findOne({

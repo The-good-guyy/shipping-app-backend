@@ -33,10 +33,6 @@ export class Permission {
   @IsString()
   object: PermissionObject;
 
-  // @ManyToMany(() => Role, { cascade: true })
-  // @JoinTable()
-  // role: Role[];
-
   @Column()
   createdAt: Date;
 
@@ -46,6 +42,7 @@ export class Permission {
   @BeforeInsert()
   protected setCreatedAt(): void {
     this.createdAt = new Date();
+    this.updatedAt = new Date();
   }
 
   @BeforeUpdate()

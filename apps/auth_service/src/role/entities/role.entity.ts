@@ -7,7 +7,7 @@ import {
   BeforeUpdate,
   BeforeInsert,
 } from 'typeorm';
-import { Permission } from './permission.entity';
+import { Permission } from '../../permission/entities/permission.entity';
 import { UserRole } from '../../common/constraints';
 @Entity({ name: 'role' })
 export class Role {
@@ -30,6 +30,7 @@ export class Role {
   @BeforeInsert()
   protected setCreatedAt(): void {
     this.createdAt = new Date();
+    this.updatedAt = new Date();
   }
 
   @BeforeUpdate()
