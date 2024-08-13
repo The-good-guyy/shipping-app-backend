@@ -13,7 +13,15 @@ export class RoleService {
     private readonly permissionService: PermissionService,
   ) {}
   async create(createRoleDto: createRoleDto) {
-    return await this.roleRepository.create(createRoleDto);
+    const permission = createRoleDto.permission;
+    const permissions: Permission[] = [];
+    permission.forEach(async (p) => {
+      permissions.push(await this.permissionService.findById(p.id));
+    });
+    return await this.roleRepository.create({
+      ...createRoleDto,
+      permission: permissions,
+    });
   }
   // async create(
   //   createRoleDto: createRoleDto,
@@ -77,8 +85,18 @@ export class RoleService {
   }
   async update(updateRoleDto: updateRoleDto) {
     await this.roleRepository.findByCode(updateRoleDto.id);
-    return this.roleRepository.update(updateRoleDto);
+    const permission = updateRoleDto.permission;
+    const permissions: Permission[] = [];
+    permission.forEach(async (p) => {
+      permissions.push(await this.permissionService.findById(p.id));
+    });
+    return await this.roleRepository.update({
+      ...updateRoleDto,
+      permission: permissions,
+    });
   }
+
+  //Will use generic in the future
   async updatePermission(
     roleId: string,
     permissionsCode: string[],

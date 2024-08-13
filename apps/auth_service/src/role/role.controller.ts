@@ -34,6 +34,14 @@ export class RoleController {
   async update(@Body() updateRoleDto: updateRoleDto) {
     return this.roleService.update(updateRoleDto);
   }
+  @Patch(':id')
+  @HttpCode(HttpStatus.OK)
+  async updatePermission(
+    @Body() permissionCode: number[],
+    @Param('id') id: string,
+  ) {
+    return this.roleService.updatePermission(id, permissionCode);
+  }
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {
