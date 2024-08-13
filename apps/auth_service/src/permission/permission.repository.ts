@@ -27,11 +27,18 @@ export class PermissionRepository {
     });
     if (permission) this.permissionRepository.delete(permission);
   }
-  async update(permissionId: string, input: Partial<udpatePermissionDto>) {
-    return await this.permissionRepository.update(permissionId, {
+  // async update(permissionId: string, input: Partial<udpatePermissionDto>) {
+  //   return await this.permissionRepository.update(permissionId, {
+  //     ...input,
+  //     updatedAt: new Date(),
+  //   });
+  // }
+  async update(permission: Permission, input: Partial<udpatePermissionDto>) {
+    const updatedPermission = this.permissionRepository.create({
+      ...permission,
       ...input,
-      updatedAt: new Date(),
     });
+    return await this.permissionRepository.save(updatedPermission);
   }
   async findByCode(permissionId: string) {
     const permission = await this.permissionRepository.findOne({

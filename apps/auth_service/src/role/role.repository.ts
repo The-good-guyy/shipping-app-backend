@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
 import { EErrorMessage } from '../common/constraints';
-import { createRoleDto } from './dto';
+import { createRoleDto, updateRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
 import { UserRole } from '../common/constraints';
 import { stringToEnum } from '../common/helpers';
@@ -12,14 +12,13 @@ export class RoleRepository {
   constructor(
     @InjectRepository(Role) private roleRepository: Repository<Role>,
   ) {}
-  async create(createRoleDto: createRoleDto, permissions: Permission[]) {
+  async create(createRoleDto: createRoleDto) {
     const role = await this.roleRepository.findOne({
       where: { role: createRoleDto.role },
     });
     if (role) throw new NotFoundException(EErrorMessage.ENTITY_EXISTED);
     let newRole = this.roleRepository.create({
       ...createRoleDto,
-      permission: permissions,
     });
     newRole = await this.roleRepository.save(newRole);
     return newRole;
@@ -30,7 +29,10 @@ export class RoleRepository {
     });
     if (role) this.roleRepository.delete(role);
   }
-  async update() {}
+  async update(updateRoleDto: Partial<updateRoleDto>) {
+    const updatedRole = this.roleRepository.create(updateRoleDto);
+    return await this.roleRepository.save(updatedRole);
+  }
   async findByCode(roleId: string) {
     const role = await this.roleRepository.findOne({
       where: { id: roleId },
@@ -38,7 +40,7 @@ export class RoleRepository {
     });
     return role;
   }
-  async asignPermission(role: Role, permissions: Permission[]) {
+  async updatePermissionOnRole(role: Role, permissions: Permission[]) {
     const updatedRole = this.roleRepository.create({
       ...role,
       permission: permissions,
@@ -51,7 +53,7 @@ export class RoleRepository {
       throw new NotFoundException(EErrorMessage.SOME_ROLES_NOT_FOUND);
     }
     const role = await this.roleRepository.findOne({
-      where: { role: enumValue },
+      where: { role: roleName },
       relations: ['permission'],
     });
     return role;

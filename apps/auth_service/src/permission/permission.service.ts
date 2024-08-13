@@ -31,7 +31,6 @@ export class PermissionService {
       existingEntity,
       input,
     );
-    await this.permissionRepository.update(input.id, updatedData);
-    return await this.permissionRepository.findByCode(input.id);
+    return await this.permissionRepository.update(existingEntity, updatedData);
   }
 }

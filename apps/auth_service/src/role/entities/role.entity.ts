@@ -8,14 +8,13 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { Permission } from '../../permission/entities/permission.entity';
-import { UserRole } from '../../common/constraints';
 @Entity({ name: 'role' })
 export class Role {
   @PrimaryGeneratedColumn()
   id: string;
 
-  @Column({ unique: true, type: 'enum', enum: UserRole })
-  role: UserRole;
+  @Column({ unique: true })
+  role: string;
 
   @ManyToMany(() => Permission, { cascade: true })
   @JoinTable()
