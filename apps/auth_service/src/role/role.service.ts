@@ -5,6 +5,7 @@ import { Permission } from '../permission/entities/permission.entity';
 import { Role } from './entities/role.entity';
 import { PermissionService } from '../permission/permission.service';
 import { EErrorMessage } from '../common/constraints';
+import { updateRoleDto } from './dto';
 @Injectable()
 export class RoleService {
   constructor(
@@ -68,7 +69,10 @@ export class RoleService {
   //   await this.roleRepository.findByCode(role.id);
   //   return this.roleRepository.updatePermission(role, permissions);
   // }
-
+  async update(updateRoleDto: updateRoleDto) {
+    await this.roleRepository.findByCode(updateRoleDto.id);
+    return this.roleRepository.update(updateRoleDto);
+  }
   async updatePermission(
     roleId: string,
     permissionsCode: string[],
