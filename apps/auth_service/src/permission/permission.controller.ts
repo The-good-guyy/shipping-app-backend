@@ -30,10 +30,12 @@ export class PermissionController {
     return this.permissionService.findByName(name);
   }
   @Patch()
+  @HttpCode(HttpStatus.OK)
   async update(@Body() udpatePermissionDto: udpatePermissionDto) {
     return this.permissionService.update(udpatePermissionDto);
   }
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {
     return this.permissionService.remove(id);
   }

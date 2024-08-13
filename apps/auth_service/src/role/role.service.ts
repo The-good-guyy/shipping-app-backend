@@ -12,47 +12,57 @@ export class RoleService {
     private readonly roleRepository: RoleRepository,
     private readonly permissionService: PermissionService,
   ) {}
-  // async create(createRoleDto: createRoleDto, permissions: Permission[]) {
-  //   return await this.roleRepository.create(createRoleDto, permissions);
-  // }
-  async create(
-    createRoleDto: createRoleDto,
-    permissionsCode: string[],
-  ): Promise<Role>;
-  async create(
-    createRoleDto: createRoleDto,
-    permissionsCode: number[],
-  ): Promise<Role>;
-
-  async create(
-    createRoleDto: createRoleDto,
-    permissionsCode: string[] | number[],
-  ): Promise<Role> {
-    if (permissionsCode === undefined || permissionsCode.length === 0) {
-      return await this.roleRepository.create({
-        ...createRoleDto,
-        permission: [],
-      });
-    }
-    const permissions: Permission[] = [];
-    if (typeof permissionsCode[0] === 'number') {
-      permissionsCode.forEach(async (code) => {
-        const permission = await this.permissionService.findById(
-          code as string,
-        );
-        permissions.push(permission);
-      });
-    } else {
-      permissionsCode.forEach(async (code) => {
-        const permission = await this.permissionService.findByName(code);
-        permissions.push(permission);
-      });
-    }
-    return this.roleRepository.create({
-      ...createRoleDto,
-      permission: permissions,
-    });
+  async create(createRoleDto: createRoleDto) {
+    return await this.roleRepository.create(createRoleDto);
   }
+  // async create(
+  //   createRoleDto: createRoleDto,
+  //   permissionsCode: string[],
+  // ): Promise<Role>;
+  // async create(
+  //   createRoleDto: createRoleDto,
+  //   permissionsCode: number[],
+  // ): Promise<Role>;
+  // async create(
+  //   createRoleDto: createRoleDto,
+  //   permissionsCode: Permission[],
+  // ): Promise<Role>;
+
+  // async create(
+  //   createRoleDto: createRoleDto,
+  //   permissionsCode: string[] | number[] | Permission[],
+  // ): Promise<Role> {
+  //   if (permissionsCode === undefined || permissionsCode.length === 0) {
+  //     return await this.roleRepository.create({
+  //       ...createRoleDto,
+  //     });
+  //   }
+  //   const permissions: Permission[] = [];
+  //   if (typeof permissionsCode[0] === 'number') {
+  //     permissionsCode.forEach(async (code) => {
+  //       const permission = await this.permissionService.findById(
+  //         code as string,
+  //       );
+  //       permissions.push(permission);
+  //     });
+  //   } else if (typeof permissionsCode[0] === 'string') {
+  //     permissionsCode.forEach(async (code) => {
+  //       const permission = await this.permissionService.findByName(code);
+  //       permissions.push(permission);
+  //     });
+  //   } else {
+  //     permissionsCode.forEach(async (permission) => {
+  //       const newPermission = await this.permissionService.findById(
+  //         permission.id,
+  //       );
+  //       permissions.push(newPermission);
+  //     });
+  //   }
+  //   return this.roleRepository.create({
+  //     ...createRoleDto,
+  //     permission: permissions,
+  //   });
+  // }
   async remove(roleId: string) {
     await this.roleRepository.findByCode(roleId);
     await this.roleRepository.remove(roleId);
@@ -65,10 +75,6 @@ export class RoleService {
     const role = await this.roleRepository.findByName(roleName);
     return role;
   }
-  // async asignPermission(role: Role, permissions: Permission[]) {
-  //   await this.roleRepository.findByCode(role.id);
-  //   return this.roleRepository.updatePermission(role, permissions);
-  // }
   async update(updateRoleDto: updateRoleDto) {
     await this.roleRepository.findByCode(updateRoleDto.id);
     return this.roleRepository.update(updateRoleDto);
