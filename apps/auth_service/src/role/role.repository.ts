@@ -31,9 +31,10 @@ export class RoleRepository {
   }
   async update(updateRoleDto: Partial<updateRoleDto>) {
     const updatedRole = this.roleRepository.create(updateRoleDto);
+    console.log(updatedRole);
     return await this.roleRepository.save(updatedRole);
   }
-  async findByCode(roleId: string) {
+  async findByCode(roleId: string): Promise<Role> {
     const role = await this.roleRepository.findOne({
       where: { id: roleId },
       relations: ['permission'],

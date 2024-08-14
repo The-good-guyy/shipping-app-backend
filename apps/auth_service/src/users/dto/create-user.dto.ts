@@ -8,8 +8,15 @@ import {
   IsUrl,
   IsOptional,
 } from 'class-validator';
-import { Role } from '../entities/role.entity';
-export class createUserDto {
+import { UserInterface } from '../entities/user.interface';
+import { Role } from '../../role/entities/role.entity';
+export class createUserDto
+  implements
+    Pick<
+      UserInterface,
+      'email' | 'password' | 'username' | 'role' | 'profileImage'
+    >
+{
   @IsNotEmpty()
   @IsEmail()
   email: string;

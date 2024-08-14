@@ -11,7 +11,7 @@ import { Role } from './role.entity';
 @Entity({ name: 'user' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  uuid: string;
+  id: string;
 
   @Column({ unique: true })
   email: string;
@@ -28,6 +28,9 @@ export class User {
   })
   profileImage: string;
 
+  @Column({ default: false })
+  isVerified: boolean;
+
   @OneToOne(() => Role, { cascade: true })
   @JoinColumn()
   role: Role;
@@ -41,6 +44,7 @@ export class User {
   @BeforeInsert()
   protected setCreatedAt(): void {
     this.createdAt = new Date();
+    this.updatedAt = new Date();
   }
 
   @BeforeUpdate()

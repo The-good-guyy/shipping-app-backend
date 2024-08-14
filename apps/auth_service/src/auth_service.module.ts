@@ -27,7 +27,7 @@ import { RoleModule } from './role/role.module';
     }),
     DatabaseModule,
     PermissionModule,
-    // RoleModule,
+    RoleModule,
     // AuthModule,
   ],
   controllers: [AuthServiceController],

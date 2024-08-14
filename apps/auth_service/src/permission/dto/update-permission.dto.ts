@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
 import { PermissionObject, PermissionAction } from '../../common/constraints';
-import { PermissionIntefrace } from '../entities/permission.interface';
+import { PermissionInterface } from '../entities/permission.interface';
 export class udpatePermissionDto
   implements
-    Pick<PermissionIntefrace, 'id' | 'permission' | 'action' | 'object'>
+    Pick<PermissionInterface, 'id' | 'permission' | 'action' | 'object'>
 {
   @IsNotEmpty()
   @IsString()

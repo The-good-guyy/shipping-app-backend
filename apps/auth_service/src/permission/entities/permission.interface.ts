@@ -1,5 +1,5 @@
 import { PermissionAction, PermissionObject } from '../../common/constraints';
-export interface PermissionIntefrace {
+export interface PermissionInterface {
   id: string;
   permission: string;
   action: PermissionAction;
