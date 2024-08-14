@@ -26,8 +26,8 @@ export class PermissionController {
   }
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findOneByName(@Body() name: string) {
-    return this.permissionService.findByName(name);
+  async findOneByName(@Body() findByNameDto: { name: string }) {
+    return this.permissionService.findByName(findByNameDto.name);
   }
   @Patch()
   @HttpCode(HttpStatus.OK)

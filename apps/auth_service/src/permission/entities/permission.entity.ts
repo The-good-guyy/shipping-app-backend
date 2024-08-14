@@ -12,7 +12,7 @@ import {
 } from 'apps/auth_service/src/common/constraints';
 @Entity({ name: 'permission' })
 export class Permission {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ unique: true })

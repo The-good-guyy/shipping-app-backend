@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigService } from '@nestjs/config';
-// import { User } from '../auth/entities/user.entity';
-// import { User } from '../users/entities/user.entity';
-// import { Role } from '../users/entities/role.entity';
+import { Role } from '../role/entities/role.entity';
 import { Permission } from '../permission/entities/permission.entity';
+import { ConfigService } from '@nestjs/config';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -16,7 +14,7 @@ import { Permission } from '../permission/entities/permission.entity';
         username: configService.getOrThrow('POSTGRES_USER'),
         password: configService.getOrThrow('POSTGRES_PASSWORD'),
         database: configService.getOrThrow('POSTGRES_DB'),
-        entities: [Permission],
+        entities: [Permission, Role],
         autoLoadEntities: true,
         synchronize: configService.getOrThrow('POSTGRES_SYNCHRONIZE'),
       }),

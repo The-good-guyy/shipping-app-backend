@@ -26,8 +26,8 @@ export class RoleController {
   }
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findOneByName(@Body() name: string) {
-    return this.roleService.findByName(name);
+  async findOneByName(@Body() findOneByNameDto: { name: string }) {
+    return this.roleService.findByName(findOneByNameDto.name);
   }
   @Patch()
   @HttpCode(HttpStatus.OK)
@@ -37,10 +37,13 @@ export class RoleController {
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   async updatePermission(
-    @Body() permissionCode: number[],
+    @Body() updatePermissionDto: { permissionCode: string[] },
     @Param('id') id: string,
   ) {
-    return this.roleService.updatePermission(id, permissionCode);
+    return this.roleService.updatePermission(
+      id,
+      updatePermissionDto.permissionCode,
+    );
   }
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

@@ -95,20 +95,45 @@ export class RoleService {
       permission: permissions,
     });
   }
+  // async updatePermission(
+  //   roleId: string,
+  //   permissionsCode: string[],
+  // ): Promise<Role>;
+  // async updatePermission(
+  //   roleId: string,
+  //   permissionsCode: number[],
+  // ): Promise<Role>;
 
-  //Will use generic in the future
+  // async updatePermission(
+  //   roleId: string,
+  //   permissionsCode: string[] | number[],
+  // ): Promise<Role> {
+  //   if (permissionsCode === undefined || permissionsCode.length === 0) {
+  //     throw new NotAcceptableException(
+  //       EErrorMessage.SOME_PERMISSIONS_NOT_FOUND,
+  //     );
+  //   }
+  //   const role = await this.roleRepository.findByCode(roleId);
+  //   const permissions: Permission[] = [];
+  //   if (typeof permissionsCode[0] === 'number') {
+  //     permissionsCode.forEach(async (code) => {
+  //       const permission = await this.permissionService.findById(
+  //         code as string,
+  //       );
+  //       permissions.push(permission);
+  //     });
+  //   } else {
+  //     permissionsCode.forEach(async (code) => {
+  //       const permission = await this.permissionService.findByName(code);
+  //       permissions.push(permission);
+  //     });
+  //   }
+  //   return this.roleRepository.updatePermissionOnRole(role, permissions);
+  // }
+
   async updatePermission(
     roleId: string,
     permissionsCode: string[],
-  ): Promise<Role>;
-  async updatePermission(
-    roleId: string,
-    permissionsCode: number[],
-  ): Promise<Role>;
-
-  async updatePermission(
-    roleId: string,
-    permissionsCode: string[] | number[],
   ): Promise<Role> {
     if (permissionsCode === undefined || permissionsCode.length === 0) {
       throw new NotAcceptableException(
@@ -117,19 +142,10 @@ export class RoleService {
     }
     const role = await this.roleRepository.findByCode(roleId);
     const permissions: Permission[] = [];
-    if (typeof permissionsCode[0] === 'number') {
-      permissionsCode.forEach(async (code) => {
-        const permission = await this.permissionService.findById(
-          code as string,
-        );
-        permissions.push(permission);
-      });
-    } else {
-      permissionsCode.forEach(async (code) => {
-        const permission = await this.permissionService.findByName(code);
-        permissions.push(permission);
-      });
-    }
+    permissionsCode.forEach(async (code) => {
+      const permission = await this.permissionService.findById(code);
+      permissions.push(permission);
+    });
     return this.roleRepository.updatePermissionOnRole(role, permissions);
   }
 }
