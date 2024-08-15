@@ -59,6 +59,9 @@ importers:
       cookie-parser:
         specifier: ^1.4.6
         version: 1.4.6
+      ioredis:
+        specifier: ^5.4.1
+        version: 5.4.1
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -3680,8 +3683,7 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
-  '@ioredis/commands@1.2.0':
-    optional: true
+  '@ioredis/commands@1.2.0': {}
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -4967,8 +4969,7 @@ snapshots:
 
   denque@1.5.1: {}
 
-  denque@2.1.0:
-    optional: true
+  denque@2.1.0: {}
 
   depd@2.0.0: {}
 
@@ -5538,7 +5539,6 @@ snapshots:
       standard-as-callback: 2.1.0
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   ipaddr.js@1.9.1: {}
 
@@ -6035,13 +6035,11 @@ snapshots:
 
   lodash.clonedeep@4.5.0: {}
 
-  lodash.defaults@4.2.0:
-    optional: true
+  lodash.defaults@4.2.0: {}
 
   lodash.includes@4.3.0: {}
 
-  lodash.isarguments@3.1.0:
-    optional: true
+  lodash.isarguments@3.1.0: {}
 
   lodash.isboolean@3.0.3: {}
 
@@ -6658,8 +6656,7 @@ snapshots:
     dependencies:
       escape-string-regexp: 2.0.0
 
-  standard-as-callback@2.1.0:
-    optional: true
+  standard-as-callback@2.1.0: {}
 
   statuses@2.0.1: {}
 

@@ -9,7 +9,7 @@ import { IsString } from 'class-validator';
 import {
   PermissionAction,
   PermissionObject,
-} from 'apps/auth_service/src/common/constraints';
+} from 'apps/auth_service/src/common/constants';
 @Entity({ name: 'permission' })
 export class Permission {
   @PrimaryGeneratedColumn('uuid')

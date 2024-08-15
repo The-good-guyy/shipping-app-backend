@@ -4,7 +4,7 @@ import { createRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
 import { Role } from './entities/role.entity';
 import { PermissionService } from '../permission/permission.service';
-import { EErrorMessage } from '../common/constraints';
+import { EErrorMessage } from '../common/constants';
 import { updateRoleDto } from './dto';
 @Injectable()
 export class RoleService {

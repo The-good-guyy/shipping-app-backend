@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
-import { PermissionObject, PermissionAction } from '../../common/constraints';
+import { PermissionObject, PermissionAction } from '../../common/constants';
 import { PermissionInterface } from '../entities/permission.interface';
 export class udpatePermissionDto
   implements

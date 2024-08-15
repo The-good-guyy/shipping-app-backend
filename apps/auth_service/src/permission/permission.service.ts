@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { getChangedFields } from '../common/helpers';
 import { createPermissionDto, udpatePermissionDto } from './dto';
 import { PermissionRepository } from './permission.repository';
-import { EErrorMessage } from '../common/constraints';
+import { EErrorMessage } from '../common/constants';
 @Injectable()
 export class PermissionService {
   constructor(private readonly permissionRepository: PermissionRepository) {}

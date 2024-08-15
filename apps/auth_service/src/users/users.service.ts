@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { EErrorMessage } from '../common/constraints';
+import { EErrorMessage } from '../common/constants';
 import { UserRepository } from './users.repository';
 import { createUserDto, updateUserDto } from './dto';
 import { getChangedFields } from '../common/helpers';

@@ -1,35 +1,30 @@
 import {
   Injectable,
   UnprocessableEntityException,
-  Inject,
   ForbiddenException,
 } from '@nestjs/common';
 import { createUserDto, loginUserDto } from './dto';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { User } from './entities/user.entity';
+import { UserService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { RedisService } from '../redis/redis.service';
+import { RoleService } from '../role/role.service';
 import { Tokens } from './types';
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    private jwtService: JwtService,
-    private config: ConfigService,
+    private readonly usersService: UserService,
+    private readonly redisService: RedisService,
+    private readonly roleService: RoleService,
+    private readonly jwtService: JwtService,
+    private readonly config: ConfigService,
   ) {}
   hashData(data: string) {
     return bcrypt.hash(data, 10);
   }
   updateRtHash(userId: string, rt: string) {
-    this.cacheManager.set(userId, rt, {
-      ttl: 60 * 60 * 24 * 27,
-    });
+    this.redisService.insert(userId, rt);
   }
   async getTokens(userId: string, email: string, role: string) {
     const [at, rt] = await Promise.all([

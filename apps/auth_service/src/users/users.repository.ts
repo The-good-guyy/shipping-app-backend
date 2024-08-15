@@ -3,7 +3,7 @@ import { createUserDto, updateUserDto } from './dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { EErrorMessage } from '../common/constraints';
+import { EErrorMessage } from '../common/constants';
 import { getCols } from '../common/helpers';
 @Injectable()
 export class UserRepository {

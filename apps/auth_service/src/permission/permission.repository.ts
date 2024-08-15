@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entities/permission.entity';
 import { createPermissionDto, udpatePermissionDto } from './dto';
-import { EErrorMessage } from '../common/constraints';
+import { EErrorMessage } from '../common/constants';
 @Injectable()
 export class PermissionRepository {
   constructor(
