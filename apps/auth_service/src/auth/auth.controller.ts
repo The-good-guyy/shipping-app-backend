@@ -12,7 +12,6 @@ import { AuthService } from './auth.service';
 import { createUserDto, loginUserDto } from './dto';
 import { AtGuard, RtGuard } from '../common/guard';
 import { GetCurrentUser } from '../common/decorators';
-import { userDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -47,7 +46,7 @@ export class AuthController {
   @UseGuards(AtGuard)
   @Get('/getMe')
   @HttpCode(HttpStatus.OK)
-  getMe(@GetCurrentUser('sub') userId: string): Promise<Partial<userDto>> {
+  getMe(@GetCurrentUser('sub') userId: string) {
     console.log(userId);
     return this.authService.getMe(userId);
   }

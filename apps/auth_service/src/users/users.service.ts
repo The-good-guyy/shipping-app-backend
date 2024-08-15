@@ -34,4 +34,12 @@ export class UserService {
   async updatePassword(userId: string, password: string) {
     return this.userRepository.updatePassword(userId, password);
   }
+  async findByEmail(email: string) {
+    return this.userRepository.findByEmail(email);
+  }
+  async findByEmailWithSensitiveInfo(email: string) {
+    const fields = this.userRepository.getColsUser();
+    const user = await this.userRepository.findByEmail(email, fields);
+    return user;
+  }
 }

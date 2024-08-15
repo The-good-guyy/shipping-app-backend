@@ -68,4 +68,20 @@ export class UserRepository {
     const fields = getCols(this.usersRepository);
     return fields;
   }
+  async findByEmail(email: string, fields: (keyof User)[] = []) {
+    if (!Array.isArray(fields) || !fields.length) {
+      fields = getCols(this.usersRepository);
+      fields = fields.filter((obj) => obj != 'password');
+    }
+    const user = await this.usersRepository.findOne({
+      where: { email },
+      select: fields,
+      relations: {
+        role: {
+          permission: true,
+        },
+      },
+    });
+    return user;
+  }
 }

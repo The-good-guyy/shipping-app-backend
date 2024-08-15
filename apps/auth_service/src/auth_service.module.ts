@@ -3,7 +3,7 @@ import { AuthServiceController } from './auth_service.controller';
 import { AuthServiceService } from './auth_service.service';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
-// import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module';
 import { PermissionModule } from './permission/permission.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import type { RedisClientOptions } from 'redis';
@@ -15,14 +15,14 @@ import { RedisModule } from './redis/redis.module';
 // Don't update cache manager , redis only compatible with cache-manager version 2.0.0
 @Module({
   imports: [
-    CacheModule.register<RedisClientOptions>({
-      isGlobal: true,
-      store: redisStore,
-      socket: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
+    // CacheModule.register<RedisClientOptions>({
+    //   isGlobal: true,
+    //   store: redisStore,
+    //   socket: {
+    //     host: 'localhost',
+    //     port: 6379,
+    //   },
+    // }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['./env/postgres.env', './env/jwt.env', './env/redis.env'],
