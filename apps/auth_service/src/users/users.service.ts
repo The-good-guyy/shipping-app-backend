@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { EErrorMessage } from '../common/constraints';
 import { UserRepository } from './users.repository';
 import { createUserDto, updateUserDto } from './dto';
 import { getChangedFields } from '../common/helpers';
@@ -14,10 +15,12 @@ export class UserService {
     await this.userRepository.remove(userId);
   }
   async update(input: updateUserDto) {
-    const existingEntity = await this.userRepository.findByCode(input.uuid);
-
+    const existingEntity = await this.userRepository.findByCode(input.id);
+    if (!existingEntity) {
+      throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    }
     const updatedData = getChangedFields<updateUserDto>(existingEntity, input);
-    return await this.userRepository.update(input.uuid, updatedData);
+    return await this.userRepository.update(existingEntity, updatedData);
   }
   async findById(userId: string) {
     const user = await this.userRepository.findByCode(userId);
@@ -27,5 +30,8 @@ export class UserService {
     const fields = this.userRepository.getColsUser();
     const user = await this.userRepository.findByCode(userId, fields);
     return user;
+  }
+  async updatePassword(userId: string, password: string) {
+    this.userRepository.updatePassword(userId, password);
   }
 }

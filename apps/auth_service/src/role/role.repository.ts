@@ -5,8 +5,6 @@ import { Role } from './entities/role.entity';
 import { EErrorMessage } from '../common/constraints';
 import { createRoleDto, updateRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
-import { UserRole } from '../common/constraints';
-import { stringToEnum } from '../common/helpers';
 @Injectable()
 export class RoleRepository {
   constructor(
@@ -29,9 +27,8 @@ export class RoleRepository {
     });
     if (role) this.roleRepository.delete(role);
   }
-  async update(updateRoleDto: Partial<updateRoleDto>) {
+  async update(updateRoleDto: updateRoleDto) {
     const updatedRole = this.roleRepository.create(updateRoleDto);
-    console.log(updatedRole);
     return await this.roleRepository.save(updatedRole);
   }
   async findByCode(roleId: string): Promise<Role> {
@@ -49,10 +46,6 @@ export class RoleRepository {
     return await this.roleRepository.save(updatedRole);
   }
   async findByName(roleName: string) {
-    const enumValue = stringToEnum(UserRole, roleName);
-    if (!enumValue) {
-      throw new NotFoundException(EErrorMessage.SOME_ROLES_NOT_FOUND);
-    }
     const role = await this.roleRepository.findOne({
       where: { role: roleName },
       relations: ['permission'],

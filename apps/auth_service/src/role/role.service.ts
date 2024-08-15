@@ -1,4 +1,4 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { RoleRepository } from './role.repository';
 import { createRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
@@ -17,6 +17,9 @@ export class RoleService {
     const permissions: Permission[] = [];
     for await (const p of permission) {
       const searchPermission = await this.permissionService.findById(p.id);
+      if (!searchPermission) {
+        throw new NotFoundException(EErrorMessage.SOME_PERMISSIONS_NOT_FOUND);
+      }
       permissions.push(searchPermission);
     }
     return await this.roleRepository.create({
@@ -37,11 +40,17 @@ export class RoleService {
     return role;
   }
   async update(updateRoleDto: updateRoleDto) {
-    await this.roleRepository.findByCode(updateRoleDto.id);
+    const role = await this.roleRepository.findByCode(updateRoleDto.id);
+    if (!role) {
+      throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    }
     const permission = updateRoleDto.permission;
     const permissions: Permission[] = [];
     for await (const p of permission) {
       const searchPermission = await this.permissionService.findById(p.id);
+      if (!searchPermission) {
+        throw new NotFoundException(EErrorMessage.SOME_PERMISSIONS_NOT_FOUND);
+      }
       permissions.push(searchPermission);
     }
     return await this.roleRepository.update({
@@ -91,16 +100,20 @@ export class RoleService {
     permissionsCode: string[],
   ): Promise<Role> {
     if (permissionsCode === undefined || permissionsCode.length === 0) {
-      throw new NotAcceptableException(
-        EErrorMessage.SOME_PERMISSIONS_NOT_FOUND,
-      );
+      throw new NotFoundException(EErrorMessage.SOME_PERMISSIONS_NOT_FOUND);
     }
     const role = await this.roleRepository.findByCode(roleId);
+    if (!role) {
+      throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    }
     const permissions: Permission[] = [];
-    permissionsCode.forEach(async (code) => {
-      const permission = await this.permissionService.findById(code);
-      permissions.push(permission);
-    });
+    for await (const p of permissionsCode) {
+      const searchPermission = await this.permissionService.findById(p);
+      if (!searchPermission) {
+        throw new NotFoundException(EErrorMessage.SOME_PERMISSIONS_NOT_FOUND);
+      }
+      permissions.push(searchPermission);
+    }
     return this.roleRepository.updatePermissionOnRole(role, permissions);
   }
 }

@@ -23,16 +23,16 @@ export class UserRepository {
   }
   async remove(userId: string): Promise<void> {
     const user = await this.usersRepository.findOne({
-      where: { uuid: userId },
+      where: { id: userId },
     });
     if (user) this.usersRepository.delete(user);
   }
-  async update(userId: string, input: Partial<updateUserDto>) {
-    // const user = await this.usersRepository.findOne({
-    //   where: { uuid: userId },
-    // });
-    //   return await this.usersRepository.save({ ...user, ...input });
-    return await this.usersRepository.update(userId, input);
+  async update(user: User, input: Partial<updateUserDto>) {
+    if (input.id) {
+      delete input['id'];
+    }
+    const updatedUser = this.usersRepository.create({ ...user, ...input });
+    return await this.usersRepository.save(updatedUser);
   }
   // async findByCode(userId: string) {
   //   const user = await this.usersRepository.findOne({
@@ -52,7 +52,7 @@ export class UserRepository {
       fields = fields.filter((obj) => obj != 'password');
     }
     const user = await this.usersRepository.findOne({
-      where: { uuid: userId },
+      where: { id: userId },
       select: fields,
       relations: {
         role: {
@@ -65,7 +65,7 @@ export class UserRepository {
   }
   async updatePassword(userId: string, password: string) {
     const user = await this.usersRepository.findOne({
-      where: { uuid: userId },
+      where: { id: userId },
     });
     if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
     return await this.usersRepository.save({ ...user, password });

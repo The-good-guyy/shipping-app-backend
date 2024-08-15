@@ -7,7 +7,7 @@ import {
   BeforeUpdate,
   BeforeInsert,
 } from 'typeorm';
-import { Role } from './role.entity';
+import { Role } from '../../role/entities/role.entity';
 @Entity({ name: 'user' })
 export class User {
   @PrimaryGeneratedColumn('uuid')

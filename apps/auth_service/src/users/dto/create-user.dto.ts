@@ -10,11 +10,15 @@ import {
 } from 'class-validator';
 import { UserInterface } from '../entities/user.interface';
 import { Role } from '../../role/entities/role.entity';
+import { PartialPick } from '../../common/types';
 export class createUserDto
   implements
-    Pick<
-      UserInterface,
-      'email' | 'password' | 'username' | 'role' | 'profileImage'
+    PartialPick<
+      Pick<
+        UserInterface,
+        'email' | 'password' | 'username' | 'role' | 'profileImage'
+      >,
+      'profileImage'
     >
 {
   @IsNotEmpty()

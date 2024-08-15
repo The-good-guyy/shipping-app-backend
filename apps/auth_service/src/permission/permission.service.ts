@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { getChangedFields } from '../common/helpers';
 import { createPermissionDto, udpatePermissionDto } from './dto';
 import { PermissionRepository } from './permission.repository';
-
+import { EErrorMessage } from '../common/constraints';
 @Injectable()
 export class PermissionService {
   constructor(private readonly permissionRepository: PermissionRepository) {}
@@ -26,7 +26,9 @@ export class PermissionService {
   }
   async update(input: udpatePermissionDto) {
     const existingEntity = await this.permissionRepository.findByCode(input.id);
-
+    if (!existingEntity) {
+      throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    }
     const updatedData = getChangedFields<udpatePermissionDto>(
       existingEntity,
       input,

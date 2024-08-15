@@ -6,7 +6,7 @@ export interface UserInterface {
   email: string;
   profileImage: string;
   isVerified: boolean;
-  role: Role[];
+  role: Role;
   createdAt: Date;
   updatedAt: Date;
 }

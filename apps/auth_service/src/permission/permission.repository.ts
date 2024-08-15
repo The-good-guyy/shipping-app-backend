@@ -34,6 +34,9 @@ export class PermissionRepository {
   //   });
   // }
   async update(permission: Permission, input: Partial<udpatePermissionDto>) {
+    if (input.id) {
+      delete input['id'];
+    }
     const updatedPermission = this.permissionRepository.create({
       ...permission,
       ...input,
