@@ -16,9 +16,11 @@ export class UserRepository {
       where: { email: createUserDto.email },
     });
     if (user) throw new NotFoundException(EErrorMessage.ENTITY_EXISTED);
-    const newUser = this.usersRepository.create({
+    let newUser = this.usersRepository.create({
       ...createUserDto,
     });
+    newUser = await this.usersRepository.save(newUser);
+    delete newUser.password;
     return newUser;
   }
   async remove(userId: string): Promise<void> {
@@ -34,18 +36,6 @@ export class UserRepository {
     const updatedUser = this.usersRepository.create({ ...user, ...input });
     return await this.usersRepository.save(updatedUser);
   }
-  // async findByCode(userId: string) {
-  //   const user = await this.usersRepository.findOne({
-  //     where: { uuid: userId },
-  //     relations: {
-  //       role: {
-  //         permission: true,
-  //       },
-  //     },
-  //   });
-  //   if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
-  //   return user;
-  // }
   async findByCode(userId: string, fields: (keyof User)[] = []) {
     if (!Array.isArray(fields) || !fields.length) {
       fields = getCols(this.usersRepository);
@@ -60,7 +50,6 @@ export class UserRepository {
         },
       },
     });
-    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
     return user;
   }
   async updatePassword(userId: string, password: string) {
@@ -68,7 +57,12 @@ export class UserRepository {
       where: { id: userId },
     });
     if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
-    return await this.usersRepository.save({ ...user, password });
+    const updatedUser = this.usersRepository.create({
+      ...user,
+      password,
+    });
+    await this.usersRepository.save(updatedUser);
+    return true;
   }
   getColsUser() {
     const fields = getCols(this.usersRepository);

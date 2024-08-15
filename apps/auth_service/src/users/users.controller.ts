@@ -34,4 +34,17 @@ export class UsersController {
   async remove(@Param('id') id: string) {
     return this.userService.remove(id);
   }
+  @Get(':id/sensitive')
+  @HttpCode(HttpStatus.OK)
+  async findByIdWithSensitiveInfo(@Param('id') id: string) {
+    return this.userService.findByIdWithSensitiveInfo(id);
+  }
+  @Patch(':id/password')
+  @HttpCode(HttpStatus.OK)
+  async updatePassword(
+    @Param('id') id: string,
+    @Body('password') password: string,
+  ) {
+    return this.userService.updatePassword(id, password);
+  }
 }

@@ -32,6 +32,6 @@ export class UserService {
     return user;
   }
   async updatePassword(userId: string, password: string) {
-    this.userRepository.updatePassword(userId, password);
+    return this.userRepository.updatePassword(userId, password);
   }
 }
