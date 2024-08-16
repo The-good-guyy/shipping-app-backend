@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { IORedisKey } from '../common/constants';
-
 @Injectable()
 export class RedisService {
   constructor(
@@ -13,8 +12,16 @@ export class RedisService {
     return await this.redisClient.keys(pattern);
   }
 
-  async insert(key: string, value: string | number): Promise<void> {
-    await this.redisClient.set(key, value);
+  async insert(
+    key: string,
+    value: string | number,
+    ex?: number,
+  ): Promise<void> {
+    if (!ex) {
+      this.redisClient.set(key, value);
+    } else {
+      this.redisClient.set(key, value, 'EX', ex);
+    }
   }
 
   async get(key: string): Promise<string> {

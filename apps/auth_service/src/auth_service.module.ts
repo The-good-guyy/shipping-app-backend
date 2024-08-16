@@ -32,7 +32,7 @@ import { RedisModule } from './redis/redis.module';
     PermissionModule,
     RoleModule,
     UserModule,
-    // AuthModule,
+    AuthModule,
   ],
   controllers: [AuthServiceController],
   providers: [AuthServiceService],

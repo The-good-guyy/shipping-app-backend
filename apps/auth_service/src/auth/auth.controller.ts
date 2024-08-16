@@ -21,7 +21,7 @@ export class AuthController {
   signInLocal(@Body() createUserDto: createUserDto): Promise<Tokens> {
     return this.authService.signUpLocal(createUserDto);
   }
-  @Post('local/sigin')
+  @Post('local/signin')
   @HttpCode(HttpStatus.OK)
   siginLocal(@Body() loginUserDto: loginUserDto): Promise<Tokens> {
     return this.authService.signInLocal(loginUserDto);
