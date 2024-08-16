@@ -17,12 +17,12 @@ import { userDto } from './dto';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-  @Post('local/signup')
+  @Post('/local/signup')
   @HttpCode(HttpStatus.CREATED)
   signInLocal(@Body() createUserDto: createUserDto): Promise<Tokens> {
     return this.authService.signUpLocal(createUserDto);
   }
-  @Post('local/sigin')
+  @Post('/local/signin')
   @HttpCode(HttpStatus.OK)
   siginLocal(@Body() loginUserDto: loginUserDto): Promise<Tokens> {
     return this.authService.signInLocal(loginUserDto);
@@ -50,5 +50,10 @@ export class AuthController {
   getMe(@GetCurrentUser('sub') userId: string): Promise<Partial<userDto>> {
     console.log(userId);
     return this.authService.getMe(userId);
+  }
+
+  @Get()
+  getHello(): string {
+    return 'get auth';
   }
 }

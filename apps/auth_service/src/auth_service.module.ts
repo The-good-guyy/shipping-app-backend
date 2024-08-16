@@ -22,7 +22,7 @@ import * as redisStore from 'cache-manager-redis-store';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['./env/postgres.env', './env/jwt.env'],
+      envFilePath: ['./env/postgres.env', './env/jwt.env', './env/.env'],
     }),
     DatabaseModule,
     AuthModule,

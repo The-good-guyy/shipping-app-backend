@@ -36,6 +36,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/api_gateway/tsconfig.app.json"
       }
+    },
+    "notification_service": {
+      "type": "application",
+      "root": "apps/notification_service",
+      "entryFile": "main",
+      "sourceRoot": "apps/notification_service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/notification_service/tsconfig.app.json"
+      }
     }
   }
 }
