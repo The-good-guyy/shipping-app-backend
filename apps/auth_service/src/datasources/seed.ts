@@ -4,7 +4,7 @@ import { Role } from '../role/entities/role.entity';
 import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
-
+import InitSeeder from '../seeds/init.seeder';
 config();
 
 const configService = new ConfigService();
@@ -16,7 +16,7 @@ const PostgresDataSource = new DataSource({
   password: configService.getOrThrow('POSTGRES_PASSWORD'),
   database: configService.getOrThrow('POSTGRES_DB'),
   entities: [User, Permission, Role],
-  migrations: ['./src/seeds/*.ts'],
+  migrations: [InitSeeder],
 });
 
 export default PostgresDataSource;

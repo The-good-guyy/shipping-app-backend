@@ -5,7 +5,7 @@ export const permissionData: Array<
   Pick<PermissionInterface, 'permission' | 'action' | 'object'>
 > = [
   {
-    permission: 'read_user',
+    permission: 'read_users',
     action: PermissionAction.READ,
     object: PermissionObject.USER,
   },
@@ -15,7 +15,7 @@ export const permissionData: Array<
     object: PermissionObject.ROUTE,
   },
   {
-    permission: 'create_user',
+    permission: 'create_users',
     action: PermissionAction.CREATE,
     object: PermissionObject.USER,
   },
@@ -25,7 +25,7 @@ export const permissionData: Array<
     object: PermissionObject.ROUTE,
   },
   {
-    permission: 'delete_user',
+    permission: 'delete_users',
     action: PermissionAction.DELETE,
     object: PermissionObject.USER,
   },
@@ -35,7 +35,7 @@ export const permissionData: Array<
     object: PermissionObject.ROUTE,
   },
   {
-    permission: 'update_user',
+    permission: 'update_users',
     action: PermissionAction.UPDATE,
     object: PermissionObject.USER,
   },
@@ -45,7 +45,7 @@ export const permissionData: Array<
     object: PermissionObject.ROUTE,
   },
   {
-    permission: 'manage_user',
+    permission: 'manage_users',
     action: PermissionAction.MANAGE,
     object: PermissionObject.USER,
   },
