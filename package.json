@@ -19,10 +19,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/shipping_routes_app/test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate ./src/migrations/add-address-column-to-user-table -d ./src/datasources/migration.ts",
-    "migration:run": "npx typeorm-ts-node-commonjs migration:run -d ./src/datasources/migration.ts",
-    "seed:create": "npx typeorm-ts-node-commonjs migration:create ./src/seeds/seed-user-data -- -d ./src/datasources/seed.ts",
-    "seed:run": "npx typeorm-ts-node-commonjs migration:run -d ./src/datasources/seed.ts"
+    "auth_migration:generate": "npx typeorm-ts-node-commonjs migration:generate ./apps/auth_service/src/migrations/add-address-column-to-user-table -d ./apps/auth_service/src/datasources/migration.ts",
+    "auth_migration:run": "npx typeorm-ts-node-commonjs migration:run -d ./apps/auth_service/src/datasources/migration.ts",
+    "auth_seed:run": "npx ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d .apps/auth_service/src/datasources/seed.ts"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.2.2",

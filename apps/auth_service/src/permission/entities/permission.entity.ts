@@ -6,10 +6,7 @@ import {
   BeforeUpdate,
 } from 'typeorm';
 import { IsString } from 'class-validator';
-import {
-  PermissionAction,
-  PermissionObject,
-} from 'apps/auth_service/src/common/constants';
+import { PermissionAction, PermissionObject } from '../../common/constants';
 @Entity({ name: 'permission' })
 export class Permission {
   @PrimaryGeneratedColumn('uuid')
