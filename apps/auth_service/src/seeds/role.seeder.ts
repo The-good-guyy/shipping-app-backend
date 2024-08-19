@@ -35,7 +35,15 @@ export class RoleSeeder implements Seeder {
     user_role.permission = [read_routes, read_users];
     const admin_role = roleData.find((role) => role.role === 'admin');
     admin_role.permission = [manage_routes, manage_users];
-    await roleRepository.save(user_role);
-    await roleRepository.save(admin_role);
+    await roleRepository.save({
+      ...user_role,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    await roleRepository.save({
+      ...admin_role,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
   }
 }

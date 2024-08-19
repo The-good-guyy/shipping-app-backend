@@ -10,7 +10,10 @@ export class UserSeeder implements Seeder {
   ): Promise<void> {
     const roleRepository = dataSource.getRepository(Role);
     const userRepository = dataSource.getRepository(User);
-    const user_role = await roleRepository.findOne({ where: { role: 'user' } });
+    const user_role = await roleRepository.findOne({
+      where: { role: 'user' },
+      relations: ['permission'],
+    });
     const userFactory = factoryManager.get(User);
     let users = await userFactory.saveMany(10);
     users = users.map((user) => {

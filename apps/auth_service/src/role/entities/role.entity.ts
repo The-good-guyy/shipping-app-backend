@@ -16,7 +16,7 @@ export class Role {
   @Column({ unique: true })
   role: string;
 
-  @ManyToMany(() => Permission, { cascade: true })
+  @ManyToMany(() => Permission)
   @JoinTable()
   permission: Permission[];
 

@@ -2,7 +2,7 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToOne,
+  ManyToOne,
   JoinColumn,
   BeforeUpdate,
   BeforeInsert,
@@ -31,7 +31,7 @@ export class User {
   @Column({ default: false })
   isVerified: boolean;
 
-  @OneToOne(() => Role, { cascade: true })
+  @ManyToOne(() => Role)
   @JoinColumn()
   role: Role;
 

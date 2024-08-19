@@ -10,6 +10,8 @@ export const permissionFactory = setSeederFactory(
     permission.permission = faker.internet.domainWord();
     permission.action = faker.helpers.enumValue(PermissionAction);
     permission.object = faker.helpers.enumValue(PermissionObject);
+    permission.createdAt = new Date();
+    permission.updatedAt = new Date();
     return permission;
   },
 );
