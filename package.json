@@ -24,6 +24,7 @@
     "auth_seed:run": "npx ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d ./apps/auth_service/src/datasources/seed.ts"
   },
   "dependencies": {
+    "@kafkajs/confluent-schema-registry": "^3.3.0",
     "@nestjs/cache-manager": "^2.2.2",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.3",
@@ -43,10 +44,10 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
-    "ioredis": "^5.4.1",
-    "lodash": "^4.17.21",
     "http-proxy-middleware": "^3.0.0",
+    "ioredis": "^5.4.1",
     "kafkajs": "^2.2.4",
+    "lodash": "^4.17.21",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
