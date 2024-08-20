@@ -2,6 +2,7 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
 import { createUserDto, loginUserDto } from './dto';
 import * as bcrypt from 'bcrypt';
@@ -12,6 +13,9 @@ import { RedisService } from '../redis/redis.service';
 import { RoleService } from '../role/role.service';
 import { Tokens } from './types';
 import { EErrorMessage } from '../common/constants';
+import { KafkaService } from '../kafka';
+import { randomBytes } from 'crypto';
+import { confirmationEmailPrefix } from '../common/constants';
 @Injectable()
 export class AuthService {
   constructor(
@@ -20,12 +24,35 @@ export class AuthService {
     private readonly roleService: RoleService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    @Inject('AUTH_SERVICE') private client: KafkaService,
   ) {}
   hashData(data: string) {
     return bcrypt.hash(data, 10);
   }
   updateRtHash(userId: string, rt: string, ex?: number) {
     this.redisService.insert(userId, rt, ex);
+  }
+  sendConfirmationEmail(email: string) {
+    const time = this.config.get<number>('EXPIRE_CONFIR_EMAIL_TIME');
+    const token = randomBytes(32).toString('hex');
+    this.redisService.insert(
+      confirmationEmailPrefix + token,
+      email,
+      Number(time),
+    );
+    this.client.send({
+      topic: 'send-confirmation-email',
+      messages: [
+        { value: token, key: 'token' },
+        { value: email, key: 'email' },
+        { value: time, key: 'ttl' },
+      ],
+    });
+  }
+  async confirmEmail(token: string) {
+    const email = await this.redisService.get(confirmationEmailPrefix + token);
+    if (!email) throw new NotFoundException('Token is invalid or expired');
+    return await this.usersService.updateVerificationStatus(email);
   }
   async getTokens(userId: string, email: string) {
     const AT_TIME = Number(this.config.get<number>('AT_SECRET_TIME'));
@@ -57,6 +84,7 @@ export class AuthService {
     const newUser = { ...createUserDto, role, password: hashPassword };
     const searchUser = await this.usersService.create(newUser);
     const tokens = await this.getTokens(searchUser.id, searchUser.email);
+    this.sendConfirmationEmail(searchUser.email);
     this.updateRtHash(
       searchUser.id,
       tokens.refresh_token,

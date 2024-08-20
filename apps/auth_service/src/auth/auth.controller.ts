@@ -6,6 +6,8 @@ import {
   HttpStatus,
   UseGuards,
   Get,
+  Param,
+  Inject,
 } from '@nestjs/common';
 import { Tokens } from './types';
 import { AuthService } from './auth.service';
@@ -31,6 +33,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrentUser('sub') userId: string): Promise<boolean> {
     return this.authService.logout(userId);
+  }
+
+  @Post('/verify/:token')
+  @HttpCode(HttpStatus.OK)
+  verify(@Param('token') token: string): Promise<boolean> {
+    return this.authService.confirmEmail(token);
   }
 
   @UseGuards(RtGuard)
