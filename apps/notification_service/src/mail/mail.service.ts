@@ -6,7 +6,7 @@ export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendUserConfirmation(user: User, token: string) {
-    const url = `example.com/auth/confirm?token=${token}`;
+    const url = `http://localhost:3001/auth/confirm?token=${token}`;
 
     await this.mailerService.sendMail({
       to: user.email,
@@ -20,12 +20,13 @@ export class MailService {
     });
   }
 
-  async sendPasswordResetEmail(email: string, otp: string) {
+  async sendPasswordResetEmail(user: User, otp: string) {
     await this.mailerService.sendMail({
-      to: email,
+      to: user.email,
       subject: 'Password Reset Request',
-      template: './password-reset', 
+      template: './password-reset',
       context: {
+        name: user.name,
         otp: otp,
         currentYear: new Date().getFullYear(),
       },

@@ -12,10 +12,10 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         transport: Transport.KAFKA,
         options: {
           client: {
-            brokers: ['localhost:9092'], // Địa chỉ Kafka broker
+            brokers: ['localhost:9092'], 
           },
           consumer: {
-            groupId: 'notification-consumer-group', // Tên group ID cho consumer
+            groupId: 'notification-consumer-group', 
           },
         },
       },
