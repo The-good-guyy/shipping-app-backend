@@ -5,6 +5,7 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
+    "assets": ["mail/templates/**/*"],
     "tsConfigPath": "apps/shipping_routes_app/tsconfig.app.json"
   },
   "monorepo": true,
