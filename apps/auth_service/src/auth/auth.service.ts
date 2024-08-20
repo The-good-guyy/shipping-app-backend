@@ -1,48 +1,48 @@
 import {
   Injectable,
-  UnprocessableEntityException,
-  Inject,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { createUserDto, loginUserDto } from './dto';
-import { EntityManager, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { User } from './entities/user.entity';
+import { UserService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { RedisService } from '../redis/redis.service';
+import { RoleService } from '../role/role.service';
 import { Tokens } from './types';
+import { EErrorMessage } from '../common/constants';
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    private entityManager: EntityManager,
-    private jwtService: JwtService,
-    private config: ConfigService,
+    private readonly usersService: UserService,
+    private readonly redisService: RedisService,
+    private readonly roleService: RoleService,
+    private readonly jwtService: JwtService,
+    private readonly config: ConfigService,
   ) {}
   hashData(data: string) {
     return bcrypt.hash(data, 10);
   }
-  updateRtHash(userId: string, rt: string) {
-    this.cacheManager.set(userId, rt, {
-      ttl: 60 * 60 * 24 * 27,
-    });
+  updateRtHash(userId: string, rt: string, ex?: number) {
+    this.redisService.insert(userId, rt, ex);
   }
-  async getTokens(userId: string, email: string, role: string) {
+  async getTokens(userId: string, email: string) {
+    const AT_TIME = Number(this.config.get<number>('AT_SECRET_TIME'));
+    const RT_TIME = Number(this.config.get<number>('RT_SECRET_TIME'));
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, email, role },
-        { secret: this.config.get<string>('AT_SECRET'), expiresIn: 60 * 15 },
+        { sub: userId, email },
+        {
+          secret: this.config.get<string>('AT_SECRET'),
+          expiresIn: AT_TIME,
+        },
       ),
       this.jwtService.signAsync(
-        { sub: userId, email, role },
+        { sub: userId, email },
         {
           secret: this.config.get<string>('RT_SECRET'),
-          expiresIn: 60 * 60 * 24 * 27,
+          expiresIn: RT_TIME,
         },
       ),
     ]);
@@ -52,66 +52,58 @@ export class AuthService {
     };
   }
   async signUpLocal(createUserDto: createUserDto) {
-    const user = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
-    });
-    if (user) throw new UnprocessableEntityException('Email is already used');
-    const hash = await this.hashData(createUserDto.password);
-    let newUser = this.usersRepository.create({
-      ...createUserDto,
-      password: hash,
-      createdAt: new Date(),
-    });
-    newUser = await this.usersRepository.save(newUser);
-    const tokens = await this.getTokens(
-      newUser.uuid,
-      newUser.email,
-      newUser.role,
+    const role = await this.roleService.findByName('user');
+    const hashPassword = await this.hashData(createUserDto.password);
+    const newUser = { ...createUserDto, role, password: hashPassword };
+    const searchUser = await this.usersService.create(newUser);
+    const tokens = await this.getTokens(searchUser.id, searchUser.email);
+    this.updateRtHash(
+      searchUser.id,
+      tokens.refresh_token,
+      this.config.get<number>('RT_SECRET_TIME'),
     );
-    this.updateRtHash(newUser.uuid, tokens.refresh_token);
-    // console.log(newUser.uuid);
-    // console.log(await this.cacheManager.get(newUser.uuid));
     return tokens;
   }
   async signInLocal(loginUserDto: loginUserDto): Promise<Tokens> {
-    const user = await this.usersRepository.findOne({
-      where: { email: loginUserDto.email },
-    });
-    if (!user) throw new ForbiddenException('Access Denied');
+    const user = await this.usersService.findByEmailWithSensitiveInfo(
+      loginUserDto.email,
+    );
+    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
     const passwordMatches = await bcrypt.compare(
       loginUserDto.password,
       user.password,
     );
     if (!passwordMatches) throw new ForbiddenException('Access Denied');
-    const tokens = await this.getTokens(user.uuid, user.email, user.role);
-    await this.updateRtHash(user.uuid, tokens.refresh_token);
+    const tokens = await this.getTokens(user.id, user.email);
+    this.updateRtHash(
+      user.id,
+      tokens.refresh_token,
+      this.config.get<number>('RT_SECRET_TIME'),
+    );
     return tokens;
   }
   async logout(userId: string): Promise<boolean> {
-    this.cacheManager.del(userId);
+    this.redisService.delete(userId);
     return true;
   }
   async refreshTokens(userId: string, rt: string) {
-    const user = await this.usersRepository.findOne({
-      where: { uuid: userId },
-    });
-    // console.log(userId);
-    // console.log(user);
+    const user = await this.usersService.findById(userId);
     if (!user) throw new ForbiddenException('Access Denied');
-    const cachedItem = await this.cacheManager.get(userId);
+    const cachedItem = await this.redisService.get(userId);
     if (!cachedItem || cachedItem !== rt) {
-      this.cacheManager.del(userId);
+      this.redisService.delete(userId);
       throw new ForbiddenException('Access Denied');
     }
-    const tokens = await this.getTokens(user.uuid, user.email, user.role);
-    this.updateRtHash(user.uuid, tokens.refresh_token);
+    const tokens = await this.getTokens(user.id, user.email);
+    this.updateRtHash(
+      user.id,
+      tokens.refresh_token,
+      this.config.get<number>('RT_SECRET_TIME'),
+    );
     return tokens;
   }
   async getMe(userId: string) {
-    const user = await this.usersRepository.findOne({
-      where: { uuid: userId },
-      select: ['uuid', 'username', 'role', 'email'],
-    });
+    const user = await this.usersService.findById(userId);
     return user;
   }
 }

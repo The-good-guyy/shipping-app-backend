@@ -10,9 +10,8 @@ import {
 import { Tokens } from './types';
 import { AuthService } from './auth.service';
 import { createUserDto, loginUserDto } from './dto';
-import { AtGuard, RtGuard } from 'libs/common/guard';
-import { GetCurrentUser } from 'libs/common/decorators';
-import { userDto } from './dto';
+import { AtGuard, RtGuard } from '../common/guard';
+import { GetCurrentUser } from '../common/decorators';
 
 @Controller('auth')
 export class AuthController {
@@ -22,7 +21,7 @@ export class AuthController {
   signInLocal(@Body() createUserDto: createUserDto): Promise<Tokens> {
     return this.authService.signUpLocal(createUserDto);
   }
-  @Post('/local/signin')
+  @Post('local/signin')
   @HttpCode(HttpStatus.OK)
   siginLocal(@Body() loginUserDto: loginUserDto): Promise<Tokens> {
     return this.authService.signInLocal(loginUserDto);
@@ -47,7 +46,7 @@ export class AuthController {
   @UseGuards(AtGuard)
   @Get('/getMe')
   @HttpCode(HttpStatus.OK)
-  getMe(@GetCurrentUser('sub') userId: string): Promise<Partial<userDto>> {
+  getMe(@GetCurrentUser('sub') userId: string) {
     console.log(userId);
     return this.authService.getMe(userId);
   }
