@@ -15,7 +15,11 @@ import { Tokens } from './types';
 import { EErrorMessage } from '../common/constants';
 import { KafkaService } from '../kafka';
 import { randomBytes } from 'crypto';
-import { confirmationEmailPrefix } from '../common/constants';
+import {
+  confirmationEmailPrefix,
+  resetPasswordEmailPrefix,
+} from '../common/constants';
+import { getRandomIntInclusive } from '../common/helpers';
 @Injectable()
 export class AuthService {
   constructor(
@@ -51,6 +55,23 @@ export class AuthService {
     const email = await this.redisService.get(confirmationEmailPrefix + token);
     if (!email) throw new NotFoundException('Token is invalid or expired');
     return await this.usersService.updateVerificationStatus(email);
+  }
+  async sendResetPasswordEmail(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    const time = this.config.get<number>('EXPIRE_RESET_PASSWORD_EMAIL_TIME');
+    const otp = getRandomIntInclusive(10000000, 99999999).toString();
+    this.redisService.insert(
+      resetPasswordEmailPrefix + otp,
+      email,
+      Number(time),
+    );
+    this.client.send({
+      topic: 'send-reset-password-email',
+      messages: [
+        { value: JSON.stringify({ email, otp, ttl: time }), key: email },
+      ],
+    });
   }
   async getTokens(userId: string, email: string) {
     const AT_TIME = Number(this.config.get<number>('AT_SECRET_TIME'));
