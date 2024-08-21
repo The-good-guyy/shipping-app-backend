@@ -143,9 +143,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       this.logger.error('There is no producer, unable to send message.');
       return;
     }
-
     const serializedPacket = await this.serializer.serialize(message);
-
     // @todo - rather than have a producerRecord,
     // most of this can be done when we create the controller.
     return await this.producer.send(serializedPacket);

@@ -14,10 +14,29 @@ import { AuthService } from './auth.service';
 import { createUserDto, loginUserDto } from './dto';
 import { AtGuard, RtGuard } from '../common/guard';
 import { GetCurrentUser } from '../common/decorators';
-
+// import { KafkaService } from '../kafka';
+// import { SubscribeTo } from '../kafka';
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    // @Inject('AUTH_SERVICE') private client: KafkaService,
+  ) {}
+
+  // onModuleInit(): void {
+  //   this.client.subscribeToResponseOf('send-confirmation-email', this);
+  // }
+  // @SubscribeTo('send-confirmation-email')
+  // async getWorld(
+  //   data: any,
+  //   key: any,
+  //   offset: number,
+  //   timestamp: number,
+  //   partition: number,
+  // ): Promise<void> {
+  //   const dataObj = JSON.parse(data);
+  //   console.log(dataObj, key, offset, timestamp, partition);
+  // }
   @Post('/local/signup')
   @HttpCode(HttpStatus.CREATED)
   signInLocal(@Body() createUserDto: createUserDto): Promise<Tokens> {

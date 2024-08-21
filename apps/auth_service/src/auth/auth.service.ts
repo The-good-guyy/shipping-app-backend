@@ -43,9 +43,7 @@ export class AuthService {
     this.client.send({
       topic: 'send-confirmation-email',
       messages: [
-        { value: token, key: 'token' },
-        { value: email, key: 'email' },
-        { value: time, key: 'ttl' },
+        { value: JSON.stringify({ email, token, ttl: time }), key: email },
       ],
     });
   }
