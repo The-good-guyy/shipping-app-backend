@@ -72,6 +72,7 @@ export class AuthService {
         { value: JSON.stringify({ email, otp, ttl: time }), key: email },
       ],
     });
+    return true;
   }
   async getTokens(userId: string, email: string) {
     const AT_TIME = Number(this.config.get<number>('AT_SECRET_TIME'));

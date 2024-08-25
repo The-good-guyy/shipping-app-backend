@@ -60,6 +60,12 @@ export class AuthController {
     return this.authService.confirmEmail(token);
   }
 
+  @UseGuards(AtGuard)
+  @Post('/reset-password')
+  @HttpCode(HttpStatus.OK)
+  forgotPassword(@GetCurrentUser('email') email: string): Promise<boolean> {
+    return this.authService.sendResetPasswordEmail(email);
+  }
   @UseGuards(RtGuard)
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
