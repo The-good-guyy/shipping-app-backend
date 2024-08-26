@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EErrorMessage } from '../common/constants';
 import { UserRepository } from './users.repository';
-import { createUserDto, updateUserDto } from './dto';
+import { createUserDto, SearchUserOffsetDto, updateUserDto } from './dto';
 import { getChangedFields } from '../common/helpers';
+import { User } from './entities/user.entity';
+import { objHasKey } from '../common/helpers';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
@@ -44,5 +46,22 @@ export class UserService {
   }
   async updateVerificationStatus(email: string) {
     return await this.userRepository.updateVerificationStatus(email);
+  }
+  async search(
+    offset: SearchUserOffsetDto,
+    filters: object | Array<object> = {},
+    fields: string[] = [],
+  ) {
+    let userFields: (keyof User)[] = [];
+    if (!Array.isArray(fields) || !fields.length) {
+      userFields = this.userRepository.getColsUser();
+    } else {
+      for (const field of fields) {
+        if (objHasKey(User, field)) {
+          userFields.push(field as keyof User);
+        }
+      }
+    }
+    return await this.userRepository.search(offset, userFields, filters);
   }
 }

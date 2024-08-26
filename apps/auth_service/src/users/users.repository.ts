@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { createUserDto, updateUserDto } from './dto';
+import { createUserDto, updateUserDto, SearchUserOffsetDto } from './dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -97,5 +97,45 @@ export class UserRepository {
     });
     await this.usersRepository.save(updatedUser);
     return true;
+  }
+  async search(
+    offset: SearchUserOffsetDto,
+    fields: (keyof User)[],
+    filter: object | Array<object> = {},
+  ) {
+    const { limit, pageNumber, sortOrder } = offset.pagination;
+    const { isGetAll = false } = offset.options ?? {};
+    const newFields = fields.filter((obj) => obj != 'password');
+    if (isGetAll) {
+      const entities = await this.usersRepository.find({
+        select: newFields,
+        where: filter ? filter : undefined,
+        relations: fields.includes('role')
+          ? { role: { permission: true } }
+          : undefined,
+        order: offset.orderBy ? { [offset.orderBy]: sortOrder } : undefined,
+      });
+      return {
+        totalCount: entities.length,
+        users: entities,
+      };
+    }
+    const [entities, count] = await this.usersRepository.findAndCount({
+      skip: limit * (pageNumber - 1),
+      take: limit,
+      select: newFields,
+      where: filter ? filter : undefined,
+      relations: fields.includes('role')
+        ? { role: { permission: true } }
+        : undefined,
+      order: offset.orderBy ? { [offset.orderBy]: sortOrder } : undefined,
+    });
+
+    return {
+      pageNumber,
+      pageSize: limit,
+      totalCount: count,
+      users: entities,
+    };
   }
 }

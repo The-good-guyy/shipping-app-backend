@@ -1,4 +1,5 @@
-export enum OrderBy {
+export enum userOrderBy {
   createdAt = 'createdAt',
   updatedAt = 'updatedAt',
+  role = 'role',
 }

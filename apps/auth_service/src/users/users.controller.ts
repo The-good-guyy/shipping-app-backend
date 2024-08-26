@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './users.service';
 import { createUserDto, updateUserDto } from './dto';
@@ -46,5 +47,11 @@ export class UsersController {
     @Body('password') password: string,
   ) {
     return this.userService.updatePassword(id, password);
+  }
+
+  @Get('getAll')
+  @HttpCode(HttpStatus.OK)
+  async search(@Query() query) {
+    console.log(query);
   }
 }
