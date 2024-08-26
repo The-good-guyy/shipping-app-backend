@@ -11,7 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { UserService } from './users.service';
-import { createUserDto, updateUserDto } from './dto';
+import { createUserDto, sortUserDto, updateUserDto } from './dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
@@ -48,10 +48,35 @@ export class UsersController {
   ) {
     return this.userService.updatePassword(id, password);
   }
-
-  @Get('getAll')
+  @Get()
   @HttpCode(HttpStatus.OK)
-  async search(@Query() query) {
-    console.log(query);
+  async findAll(@Query() query) {
+    const queryObj = { ...query };
+    const excludedFields = [
+      'page',
+      'sort',
+      'limit',
+      'fields',
+      'searchTerm',
+      'password',
+      'skip',
+    ];
+    excludedFields.forEach((el) => delete queryObj[el]);
+    const sortQuery: { orderBy: string; order: string }[] = [];
+    if (query.sort) {
+      const sortObj = query.sort.split(',');
+      // console.log(sortObj);
+      for (const obj of sortObj) {
+        const [orderBy, order] = obj.split(':');
+        console.log(orderBy, order);
+        sortQuery.push({ orderBy, order });
+      }
+    }
+    let fieldQuery: string[] = [];
+    if (query.fields) {
+      fieldQuery = query.fields.split(',');
+    }
+    console.log(fieldQuery);
+    return 'findAll';
   }
 }

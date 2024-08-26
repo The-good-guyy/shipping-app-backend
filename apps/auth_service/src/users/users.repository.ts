@@ -1,5 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { createUserDto, updateUserDto, SearchUserOffsetDto } from './dto';
+import {
+  createUserDto,
+  updateUserDto,
+  SearchUserOffsetDto,
+  sortUserDto,
+} from './dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -100,11 +105,16 @@ export class UserRepository {
   }
   async search(
     offset: SearchUserOffsetDto,
-    fields: (keyof User)[],
     filter: object | Array<object> = {},
+    fields: (keyof User)[],
+    sort: sortUserDto[],
   ) {
-    const { limit, pageNumber, sortOrder } = offset.pagination;
+    const { limit, pageNumber } = offset.pagination;
     const { isGetAll = false } = offset.options ?? {};
+    const sortOrder = {};
+    sort.forEach((obj) => {
+      sortOrder[obj.orderBy] = obj.order;
+    });
     const newFields = fields.filter((obj) => obj != 'password');
     if (isGetAll) {
       const entities = await this.usersRepository.find({
@@ -113,7 +123,7 @@ export class UserRepository {
         relations: fields.includes('role')
           ? { role: { permission: true } }
           : undefined,
-        order: offset.orderBy ? { [offset.orderBy]: sortOrder } : undefined,
+        order: sortOrder ? sortOrder : undefined,
       });
       return {
         totalCount: entities.length,
@@ -128,7 +138,7 @@ export class UserRepository {
       relations: fields.includes('role')
         ? { role: { permission: true } }
         : undefined,
-      order: offset.orderBy ? { [offset.orderBy]: sortOrder } : undefined,
+      order: sortOrder ? sortOrder : undefined,
     });
 
     return {

@@ -1,5 +1,4 @@
-import { SortOrder } from '../constants';
-import { Min, IsEnum } from 'class-validator';
+import { Min } from 'class-validator';
 
 export class OffsetPaginationDto {
   @Min(1)
@@ -7,7 +6,4 @@ export class OffsetPaginationDto {
 
   @Min(1)
   pageNumber = 1;
-
-  @IsEnum(SortOrder)
-  sortOrder: SortOrder = SortOrder.desc;
 }

@@ -1,10 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EErrorMessage } from '../common/constants';
 import { UserRepository } from './users.repository';
-import { createUserDto, SearchUserOffsetDto, updateUserDto } from './dto';
+import {
+  createUserDto,
+  SearchUserOffsetDto,
+  sortUserDto,
+  updateUserDto,
+} from './dto';
 import { getChangedFields } from '../common/helpers';
 import { User } from './entities/user.entity';
-import { objHasKey } from '../common/helpers';
+import { objHasKey, stringToEnum } from '../common/helpers';
+import { SortOrder, userOrderBy } from '../common/constants';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
@@ -48,9 +54,10 @@ export class UserService {
     return await this.userRepository.updateVerificationStatus(email);
   }
   async search(
-    offset: SearchUserOffsetDto,
+    offset: SearchUserOffsetDto = new SearchUserOffsetDto(),
     filters: object | Array<object> = {},
     fields: string[] = [],
+    sort: { orderBy: string; order: string }[],
   ) {
     let userFields: (keyof User)[] = [];
     if (!Array.isArray(fields) || !fields.length) {
@@ -62,6 +69,25 @@ export class UserService {
         }
       }
     }
-    return await this.userRepository.search(offset, userFields, filters);
+    let sortObj: sortUserDto[] = [];
+    if (!Array.isArray(sort) || !sort.length) {
+      sortObj = [new sortUserDto()];
+    } else {
+      for (const obj of sort) {
+        const { orderBy, order } = obj;
+        if (stringToEnum(userOrderBy, orderBy)) {
+          sortObj.push({
+            orderBy: stringToEnum(userOrderBy, orderBy),
+            order: stringToEnum(SortOrder, order) || SortOrder.desc,
+          });
+        }
+      }
+    }
+    return await this.userRepository.search(
+      offset,
+      filters,
+      userFields,
+      sortObj,
+    );
   }
 }
