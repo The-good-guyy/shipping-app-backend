@@ -84,4 +84,18 @@ export class UserRepository {
     });
     return user;
   }
+  async updateVerificationStatus(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email: email },
+    });
+    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    if (user.isVerified)
+      throw new NotFoundException('Email has been verified already');
+    const updatedUser = this.usersRepository.create({
+      ...user,
+      isVerified: true,
+    });
+    await this.usersRepository.save(updatedUser);
+    return true;
+  }
 }

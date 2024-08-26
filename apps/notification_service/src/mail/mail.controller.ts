@@ -10,11 +10,13 @@ export class MailController {
   }
   @MessagePattern('send-confirmation-email')
   async sendUserConfirmation(@Payload() data: any) {
-    const { email, name } = data;
+    const { email, username } = data; 
 
     try {
       const token = this.generateToken();
-      const user: User = { email, name };
+      const user: User = { email, username };
+      console.log(token);
+      console.log(user);
       await this.mailService.sendUserConfirmation(user, token);
       return { message: 'Confirmation email sent successfully' };
     } catch (error) {

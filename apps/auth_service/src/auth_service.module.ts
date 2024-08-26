@@ -22,7 +22,12 @@ import { RedisModule } from './redis/redis.module';
     // }),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['./env/postgres.env', './env/jwt.env', './env/redis.env'],
+      envFilePath: [
+        './env/postgres.env',
+        './env/jwt.env',
+        './env/redis.env',
+        './env/others.env',
+      ],
     }),
     DatabaseModule,
     RedisModule,

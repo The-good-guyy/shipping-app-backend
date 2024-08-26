@@ -42,4 +42,7 @@ export class UserService {
     const user = await this.userRepository.findByEmail(email, fields);
     return user;
   }
+  async updateVerificationStatus(email: string) {
+    return await this.userRepository.updateVerificationStatus(email);
+  }
 }
