@@ -109,19 +109,32 @@ export class UserRepository {
     fields: (keyof User)[],
     sort: sortUserDto[],
   ) {
-    const { limit, pageNumber } = offset.pagination;
+    const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll = false } = offset.options ?? {};
-    // console.log(fields);
     const sortOrder = {};
     sort.forEach((obj) => {
-      sortOrder[obj.orderBy] = obj.order;
+      const sortOrderBy = obj.orderBy.split('.');
+      if (sortOrderBy.length == 1) {
+        sortOrder[sortOrderBy[0]] = obj.order;
+      } else {
+        const object = {};
+        sortOrder[sortOrderBy[0]] = object;
+        let o = object;
+        for (let i = 1; i < sortOrderBy.length; i++) {
+          if (i == sortOrderBy.length - 1) {
+            o[sortOrderBy[i]] = obj.order;
+          } else {
+            o = o[sortOrderBy[i]] = {};
+          }
+        }
+      }
     });
     const newFields = fields.filter((obj) => obj != 'password');
     if (isGetAll) {
       const entities = await this.usersRepository.find({
         select: newFields,
         where: filter ? filter : undefined,
-        relations: fields.includes('role')
+        relations: newFields.includes('role')
           ? { role: { permission: true } }
           : undefined,
         order: sortOrder ? sortOrder : undefined,
@@ -132,16 +145,15 @@ export class UserRepository {
       };
     }
     const [entities, count] = await this.usersRepository.findAndCount({
-      skip: limit * (pageNumber - 1),
+      skip: skip || limit * (pageNumber - 1),
       take: limit,
       select: newFields,
       where: filter ? filter : undefined,
-      relations: fields.includes('role')
+      relations: newFields.includes('role')
         ? { role: { permission: true } }
         : undefined,
-      order: sortOrder ? sortOrder : undefined,
+      order: { role: { id: 'ASC' } },
     });
-
     return {
       pageNumber,
       pageSize: limit,

@@ -9,9 +9,8 @@ import {
 } from './dto';
 import { getChangedFields } from '../common/helpers';
 import { User } from './entities/user.entity';
-import { objHasKey, stringToEnum } from '../common/helpers';
+import { stringToEnum } from '../common/helpers';
 import { SortOrder, userOrderBy } from '../common/constants';
-import { UserInterface } from './entities/user.interface';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
@@ -67,8 +66,9 @@ export class UserService {
         userFields.push(field as keyof User);
       }
     }
-    userFields = userFields || userCols;
-    console.log(userFields);
+    // console.log(sort);
+    userFields = userFields.length > 0 ? userFields : userCols;
+    // console.log(sort);
     let sortObj: sortUserDto[] = [];
     if (!Array.isArray(sort) || !sort.length) {
       sortObj = [new sortUserDto()];
@@ -83,6 +83,8 @@ export class UserService {
         }
       }
     }
+    // console.log(sortObj);
+    sortObj = sortObj.length > 0 ? sortObj : [new sortUserDto()];
     return await this.userRepository.search(
       offset,
       filters,

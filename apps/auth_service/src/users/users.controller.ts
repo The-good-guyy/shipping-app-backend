@@ -69,8 +69,11 @@ export class UsersController {
       // console.log(sortObj);
       for (const obj of sortObj) {
         const [orderBy, order] = obj.split(':');
-        console.log(orderBy, order);
-        sortQuery.push({ orderBy, order });
+        // console.log(orderBy, order);
+        sortQuery.push({
+          orderBy,
+          order: order ? order.toUpperCase() : order,
+        });
       }
     }
     let fieldsQuery: string[] = [];
@@ -81,6 +84,7 @@ export class UsersController {
     const offset = new OffsetPaginationDto();
     offset.pageNumber = parseInt(query.page) || offset.pageNumber;
     offset.limit = parseInt(query.limit) || offset.limit;
+    offset.skip = parseInt(query.skip) || undefined;
     const searchOffset = new SearchUserOffsetDto();
     searchOffset.pagination = offset;
 
