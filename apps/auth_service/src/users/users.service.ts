@@ -11,6 +11,7 @@ import { getChangedFields } from '../common/helpers';
 import { User } from './entities/user.entity';
 import { objHasKey, stringToEnum } from '../common/helpers';
 import { SortOrder, userOrderBy } from '../common/constants';
+import { UserInterface } from './entities/user.interface';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
@@ -54,21 +55,20 @@ export class UserService {
     return await this.userRepository.updateVerificationStatus(email);
   }
   async search(
-    offset: SearchUserOffsetDto = new SearchUserOffsetDto(),
-    filters: object | Array<object> = {},
-    fields: string[] = [],
+    offset: SearchUserOffsetDto,
+    filters: object | Array<object>,
+    fields: string[],
     sort: { orderBy: string; order: string }[],
   ) {
     let userFields: (keyof User)[] = [];
-    if (!Array.isArray(fields) || !fields.length) {
-      userFields = this.userRepository.getColsUser();
-    } else {
-      for (const field of fields) {
-        if (objHasKey(User, field)) {
-          userFields.push(field as keyof User);
-        }
+    const userCols = this.userRepository.getColsUser();
+    for (const field of fields) {
+      if (userCols.includes(field as keyof User)) {
+        userFields.push(field as keyof User);
       }
     }
+    userFields = userFields || userCols;
+    console.log(userFields);
     let sortObj: sortUserDto[] = [];
     if (!Array.isArray(sort) || !sort.length) {
       sortObj = [new sortUserDto()];

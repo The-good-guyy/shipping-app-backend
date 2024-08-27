@@ -111,6 +111,7 @@ export class UserRepository {
   ) {
     const { limit, pageNumber } = offset.pagination;
     const { isGetAll = false } = offset.options ?? {};
+    // console.log(fields);
     const sortOrder = {};
     sort.forEach((obj) => {
       sortOrder[obj.orderBy] = obj.order;

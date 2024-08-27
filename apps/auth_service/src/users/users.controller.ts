@@ -11,7 +11,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { UserService } from './users.service';
-import { createUserDto, sortUserDto, updateUserDto } from './dto';
+import { createUserDto, updateUserDto, SearchUserOffsetDto } from './dto';
+import { OffsetPaginationDto } from '../common/dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
@@ -51,7 +52,7 @@ export class UsersController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() query) {
-    const queryObj = { ...query };
+    const filterQuery = { ...query };
     const excludedFields = [
       'page',
       'sort',
@@ -61,7 +62,7 @@ export class UsersController {
       'password',
       'skip',
     ];
-    excludedFields.forEach((el) => delete queryObj[el]);
+    excludedFields.forEach((el) => delete filterQuery[el]);
     const sortQuery: { orderBy: string; order: string }[] = [];
     if (query.sort) {
       const sortObj = query.sort.split(',');
@@ -72,11 +73,22 @@ export class UsersController {
         sortQuery.push({ orderBy, order });
       }
     }
-    let fieldQuery: string[] = [];
+    let fieldsQuery: string[] = [];
     if (query.fields) {
-      fieldQuery = query.fields.split(',');
+      fieldsQuery = query.fields.split(',');
     }
-    console.log(fieldQuery);
-    return 'findAll';
+    // console.log(fieldsQuery);
+    const offset = new OffsetPaginationDto();
+    offset.pageNumber = parseInt(query.page) || offset.pageNumber;
+    offset.limit = parseInt(query.limit) || offset.limit;
+    const searchOffset = new SearchUserOffsetDto();
+    searchOffset.pagination = offset;
+
+    return await this.userService.search(
+      searchOffset,
+      filterQuery,
+      fieldsQuery,
+      sortQuery,
+    );
   }
 }
