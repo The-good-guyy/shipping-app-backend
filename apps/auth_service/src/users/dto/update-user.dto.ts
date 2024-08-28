@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString, IsUrl, IsOptional } from 'class-validator';
 import { UserInterface } from '../entities/user.interface';
 import { PartialPick } from '../../common/types';
-export class updateUserDto
+export class UpdateUserDto
   implements
     PartialPick<
       Pick<UserInterface, 'id' | 'username' | 'profileImage'>,

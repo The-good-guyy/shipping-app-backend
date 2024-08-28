@@ -2,19 +2,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { EErrorMessage } from '../common/constants';
 import { UserRepository } from './users.repository';
 import {
-  createUserDto,
+  CreateUserDto,
   SearchUserOffsetDto,
-  sortUserDto,
-  updateUserDto,
+  SortUserDto,
+  UpdateUserDto,
 } from './dto';
 import { getChangedFields } from '../common/helpers';
 import { User } from './entities/user.entity';
 import { stringToEnum } from '../common/helpers';
-import { SortOrder, userOrderBy } from '../common/constants';
+import { SortOrder, UserOrderBySearch } from '../common/constants';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
-  async create(input: createUserDto) {
+  async create(input: CreateUserDto) {
     const newUser = await this.userRepository.create(input);
     return newUser;
   }
@@ -22,12 +22,12 @@ export class UserService {
     await this.userRepository.findByCode(userId);
     await this.userRepository.remove(userId);
   }
-  async update(input: updateUserDto) {
+  async update(input: UpdateUserDto) {
     const existingEntity = await this.userRepository.findByCode(input.id);
     if (!existingEntity) {
       throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
     }
-    const updatedData = getChangedFields<updateUserDto>(existingEntity, input);
+    const updatedData = getChangedFields<UpdateUserDto>(existingEntity, input);
     return await this.userRepository.update(existingEntity, updatedData);
   }
   async findById(userId: string) {
@@ -69,22 +69,22 @@ export class UserService {
     // console.log(sort);
     userFields = userFields.length > 0 ? userFields : userCols;
     // console.log(sort);
-    let sortObj: sortUserDto[] = [];
+    let sortObj: SortUserDto[] = [];
     if (!Array.isArray(sort) || !sort.length) {
-      sortObj = [new sortUserDto()];
+      sortObj = [new SortUserDto()];
     } else {
       for (const obj of sort) {
         const { orderBy, order } = obj;
-        if (stringToEnum(userOrderBy, orderBy)) {
+        if (stringToEnum(UserOrderBySearch, orderBy)) {
           sortObj.push({
-            orderBy: stringToEnum(userOrderBy, orderBy),
+            orderBy: stringToEnum(UserOrderBySearch, orderBy),
             order: stringToEnum(SortOrder, order) || SortOrder.desc,
           });
         }
       }
     }
     // console.log(sortObj);
-    sortObj = sortObj.length > 0 ? sortObj : [new sortUserDto()];
+    sortObj = sortObj.length > 0 ? sortObj : [new SortUserDto()];
     return await this.userRepository.search(
       offset,
       filters,

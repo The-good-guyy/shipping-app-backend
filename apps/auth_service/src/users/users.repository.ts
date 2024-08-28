@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
-  createUserDto,
-  updateUserDto,
+  CreateUserDto,
+  UpdateUserDto,
   SearchUserOffsetDto,
-  sortUserDto,
+  SortUserDto,
 } from './dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,13 +16,13 @@ export class UserRepository {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
-  async create(createUserDto: createUserDto) {
+  async create(CreateUserDto: CreateUserDto) {
     const user = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
+      where: { email: CreateUserDto.email },
     });
     if (user) throw new NotFoundException(EErrorMessage.ENTITY_EXISTED);
     let newUser = this.usersRepository.create({
-      ...createUserDto,
+      ...CreateUserDto,
     });
     newUser = await this.usersRepository.save(newUser);
     delete newUser.password;
@@ -34,7 +34,7 @@ export class UserRepository {
     });
     if (user) this.usersRepository.delete(user);
   }
-  async update(user: User, input: Partial<updateUserDto>) {
+  async update(user: User, input: Partial<UpdateUserDto>) {
     if (input.id) {
       delete input['id'];
     }
@@ -107,7 +107,7 @@ export class UserRepository {
     offset: SearchUserOffsetDto,
     filter: object | Array<object> = {},
     fields: (keyof User)[],
-    sort: sortUserDto[],
+    sort: SortUserDto[],
   ) {
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll = false } = offset.options ?? {};

@@ -1,19 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RoleRepository } from './role.repository';
-import { createRoleDto } from './dto';
+import { CreateRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
 import { Role } from './entities/role.entity';
 import { PermissionService } from '../permission/permission.service';
 import { EErrorMessage } from '../common/constants';
-import { updateRoleDto } from './dto';
+import { UpdateRoleDto } from './dto';
 @Injectable()
 export class RoleService {
   constructor(
     private readonly roleRepository: RoleRepository,
     private readonly permissionService: PermissionService,
   ) {}
-  async create(createRoleDto: createRoleDto) {
-    const permission = createRoleDto.permission;
+  async create(CreateRoleDto: CreateRoleDto) {
+    const permission = CreateRoleDto.permission;
     const permissions: Permission[] = [];
     for await (const p of permission) {
       const searchPermission = await this.permissionService.findById(p.id);
@@ -23,7 +23,7 @@ export class RoleService {
       permissions.push(searchPermission);
     }
     return await this.roleRepository.create({
-      ...createRoleDto,
+      ...CreateRoleDto,
       permission: permissions,
     });
   }
@@ -39,12 +39,12 @@ export class RoleService {
     const role = await this.roleRepository.findByName(roleName);
     return role;
   }
-  async update(updateRoleDto: updateRoleDto) {
-    const role = await this.roleRepository.findByCode(updateRoleDto.id);
+  async update(UpdateRoleDto: UpdateRoleDto) {
+    const role = await this.roleRepository.findByCode(UpdateRoleDto.id);
     if (!role) {
       throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
     }
-    const permission = updateRoleDto.permission;
+    const permission = UpdateRoleDto.permission;
     const permissions: Permission[] = [];
     for await (const p of permission) {
       const searchPermission = await this.permissionService.findById(p.id);
@@ -54,10 +54,10 @@ export class RoleService {
       permissions.push(searchPermission);
     }
     return await this.roleRepository.update({
-      ...updateRoleDto,
+      ...UpdateRoleDto,
       permission: permissions,
     });
-    // return await this.roleRepository.findByCode(updateRoleDto.id);
+    // return await this.roleRepository.findByCode(UpdateRoleDto.id);
   }
   // async updatePermission(
   //   roleId: string,

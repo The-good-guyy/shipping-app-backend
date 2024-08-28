@@ -4,7 +4,7 @@ import {
   NotFoundException,
   Inject,
 } from '@nestjs/common';
-import { createUserDto, loginUserDto } from './dto';
+import { CreateUserDto, LoginUserDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service';
@@ -98,10 +98,10 @@ export class AuthService {
       refresh_token: rt,
     };
   }
-  async signUpLocal(createUserDto: createUserDto) {
+  async signUpLocal(CreateUserDto: CreateUserDto) {
     const role = await this.roleService.findByName('user');
-    const hashPassword = await this.hashData(createUserDto.password);
-    const newUser = { ...createUserDto, role, password: hashPassword };
+    const hashPassword = await this.hashData(CreateUserDto.password);
+    const newUser = { ...CreateUserDto, role, password: hashPassword };
     const searchUser = await this.usersService.create(newUser);
     const tokens = await this.getTokens(searchUser.id, searchUser.email);
     this.sendConfirmationEmail(searchUser.email);
@@ -112,13 +112,13 @@ export class AuthService {
     );
     return tokens;
   }
-  async signInLocal(loginUserDto: loginUserDto): Promise<Tokens> {
+  async signInLocal(LoginUserDto: LoginUserDto): Promise<Tokens> {
     const user = await this.usersService.findByEmailWithSensitiveInfo(
-      loginUserDto.email,
+      LoginUserDto.email,
     );
     if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
     const passwordMatches = await bcrypt.compare(
-      loginUserDto.password,
+      LoginUserDto.password,
       user.password,
     );
     if (!passwordMatches) throw new ForbiddenException('Access Denied');

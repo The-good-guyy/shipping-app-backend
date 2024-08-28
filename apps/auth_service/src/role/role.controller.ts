@@ -10,14 +10,14 @@ import {
   Delete,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
-import { createRoleDto, updateRoleDto } from './dto';
+import { CreateRoleDto, UpdateRoleDto } from './dto';
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createRole(@Body() createRoleDto: createRoleDto) {
-    return this.roleService.create(createRoleDto);
+  async createRole(@Body() CreateRoleDto: CreateRoleDto) {
+    return this.roleService.create(CreateRoleDto);
   }
   @Get(':id')
   @HttpCode(HttpStatus.OK)
@@ -31,8 +31,8 @@ export class RoleController {
   }
   @Patch()
   @HttpCode(HttpStatus.OK)
-  async update(@Body() updateRoleDto: updateRoleDto) {
-    return this.roleService.update(updateRoleDto);
+  async update(@Body() UpdateRoleDto: UpdateRoleDto) {
+    return this.roleService.update(UpdateRoleDto);
   }
   @Patch(':id')
   @HttpCode(HttpStatus.OK)

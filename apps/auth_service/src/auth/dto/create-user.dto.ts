@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsEmail } from 'class-validator';
 import { User } from '../../users/entities/user.entity';
-export class createUserDto
+export class CreateUserDto
   implements Pick<User, 'email' | 'password' | 'username'>
 {
   @IsNotEmpty()

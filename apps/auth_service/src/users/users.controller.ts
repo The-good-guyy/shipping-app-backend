@@ -11,15 +11,15 @@ import {
   Query,
 } from '@nestjs/common';
 import { UserService } from './users.service';
-import { createUserDto, updateUserDto, SearchUserOffsetDto } from './dto';
+import { CreateUserDto, UpdateUserDto, SearchUserOffsetDto } from './dto';
 import { OffsetPaginationDto } from '../common/dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createUser(@Body() createUserDto: createUserDto) {
-    return this.userService.create(createUserDto);
+  async createUser(@Body() CreateUserDto: CreateUserDto) {
+    return this.userService.create(CreateUserDto);
   }
   @Get(':id')
   @HttpCode(HttpStatus.OK)
@@ -28,8 +28,8 @@ export class UsersController {
   }
   @Patch()
   @HttpCode(HttpStatus.OK)
-  async update(@Body() updateUserDto: updateUserDto) {
-    return this.userService.update(updateUserDto);
+  async update(@Body() UpdateUserDto: UpdateUserDto) {
+    return this.userService.update(UpdateUserDto);
   }
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

@@ -16,3 +16,27 @@ export enum PermissionObject {
   ROUTE = 'route',
   NONE = 'none',
 }
+export enum UserOrderBySearch {
+  CREATED_AT = 'createdAt',
+  UPDATED_AT = 'updatedAt',
+  ROLE = 'role',
+  ROLE_ID = 'role.id',
+  ROLE_ROLE = 'role.role',
+}
+export enum UserFilterSearch {
+  ID = 'id',
+  USERNAME = 'username',
+  EMAIL = 'email',
+  IS_VERIFIED = 'isVerified',
+  CREATED_AT = 'createdAt',
+  UPDATED_AT = 'updatedAt',
+}
+export enum UserFieldSearch {
+  ID = 'id',
+  USERNAME = 'username',
+  EMAIL = 'email',
+  IS_VERIFIED = 'isVerified',
+  ROLE = 'role',
+  CREATED_AT = 'createdAt',
+  UPDATED_AT = 'updatedAt',
+}

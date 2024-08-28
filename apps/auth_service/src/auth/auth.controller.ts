@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { Tokens } from './types';
 import { AuthService } from './auth.service';
-import { createUserDto, loginUserDto } from './dto';
+import { CreateUserDto, LoginUserDto } from './dto';
 import { AtGuard, RtGuard } from '../common/guard';
 import { GetCurrentUser } from '../common/decorators';
 // import { KafkaService } from '../kafka';
@@ -39,13 +39,13 @@ export class AuthController {
   // }
   @Post('/local/signup')
   @HttpCode(HttpStatus.CREATED)
-  signInLocal(@Body() createUserDto: createUserDto): Promise<Tokens> {
-    return this.authService.signUpLocal(createUserDto);
+  signInLocal(@Body() CreateUserDto: CreateUserDto): Promise<Tokens> {
+    return this.authService.signUpLocal(CreateUserDto);
   }
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
-  siginLocal(@Body() loginUserDto: loginUserDto): Promise<Tokens> {
-    return this.authService.signInLocal(loginUserDto);
+  siginLocal(@Body() LoginUserDto: LoginUserDto): Promise<Tokens> {
+    return this.authService.signInLocal(LoginUserDto);
   }
   @UseGuards(AtGuard)
   @Post('/logout')

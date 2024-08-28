@@ -11,7 +11,7 @@ import {
 import { UserInterface } from '../entities/user.interface';
 import { Role } from '../../role/entities/role.entity';
 import { PartialPick } from '../../common/types';
-export class createUserDto
+export class CreateUserDto
   implements
     PartialPick<
       Pick<

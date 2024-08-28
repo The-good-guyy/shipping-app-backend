@@ -10,14 +10,14 @@ import {
   Delete,
 } from '@nestjs/common';
 import { PermissionService } from './permission.service';
-import { createPermissionDto, udpatePermissionDto } from './dto';
+import { CreatePermissionDto, UdpatePermissionDto } from './dto';
 @Controller('permission')
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createPermission(@Body() createPermissionDto: createPermissionDto) {
-    return this.permissionService.create(createPermissionDto);
+  async createPermission(@Body() CreatePermissionDto: CreatePermissionDto) {
+    return this.permissionService.create(CreatePermissionDto);
   }
   @Get(':id')
   @HttpCode(HttpStatus.OK)
@@ -31,8 +31,8 @@ export class PermissionController {
   }
   @Patch()
   @HttpCode(HttpStatus.OK)
-  async update(@Body() udpatePermissionDto: udpatePermissionDto) {
-    return this.permissionService.update(udpatePermissionDto);
+  async update(@Body() UdpatePermissionDto: UdpatePermissionDto) {
+    return this.permissionService.update(UdpatePermissionDto);
   }
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
 import { PermissionObject, PermissionAction } from '../../common/constants';
 import { PermissionInterface } from '../entities/permission.interface';
-export class udpatePermissionDto
+export class UdpatePermissionDto
   implements
     Pick<PermissionInterface, 'id' | 'permission' | 'action' | 'object'>
 {
