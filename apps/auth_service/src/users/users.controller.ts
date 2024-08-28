@@ -63,6 +63,7 @@ export class UsersController {
       'skip',
     ];
     excludedFields.forEach((el) => delete filterQuery[el]);
+    console.log(filterQuery);
     const sortQuery: { orderBy: string; order: string }[] = [];
     if (query.sort) {
       const sortObj = query.sort.split(',');

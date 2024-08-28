@@ -1,20 +1,45 @@
-type Gte = {
+import {
+  IsOptional,
+  IsString,
+  IsUUID,
+  IsEmail,
+  IsBooleanString,
+} from 'class-validator';
+import { IsType } from '../../common/helpers';
+export type Gte = {
   gte: string;
 };
-type Lte = {
+export type Lte = {
   lte: string;
 };
-type Lt = {
+export type Lt = {
   lt: string;
 };
-type Gt = {
+export type Gt = {
   gt: string;
 };
 export class searchUserFilterDto {
+  @IsUUID()
+  @IsOptional()
   id?: string;
+
+  @IsString()
+  @IsOptional()
   username?: string;
+
+  @IsEmail()
+  @IsOptional()
   email?: string;
-  isVerified?: boolean | string;
-  createdAt?: Gte | Lte | Lt | Gt | string;
-  updatedAt?: Gte | Lte | Lt | Gt | string;
+
+  @IsBooleanString()
+  @IsOptional()
+  isVerified?: string;
+
+  @IsOptional()
+  @IsType(['string', 'gte', 'lte', 'lt', 'gt'])
+  createdAt?: object | string;
+
+  @IsOptional()
+  @IsType(['string', 'gte', 'lte', 'lt', 'gt'])
+  updatedAt?: object | string;
 }

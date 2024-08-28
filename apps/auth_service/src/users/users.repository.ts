@@ -4,6 +4,7 @@ import {
   UpdateUserDto,
   SearchUserOffsetDto,
   SortUserDto,
+  searchUserFilterDto,
 } from './dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -133,7 +134,7 @@ export class UserRepository {
     if (isGetAll) {
       const entities = await this.usersRepository.find({
         select: newFields,
-        where: filter ? filter : undefined,
+        // where: filter ? filter : undefined,
         relations: newFields.includes('role')
           ? { role: { permission: true } }
           : undefined,
@@ -148,7 +149,7 @@ export class UserRepository {
       skip: skip || limit * (pageNumber - 1),
       take: limit,
       select: newFields,
-      where: filter ? filter : undefined,
+      // where: filter ? filter : undefined,
       relations: newFields.includes('role')
         ? { role: { permission: true } }
         : undefined,

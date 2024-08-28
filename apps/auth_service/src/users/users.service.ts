@@ -6,11 +6,16 @@ import {
   SearchUserOffsetDto,
   SortUserDto,
   UpdateUserDto,
+  searchUserFilterDto,
 } from './dto';
 import { getChangedFields } from '../common/helpers';
 import { User } from './entities/user.entity';
 import { stringToEnum } from '../common/helpers';
-import { SortOrder, UserOrderBySearch } from '../common/constants';
+import {
+  SortOrder,
+  UserOrderBySearch,
+  UserFieldSearch,
+} from '../common/constants';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
@@ -59,16 +64,13 @@ export class UserService {
     fields: string[],
     sort: { orderBy: string; order: string }[],
   ) {
-    let userFields: (keyof User)[] = [];
     const userCols = this.userRepository.getColsUser();
-    for (const field of fields) {
-      if (userCols.includes(field as keyof User)) {
-        userFields.push(field as keyof User);
-      }
-    }
-    // console.log(sort);
+    let userFields = fields.filter(
+      (field) =>
+        userCols.includes(field as keyof User) &&
+        stringToEnum(UserFieldSearch, field),
+    ) as (keyof User)[];
     userFields = userFields.length > 0 ? userFields : userCols;
-    // console.log(sort);
     let sortObj: SortUserDto[] = [];
     if (!Array.isArray(sort) || !sort.length) {
       sortObj = [new SortUserDto()];
@@ -83,11 +85,20 @@ export class UserService {
         }
       }
     }
-    // console.log(sortObj);
     sortObj = sortObj.length > 0 ? sortObj : [new SortUserDto()];
+    const filtersObjects: searchUserFilterDto[] = [];
+    for (const filter in filters) {
+      const filtersObject = new searchUserFilterDto();
+      for (const k in filtersObject) {
+        filtersObject[k] = filter[k] || undefined;
+      }
+      filtersObjects.push(filtersObject);
+    }
+    console.log(filters);
+    console.log(filtersObjects);
     return await this.userRepository.search(
       offset,
-      filters,
+      filtersObjects,
       userFields,
       sortObj,
     );
