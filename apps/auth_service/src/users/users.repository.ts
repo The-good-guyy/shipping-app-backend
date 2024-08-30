@@ -4,13 +4,14 @@ import {
   UpdateUserDto,
   SearchUserOffsetDto,
   SortUserDto,
-  searchUserFilterDto,
+  SearchUserFilterDto,
 } from './dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { EErrorMessage } from '../common/constants';
 import { getCols } from '../common/helpers';
+import { MoreThan, LessThan, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 @Injectable()
 export class UserRepository {
   constructor(
@@ -104,14 +105,28 @@ export class UserRepository {
     await this.usersRepository.save(updatedUser);
     return true;
   }
+
   async search(
     offset: SearchUserOffsetDto,
-    filter: object | Array<object> = {},
+    filters: SearchUserFilterDto,
     fields: (keyof User)[],
     sort: SortUserDto[],
   ) {
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll = false } = offset.options ?? {};
+    const newFilters = {};
+    for (const key in filters) {
+      const value = filters[key];
+      if (typeof value === 'object' && value !== null) {
+        if (value.gte !== null) newFilters[key] = MoreThanOrEqual(value.gte);
+        else if (value.gt !== null) newFilters[key] = MoreThan(value.gt);
+        else if (value.lte !== null)
+          newFilters[key] = LessThanOrEqual(value.lte);
+        else if (value.lt !== null) newFilters[key] = LessThan(value.lt);
+      } else if (value !== null && value !== undefined) {
+        newFilters[key] = value;
+      }
+    }
     const sortOrder = {};
     sort.forEach((obj) => {
       const sortOrderBy = obj.orderBy.split('.');
@@ -134,7 +149,7 @@ export class UserRepository {
     if (isGetAll) {
       const entities = await this.usersRepository.find({
         select: newFields,
-        // where: filter ? filter : undefined,
+        where: newFilters ? newFilters : undefined,
         relations: newFields.includes('role')
           ? { role: { permission: true } }
           : undefined,
@@ -149,7 +164,7 @@ export class UserRepository {
       skip: skip || limit * (pageNumber - 1),
       take: limit,
       select: newFields,
-      // where: filter ? filter : undefined,
+      where: newFilters ? newFilters : undefined,
       relations: newFields.includes('role')
         ? { role: { permission: true } }
         : undefined,

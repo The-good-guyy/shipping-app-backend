@@ -6,19 +6,8 @@ import {
   IsBooleanString,
 } from 'class-validator';
 import { IsType } from '../../common/helpers';
-export type Gte = {
-  gte: string;
-};
-export type Lte = {
-  lte: string;
-};
-export type Lt = {
-  lt: string;
-};
-export type Gt = {
-  gt: string;
-};
-export class searchUserFilterDto {
+import { Gte, Lte, Lt, Gt } from '../../common/types';
+export class SearchUserFilterDto {
   @IsUUID()
   @IsOptional()
   id?: string;
@@ -37,9 +26,9 @@ export class searchUserFilterDto {
 
   @IsOptional()
   @IsType(['string', 'gte', 'lte', 'lt', 'gt'])
-  createdAt?: object | string;
+  createdAt?: string | Gte | Lte | Lt | Gt;
 
   @IsOptional()
   @IsType(['string', 'gte', 'lte', 'lt', 'gt'])
-  updatedAt?: object | string;
+  updatedAt?: string | Gte | Lte | Lt | Gt;
 }

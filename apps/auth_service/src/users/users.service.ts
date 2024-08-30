@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { EErrorMessage } from '../common/constants';
+import { EErrorMessage, UserFilterSearch } from '../common/constants';
 import { UserRepository } from './users.repository';
 import {
   CreateUserDto,
+  SearchUserFilterDto,
   SearchUserOffsetDto,
   SortUserDto,
   UpdateUserDto,
-  searchUserFilterDto,
 } from './dto';
 import { getChangedFields } from '../common/helpers';
 import { User } from './entities/user.entity';
@@ -60,7 +60,7 @@ export class UserService {
   }
   async search(
     offset: SearchUserOffsetDto,
-    filters: object | Array<object>,
+    filters: object,
     fields: string[],
     sort: { orderBy: string; order: string }[],
   ) {
@@ -86,19 +86,15 @@ export class UserService {
       }
     }
     sortObj = sortObj.length > 0 ? sortObj : [new SortUserDto()];
-    const filtersObjects: searchUserFilterDto[] = [];
-    for (const filter in filters) {
-      const filtersObject = new searchUserFilterDto();
-      for (const k in filtersObject) {
-        filtersObject[k] = filter[k] || undefined;
+    const filtersObject = new SearchUserFilterDto();
+    for (const k in filters) {
+      if (stringToEnum(UserFilterSearch, k)) {
+        filtersObject[k] = filters[k];
       }
-      filtersObjects.push(filtersObject);
     }
-    console.log(filters);
-    console.log(filtersObjects);
     return await this.userRepository.search(
       offset,
-      filtersObjects,
+      filtersObject,
       userFields,
       sortObj,
     );

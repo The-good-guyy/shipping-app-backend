@@ -26,7 +26,7 @@ export class UpdateUserDto
   @IsUrl()
   profileImage?: string;
 }
-export class updateUserPasswordDto implements Pick<UserInterface, 'password'> {
+export class UpdateUserPasswordDto implements Pick<UserInterface, 'password'> {
   @IsNotEmpty()
   @IsString()
   password: string;

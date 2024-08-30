@@ -4,8 +4,9 @@ import {
   ValidationOptions,
   isString,
   isInt,
+  isDate,
 } from 'class-validator';
-import { Gte, Lt, Lte, Gt } from '../../users/dto';
+import { Gte, Lt, Lte, Gt } from '../types';
 const typeValidator = {
   string: function (value: any, args: ValidationArguments) {
     return isString(value); // Use the imported isString function
@@ -14,16 +15,19 @@ const typeValidator = {
     return isInt(value); // Use the imported isInt function
   },
   gte: function (value: any, args: ValidationArguments): value is Gte {
-    return 'gte' in value && isString(value.gte);
+    return 'gte' in value && isDate(value.gte);
   },
   lte: function (value: any, args: ValidationArguments): value is Lte {
-    return 'lte' in value && isString(value.lte);
+    return 'lte' in value && isDate(value.lte);
   },
   lt: function (value: any, args: ValidationArguments): value is Lt {
-    return 'lt' in value && isString(value.lt);
+    return 'lt' in value && isDate(value.lt);
   },
   gt: function (value: any, args: ValidationArguments): value is Gt {
-    return 'gt' in value && isString(value.gt);
+    return 'gt' in value && isDate(value.gt);
+  },
+  date: function (value: any, args: ValidationArguments) {
+    return isDate(value); // Use the imported isDate function
   },
 };
 
