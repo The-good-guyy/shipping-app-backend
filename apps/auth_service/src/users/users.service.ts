@@ -58,6 +58,7 @@ export class UserService {
   async updateVerificationStatus(email: string) {
     return await this.userRepository.updateVerificationStatus(email);
   }
+
   async search(
     offset: SearchUserOffsetDto,
     filters: object,

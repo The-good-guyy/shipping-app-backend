@@ -2,6 +2,7 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PermissionAction, PermissionObject } from '../constants';
 import { PERMISSIONS_KEY } from '../decorators/permission.decorator';
+import { POSSESSION_KEY } from '../decorators/possession.decorator';
 @Injectable()
 export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
@@ -10,6 +11,10 @@ export class PermissionsGuard implements CanActivate {
     const requiredPermissions = this.reflector.getAllAndOverride<
       { action: PermissionAction; object: PermissionObject }[]
     >(PERMISSIONS_KEY, [context.getHandler(), context.getClass()]);
+    const possession = this.reflector.getAllAndOverride<string>(
+      POSSESSION_KEY,
+      [context.getHandler(), context.getClass()],
+    );
     if (!requiredPermissions) {
       return true;
     }
@@ -17,12 +22,17 @@ export class PermissionsGuard implements CanActivate {
     return requiredPermissions.some((permission) => {
       for (const userPermission of user.permissions) {
         if (
-          (userPermission.action === permission.action &&
-            userPermission.object === permission.object) ||
-          (userPermission.action === PermissionAction.MANAGE &&
-            userPermission.object === permission.object)
-        )
+          userPermission.action === permission.action &&
+          userPermission.object === permission.object &&
+          (!possession ||
+            userPermission.possession === 'any' ||
+            (userPermission.possession === 'own' &&
+              user.id ===
+                (context.switchToHttp().getRequest().params[possession] ||
+                  context.switchToHttp().getRequest().body[possession])))
+        ) {
           return true;
+        }
       }
     });
   }

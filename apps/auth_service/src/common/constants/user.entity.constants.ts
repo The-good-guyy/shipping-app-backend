@@ -40,3 +40,7 @@ export enum UserFieldSearch {
   CREATED_AT = 'createdAt',
   UPDATED_AT = 'updatedAt',
 }
+export enum PermissionPossession {
+  ANY = 'any',
+  OWN = 'own',
+}
