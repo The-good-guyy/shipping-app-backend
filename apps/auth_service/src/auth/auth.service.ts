@@ -15,6 +15,7 @@ import { Tokens } from './types';
 import { EErrorMessage } from '../common/constants';
 import { KafkaService } from '../kafka';
 import { randomBytes } from 'crypto';
+import { Permission } from '../permission/entities/permission.entity';
 import {
   confirmationEmailPrefix,
   resetPasswordEmailPrefix,
@@ -74,12 +75,18 @@ export class AuthService {
     });
     return true;
   }
-  async getTokens(userId: string, email: string) {
+  async getTokens(
+    userId: string,
+    email: string,
+    isVerified: boolean = false,
+    role: string,
+    permissions: Permission[],
+  ): Promise<Tokens> {
     const AT_TIME = Number(this.config.get<number>('AT_SECRET_TIME'));
     const RT_TIME = Number(this.config.get<number>('RT_SECRET_TIME'));
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, isVerified, role, permissions },
         {
           secret: this.config.get<string>('AT_SECRET'),
           expiresIn: AT_TIME,
@@ -103,7 +110,13 @@ export class AuthService {
     const hashPassword = await this.hashData(CreateUserDto.password);
     const newUser = { ...CreateUserDto, role, password: hashPassword };
     const searchUser = await this.usersService.create(newUser);
-    const tokens = await this.getTokens(searchUser.id, searchUser.email);
+    const tokens = await this.getTokens(
+      searchUser.id,
+      searchUser.email,
+      false,
+      searchUser.role.role,
+      searchUser.role.permission,
+    );
     this.sendConfirmationEmail(searchUser.email);
     this.updateRtHash(
       searchUser.id,
@@ -122,7 +135,13 @@ export class AuthService {
       user.password,
     );
     if (!passwordMatches) throw new ForbiddenException('Access Denied');
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(
+      user.id,
+      user.email,
+      user.isVerified,
+      user.role.role,
+      user.role.permission,
+    );
     this.updateRtHash(
       user.id,
       tokens.refresh_token,
@@ -142,7 +161,13 @@ export class AuthService {
       this.redisService.delete(userId);
       throw new ForbiddenException('Access Denied');
     }
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(
+      user.id,
+      user.email,
+      user.isVerified,
+      user.role.role,
+      user.role.permission,
+    );
     this.updateRtHash(
       user.id,
       tokens.refresh_token,

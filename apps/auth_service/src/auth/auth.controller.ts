@@ -12,7 +12,12 @@ import {
 import { Tokens } from './types';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
-import { AtGuard, RtGuard } from '../common/guard';
+import {
+  AtGuard,
+  RtGuard,
+  PermissionsGuard,
+  VerifiedGuard,
+} from '../common/guard';
 import { GetCurrentUser } from '../common/decorators';
 // import { KafkaService } from '../kafka';
 // import { SubscribeTo } from '../kafka';
@@ -84,6 +89,7 @@ export class AuthController {
     return this.authService.getMe(userId);
   }
 
+  @UseGuards(AtGuard, VerifiedGuard)
   @Get()
   getHello(): string {
     return 'get auth';

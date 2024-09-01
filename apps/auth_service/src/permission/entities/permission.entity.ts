@@ -6,7 +6,11 @@ import {
   BeforeUpdate,
 } from 'typeorm';
 import { IsString } from 'class-validator';
-import { PermissionAction, PermissionObject } from '../../common/constants';
+import {
+  PermissionAction,
+  PermissionObject,
+  PermissionPossession,
+} from '../../common/constants';
 @Entity({ name: 'permission' })
 export class Permission {
   @PrimaryGeneratedColumn('uuid')
@@ -29,6 +33,13 @@ export class Permission {
   })
   @IsString()
   object: PermissionObject;
+
+  @Column({
+    type: 'enum',
+    enum: PermissionPossession,
+  })
+  @IsString()
+  possession: PermissionPossession;
 
   @Column()
   createdAt: Date;

@@ -17,7 +17,7 @@ export class CreateUserDto
   @IsNotEmpty()
   @MinLength(8)
   @MaxLength(24)
-  @IsStrongPassword()
+  // @IsStrongPassword()
   password: string;
 
   @IsNotEmpty()
