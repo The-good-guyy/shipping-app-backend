@@ -53,8 +53,10 @@ export class RoleService {
       }
       permissions.push(searchPermission);
     }
+
     return await this.roleRepository.update({
-      ...UpdateRoleDto,
+      id: UpdateRoleDto.id,
+      role: UpdateRoleDto.role,
       permission: permissions,
     });
     // return await this.roleRepository.findByCode(UpdateRoleDto.id);

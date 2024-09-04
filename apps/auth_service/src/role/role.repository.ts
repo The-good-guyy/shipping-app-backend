@@ -28,7 +28,17 @@ export class RoleRepository {
     if (role) this.roleRepository.delete(role);
   }
   async update(UpdateRoleDto: UpdateRoleDto) {
-    const updatedRole = this.roleRepository.create(UpdateRoleDto);
+    const updatedRole = this.roleRepository.create({
+      ...UpdateRoleDto,
+      permission: UpdateRoleDto.permission,
+    });
+    return await this.roleRepository.save(updatedRole);
+  }
+  async updatePermissionOnRole(role: Role, permissions: Permission[]) {
+    const updatedRole = this.roleRepository.create({
+      ...role,
+      permission: permissions,
+    });
     return await this.roleRepository.save(updatedRole);
   }
   async findByCode(roleId: string): Promise<Role> {
@@ -37,13 +47,6 @@ export class RoleRepository {
       relations: ['permission'],
     });
     return role;
-  }
-  async updatePermissionOnRole(role: Role, permissions: Permission[]) {
-    const updatedRole = this.roleRepository.create({
-      ...role,
-      permission: permissions,
-    });
-    return await this.roleRepository.save(updatedRole);
   }
   async findByName(roleName: string) {
     const role = await this.roleRepository.findOne({

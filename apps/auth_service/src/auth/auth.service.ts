@@ -21,6 +21,7 @@ import {
   resetPasswordEmailPrefix,
 } from '../common/constants';
 import { getRandomIntInclusive } from '../common/helpers';
+import { de } from '@faker-js/faker';
 @Injectable()
 export class AuthService {
   constructor(
@@ -80,7 +81,7 @@ export class AuthService {
     email: string,
     isVerified: boolean = false,
     role: string,
-    permissions: Permission[],
+    permissions: Partial<Permission>[],
   ): Promise<Tokens> {
     const AT_TIME = Number(this.config.get<number>('AT_SECRET_TIME'));
     const RT_TIME = Number(this.config.get<number>('RT_SECRET_TIME'));
@@ -110,6 +111,13 @@ export class AuthService {
     const hashPassword = await this.hashData(CreateUserDto.password);
     const newUser = { ...CreateUserDto, role, password: hashPassword };
     const searchUser = await this.usersService.create(newUser);
+    searchUser.role.permission = searchUser.role.permission.map((p) => {
+      delete p.id;
+      delete p.permission;
+      delete p.createdAt;
+      delete p.updatedAt;
+      return p;
+    });
     const tokens = await this.getTokens(
       searchUser.id,
       searchUser.email,
@@ -135,6 +143,13 @@ export class AuthService {
       user.password,
     );
     if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    user.role.permission = user.role.permission.map((p) => {
+      delete p.id;
+      delete p.permission;
+      delete p.createdAt;
+      delete p.updatedAt;
+      return p;
+    });
     const tokens = await this.getTokens(
       user.id,
       user.email,
@@ -161,6 +176,13 @@ export class AuthService {
       this.redisService.delete(userId);
       throw new ForbiddenException('Access Denied');
     }
+    user.role.permission = user.role.permission.map((p) => {
+      delete p.id;
+      delete p.permission;
+      delete p.createdAt;
+      delete p.updatedAt;
+      return p;
+    });
     const tokens = await this.getTokens(
       user.id,
       user.email,

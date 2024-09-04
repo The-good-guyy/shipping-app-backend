@@ -2,6 +2,7 @@ export enum UserRole {
   ADMIN = 'admin',
   USER = 'user',
   UNVERIFIED = 'unverified',
+  SYSADMIN = 'sysadmin',
 }
 export enum PermissionAction {
   READ = 'read',
@@ -14,6 +15,8 @@ export enum PermissionAction {
 export enum PermissionObject {
   USER = 'user',
   ROUTE = 'route',
+  ROLE = 'role',
+  PERMISSION = 'permission',
   NONE = 'none',
 }
 export enum UserOrderBySearch {

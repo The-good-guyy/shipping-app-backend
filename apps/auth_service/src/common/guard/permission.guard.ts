@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { PermissionAction, PermissionObject } from '../constants';
 import { PERMISSIONS_KEY } from '../decorators/permission.decorator';
 import { POSSESSION_KEY } from '../decorators/possession.decorator';
+import { deepGet } from '../helpers';
 @Injectable()
 export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
@@ -19,6 +20,10 @@ export class PermissionsGuard implements CanActivate {
       return true;
     }
     const { user } = context.switchToHttp().getRequest();
+    const funcPossession = deepGet(
+      context.switchToHttp().getRequest(),
+      possession,
+    );
     return requiredPermissions.some((permission) => {
       for (const userPermission of user.permissions) {
         if (
@@ -27,9 +32,7 @@ export class PermissionsGuard implements CanActivate {
           (!possession ||
             userPermission.possession === 'any' ||
             (userPermission.possession === 'own' &&
-              user.id ===
-                (context.switchToHttp().getRequest().params[possession] ||
-                  context.switchToHttp().getRequest().body[possession])))
+              user.sub === funcPossession))
         ) {
           return true;
         }

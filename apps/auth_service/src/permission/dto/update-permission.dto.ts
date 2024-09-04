@@ -1,9 +1,16 @@
 import { IsNotEmpty, IsString, IsEnum, IsUUID } from 'class-validator';
-import { PermissionObject, PermissionAction } from '../../common/constants';
+import {
+  PermissionObject,
+  PermissionAction,
+  PermissionPossession,
+} from '../../common/constants';
 import { PermissionInterface } from '../entities/permission.interface';
 export class UdpatePermissionDto
   implements
-    Pick<PermissionInterface, 'id' | 'permission' | 'action' | 'object'>
+    Pick<
+      PermissionInterface,
+      'id' | 'permission' | 'action' | 'object' | 'possession'
+    >
 {
   @IsNotEmpty()
   @IsUUID()
@@ -20,4 +27,8 @@ export class UdpatePermissionDto
   @IsNotEmpty()
   @IsEnum(PermissionObject)
   object: PermissionObject;
+
+  @IsNotEmpty()
+  @IsEnum(PermissionPossession)
+  possession: PermissionPossession;
 }

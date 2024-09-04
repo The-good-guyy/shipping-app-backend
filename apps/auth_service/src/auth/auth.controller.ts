@@ -18,7 +18,8 @@ import {
   PermissionsGuard,
   VerifiedGuard,
 } from '../common/guard';
-import { GetCurrentUser } from '../common/decorators';
+import { GetCurrentUser, Permissions, Possessions } from '../common/decorators';
+import { PermissionAction, PermissionObject } from '../common/constants';
 // import { KafkaService } from '../kafka';
 // import { SubscribeTo } from '../kafka';
 @Controller('auth')
@@ -88,10 +89,11 @@ export class AuthController {
     console.log(userId);
     return this.authService.getMe(userId);
   }
-
-  @UseGuards(AtGuard, VerifiedGuard)
-  @Get()
-  getHello(): string {
-    return 'get auth';
+  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({ action: PermissionAction.READ, object: PermissionObject.USER })
+  @Possessions('body.id')
+  @Post()
+  postHello(@Body() body) {
+    return body;
   }
 }

@@ -29,6 +29,8 @@ export class RoleController {
   async findOneByName(@Body() findOneByNameDto: { name: string }) {
     return this.roleService.findByName(findOneByNameDto.name);
   }
+
+  // Update role is obselete ,please use updatePermission instead
   @Patch()
   @HttpCode(HttpStatus.OK)
   async update(@Body() UpdateRoleDto: UpdateRoleDto) {
