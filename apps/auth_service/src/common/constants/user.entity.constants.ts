@@ -46,4 +46,5 @@ export enum UserFieldSearch {
 export enum PermissionPossession {
   ANY = 'any',
   OWN = 'own',
+  GROUP = 'group',
 }

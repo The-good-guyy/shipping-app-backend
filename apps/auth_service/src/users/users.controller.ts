@@ -10,6 +10,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './users.service';
 import {
@@ -22,10 +23,12 @@ import { AtGuard, PermissionsGuard, VerifiedGuard } from '../common/guard';
 import { PermissionAction, PermissionObject } from '../common/constants';
 import { Permissions, Possessions } from '../common/decorators';
 import { OffsetPaginationDto } from '../common/dto';
+import { NotFoundInterceptor } from '../common/interceptors';
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
   @Post()
+  @UseInterceptors(NotFoundInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() CreateUserDto: CreateUserDto) {
     return this.userService.create(CreateUserDto);
@@ -67,12 +70,14 @@ export class UsersController {
   }
 
   @Get(':id/sensitive')
+  @UseInterceptors(NotFoundInterceptor)
   @HttpCode(HttpStatus.OK)
   async findByIdWithSensitiveInfo(@Param('id') id: string) {
     return this.userService.findByIdWithSensitiveInfo(id);
   }
 
   @Patch(':id/password')
+  @UseInterceptors(NotFoundInterceptor)
   @HttpCode(HttpStatus.OK)
   async updatePassword(
     @Param('id') id: string,
