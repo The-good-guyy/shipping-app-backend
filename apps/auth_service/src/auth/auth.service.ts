@@ -21,7 +21,6 @@ import {
   resetPasswordEmailPrefix,
 } from '../common/constants';
 import { getRandomIntInclusive } from '../common/helpers';
-import { de } from '@faker-js/faker';
 @Injectable()
 export class AuthService {
   constructor(
@@ -98,6 +97,7 @@ export class AuthService {
         {
           secret: this.config.get<string>('RT_SECRET'),
           expiresIn: RT_TIME,
+          notBefore: AT_TIME - 30,
         },
       ),
     ]);
@@ -171,7 +171,10 @@ export class AuthService {
   async refreshTokens(userId: string, rt: string) {
     const user = await this.usersService.findById(userId);
     if (!user) throw new ForbiddenException('Access Denied');
-    const cachedItem = await this.redisService.get(userId);
+    const [cachedItem, ExpireTime] = await Promise.all([
+      this.redisService.get(userId),
+      this.redisService.til(userId),
+    ]);
     if (!cachedItem || cachedItem !== rt) {
       this.redisService.delete(userId);
       throw new ForbiddenException('Access Denied');
@@ -190,11 +193,7 @@ export class AuthService {
       user.role.role,
       user.role.permission,
     );
-    this.updateRtHash(
-      user.id,
-      tokens.refresh_token,
-      this.config.get<number>('RT_SECRET_TIME'),
-    );
+    this.updateRtHash(user.id, tokens.refresh_token, ExpireTime);
     return tokens;
   }
   async getMe(userId: string) {
