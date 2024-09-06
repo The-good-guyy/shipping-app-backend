@@ -2,14 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateUserDto,
   UpdateUserDto,
-  SearchUserOffsetDto,
+  SearchUsersOffsetDto,
   SortUserDto,
-  SearchUserFilterDto,
+  SearchUsersFilterDto,
 } from './dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { EErrorMessage } from '../common/constants';
+import { EErrorMessage, SortOrder } from '../common/constants';
 import { getCols } from '../common/helpers';
 import { MoreThan, LessThan, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 @Injectable()
@@ -107,8 +107,8 @@ export class UserRepository {
   }
 
   async search(
-    offset: SearchUserOffsetDto,
-    filters: SearchUserFilterDto,
+    offset: SearchUsersOffsetDto,
+    filters: SearchUsersFilterDto,
     fields: (keyof User)[],
     sort: SortUserDto[],
   ) {
@@ -124,26 +124,25 @@ export class UserRepository {
           newFilters[key] = LessThanOrEqual(value.lte);
         else if (value.lt !== null) newFilters[key] = LessThan(value.lt);
       } else if (value !== null && value !== undefined) {
-        newFilters[key] = value;
-      }
+        const keyValue = key.split('_');
+        let o = newFilters;
+        for (let i = 0; i < keyValue.length - 1; i++) {
+          const prop = keyValue[i];
+          o[prop] = o[prop] || {};
+          o = o[prop];
+        }
+        o[keyValue[keyValue.length - 1]] = value;
     }
     const sortOrder = {};
     sort.forEach((obj) => {
       const sortOrderBy = obj.orderBy.split('.');
-      if (sortOrderBy.length == 1) {
-        sortOrder[sortOrderBy[0]] = obj.order;
-      } else {
-        const object = {};
-        sortOrder[sortOrderBy[0]] = object;
-        let o = object;
-        for (let i = 1; i < sortOrderBy.length; i++) {
-          if (i == sortOrderBy.length - 1) {
-            o[sortOrderBy[i]] = obj.order;
-          } else {
-            o = o[sortOrderBy[i]] = {};
-          }
-        }
+      let object = sortOrder;
+      for (let i = 0; i < sortOrderBy.length - 1; i++) {
+        const prop = sortOrderBy[i];
+        object[prop] = {}
+        object = object[prop];
       }
+      object[sortOrderBy[sortOrderBy.length - 1]] = obj.order
     });
     const newFields = fields.filter((obj) => obj != 'password');
     if (isGetAll) {
@@ -168,7 +167,7 @@ export class UserRepository {
       relations: newFields.includes('role')
         ? { role: { permission: true } }
         : undefined,
-      order: { role: { id: 'ASC' } },
+      order: sortOrder ? sortOrder : undefined,
     });
     return {
       pageNumber,

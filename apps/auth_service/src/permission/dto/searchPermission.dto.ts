@@ -1,26 +1,22 @@
 import { Gte, Lt, Lte, Gt } from '../../common/types';
 import { Transform } from 'class-transformer';
-import {
-  IsInt,
-  IsOptional,
-  IsString,
-  IsUUID,
-  IsBoolean,
-  IsEnum,
-} from 'class-validator';
+import { IsInt, IsOptional, IsString, IsUUID, IsEnum } from 'class-validator';
 import { IsType } from '../../common/helpers';
-import { PartialPick } from '../../common/types';
-import { UserInterface } from '../entities/user.interface';
+import { PermissionInterface } from '../entities/permission.interface';
 import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
 } from '../../common/constants';
-export class SearchUsersDto
+import { PartialPick } from '../../common/types';
+export class SearchPermissionsDto
   implements
     PartialPick<
-      Pick<UserInterface, 'id' | 'username' | 'email' | 'isVerified'>,
-      'id' | 'username' | 'email' | 'isVerified'
+      Pick<
+        PermissionInterface,
+        'permission' | 'action' | 'object' | 'possession'
+      >,
+      'permission' | 'action' | 'object' | 'possession'
     >
 {
   @IsOptional()
@@ -50,45 +46,19 @@ export class SearchUsersDto
 
   @IsString()
   @IsOptional()
-  username?: string;
-
-  @IsOptional()
-  email?: string;
-
-  @IsOptional()
-  @Transform(({ value }) => {
-    return Boolean(value);
-  })
-  @IsBoolean()
-  isVerified?: boolean;
-
-  @IsOptional()
-  @IsUUID()
-  role_id?: string;
-
-  @IsOptional()
-  @IsString()
-  role_role?: string;
-
-  @IsOptional()
-  @IsUUID()
-  role_permission_id?: string;
-
-  @IsOptional()
-  @IsString()
-  role_permission_permission?: string;
+  permission?: string;
 
   @IsOptional()
   @IsEnum(PermissionAction)
-  role_permission_action?: PermissionAction;
+  action: PermissionAction;
 
   @IsOptional()
   @IsEnum(PermissionObject)
-  role_permission_object?: PermissionObject;
+  object: PermissionObject;
 
   @IsOptional()
   @IsEnum(PermissionPossession)
-  role_permission_possession?: PermissionPossession;
+  possession: PermissionPossession;
 
   @IsOptional()
   @Transform(({ value }) => {

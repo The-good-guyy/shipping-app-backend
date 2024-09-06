@@ -22,9 +22,13 @@ export enum PermissionObject {
 export enum UserOrderBySearch {
   CREATED_AT = 'createdAt',
   UPDATED_AT = 'updatedAt',
-  ROLE = 'role',
   ROLE_ID = 'role.id',
   ROLE_ROLE = 'role.role',
+  ROLE_PERMISSION_ID = 'role.permission.id',
+  ROLE_PERMISSION_PERMISSION = 'role.permission.permission',
+  ROLE_PERMISSION_ACTION = 'role.permission.action',
+  ROLE_PERMISSION_OBJECT = 'role.permission.object',
+  ROLE_PERMISSION_POSSESSION = 'role.permission.possession',
 }
 export enum UserFilterSearch {
   ID = 'id',
@@ -33,6 +37,13 @@ export enum UserFilterSearch {
   IS_VERIFIED = 'isVerified',
   CREATED_AT = 'createdAt',
   UPDATED_AT = 'updatedAt',
+  ROLE_ID = 'role_id',
+  ROLE_ROLE = 'role_role',
+  ROLE_PERMISSION_ID = 'role_permission_id',
+  ROLE_PERMISSION_PERMISSION = 'role_permission_permission',
+  ROLE_PERMISSION_ACTION = 'role_permission_action',
+  ROLE_PERMISSION_OBJECT = 'role_permission_object',
+  ROLE_PERMISSION_POSSESSION = 'role_permission_possession',
 }
 export enum UserFieldSearch {
   ID = 'id',

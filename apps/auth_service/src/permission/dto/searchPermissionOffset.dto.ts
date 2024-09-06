@@ -1,2 +1,2 @@
 import { SearchOffsetPaginationDto } from '../../common/dto/searchOffsetPagination.dto';
-export class SearchUsersOffsetDto extends SearchOffsetPaginationDto {}
+export class SearchPermissionOffsetDto extends SearchOffsetPaginationDto {}

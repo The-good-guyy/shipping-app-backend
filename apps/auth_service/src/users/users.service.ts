@@ -3,8 +3,8 @@ import { EErrorMessage, UserFilterSearch } from '../common/constants';
 import { UserRepository } from './users.repository';
 import {
   CreateUserDto,
-  SearchUserFilterDto,
-  SearchUserOffsetDto,
+  SearchUsersFilterDto,
+  SearchUsersOffsetDto,
   SortUserDto,
   UpdateUserDto,
 } from './dto';
@@ -60,7 +60,7 @@ export class UserService {
   }
 
   async search(
-    offset: SearchUserOffsetDto,
+    offset: SearchUsersOffsetDto,
     filters: object,
     fields: string[],
     sort: { orderBy: string; order: string }[],
@@ -87,7 +87,7 @@ export class UserService {
       }
     }
     sortObj = sortObj.length > 0 ? sortObj : [new SortUserDto()];
-    const filtersObject = new SearchUserFilterDto();
+    const filtersObject = new SearchUsersFilterDto();
     for (const k in filters) {
       if (stringToEnum(UserFilterSearch, k)) {
         filtersObject[k] = filters[k];

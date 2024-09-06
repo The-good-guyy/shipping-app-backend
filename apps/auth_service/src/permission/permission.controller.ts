@@ -72,4 +72,10 @@ export class PermissionController {
   async remove(@Param('id') id: string) {
     return this.permissionService.remove(id);
   }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async findAll() {
+    return 'findAll';
+  }
 }

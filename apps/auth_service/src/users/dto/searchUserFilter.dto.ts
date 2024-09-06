@@ -3,11 +3,25 @@ import {
   IsString,
   IsUUID,
   IsEmail,
-  IsBooleanString,
+  IsBoolean,
+  IsEnum,
 } from 'class-validator';
 import { IsType } from '../../common/helpers';
 import { Gte, Lte, Lt, Gt } from '../../common/types';
-export class SearchUserFilterDto {
+import { PartialPick } from '../../common/types';
+import { UserInterface } from '../entities/user.interface';
+import {
+  PermissionAction,
+  PermissionObject,
+  PermissionPossession,
+} from '../../common/constants';
+export class SearchUsersFilterDto
+  implements
+    PartialPick<
+      Pick<UserInterface, 'id' | 'username' | 'email' | 'isVerified'>,
+      'id' | 'username' | 'email' | 'isVerified'
+    >
+{
   @IsUUID()
   @IsOptional()
   id?: string;
@@ -20,15 +34,43 @@ export class SearchUserFilterDto {
   @IsOptional()
   email?: string;
 
-  @IsBooleanString()
+  @IsBoolean()
   @IsOptional()
-  isVerified?: string;
+  isVerified?: boolean;
 
   @IsOptional()
-  @IsType(['string', 'gte', 'lte', 'lt', 'gt'])
-  createdAt?: string | Gte | Lte | Lt | Gt;
+  @IsUUID()
+  role_id?: string;
 
   @IsOptional()
-  @IsType(['string', 'gte', 'lte', 'lt', 'gt'])
-  updatedAt?: string | Gte | Lte | Lt | Gt;
+  @IsString()
+  role_role?: string;
+
+  @IsOptional()
+  @IsUUID()
+  role_permission_id?: string;
+
+  @IsOptional()
+  @IsString()
+  role_permission_permission?: string;
+
+  @IsOptional()
+  @IsEnum(PermissionAction)
+  role_permission_action?: PermissionAction;
+
+  @IsOptional()
+  @IsEnum(PermissionObject)
+  role_permission_object?: PermissionObject;
+
+  @IsOptional()
+  @IsEnum(PermissionPossession)
+  role_permission_possession?: PermissionPossession;
+
+  @IsOptional()
+  @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
+  createdAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
+
+  @IsOptional()
+  @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
+  updatedAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
 }

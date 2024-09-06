@@ -16,7 +16,7 @@ import { UserService } from './users.service';
 import {
   CreateUserDto,
   UpdateUserDto,
-  SearchUserOffsetDto,
+  SearchUsersOffsetDto,
   SearchUsersDto,
 } from './dto';
 import { AtGuard, PermissionsGuard, VerifiedGuard } from '../common/guard';
@@ -119,7 +119,7 @@ export class UsersController {
     offset.pageNumber = query.page || offset.pageNumber;
     offset.limit = query.limit || offset.limit;
     offset.skip = query.skip || undefined;
-    const searchOffset = new SearchUserOffsetDto();
+    const searchOffset = new SearchUsersOffsetDto();
     searchOffset.pagination = offset;
     return await this.userService.search(
       searchOffset,

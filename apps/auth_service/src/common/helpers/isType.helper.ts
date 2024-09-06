@@ -14,16 +14,22 @@ const typeValidator = {
   int: function (value: any, args: ValidationArguments) {
     return isInt(value); // Use the imported isInt function
   },
-  gte: function (value: any, args: ValidationArguments): value is Gte {
+  gteDate: function (
+    value: any,
+    args: ValidationArguments,
+  ): value is Gte<Date> {
     return 'gte' in value && isDate(value.gte);
   },
-  lte: function (value: any, args: ValidationArguments): value is Lte {
+  lteDate: function (
+    value: any,
+    args: ValidationArguments,
+  ): value is Lte<Date> {
     return 'lte' in value && isDate(value.lte);
   },
-  lt: function (value: any, args: ValidationArguments): value is Lt {
+  ltDate: function (value: any, args: ValidationArguments): value is Lt<Date> {
     return 'lt' in value && isDate(value.lt);
   },
-  gt: function (value: any, args: ValidationArguments): value is Gt {
+  gtDate: function (value: any, args: ValidationArguments): value is Gt<Date> {
     return 'gt' in value && isDate(value.gt);
   },
   date: function (value: any, args: ValidationArguments) {

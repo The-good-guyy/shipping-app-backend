@@ -1,12 +1,12 @@
-export type Gte = {
-  gte: Date;
+export type Gte<T> = {
+  gte: T;
 };
-export type Lte = {
-  lte: Date;
+export type Lte<T> = {
+  lte: T;
 };
-export type Lt = {
-  lt: Date;
+export type Lt<T> = {
+  lt: T;
 };
-export type Gt = {
-  gt: Date;
+export type Gt<T> = {
+  gt: T;
 };
