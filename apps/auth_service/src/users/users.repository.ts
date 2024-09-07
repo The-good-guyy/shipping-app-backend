@@ -12,6 +12,7 @@ import { User } from './entities/user.entity';
 import { EErrorMessage, SortOrder } from '../common/constants';
 import { getCols } from '../common/helpers';
 import { MoreThan, LessThan, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { fi } from '@faker-js/faker';
 @Injectable()
 export class UserRepository {
   constructor(
@@ -113,25 +114,29 @@ export class UserRepository {
     sort: SortUserDto[],
   ) {
     const { limit, pageNumber, skip } = offset.pagination;
-    const { isGetAll = false } = offset.options ?? {};
+    const { isGetAll } = offset.options ?? {};
     const newFilters = {};
     for (const key in filters) {
       const value = filters[key];
       if (typeof value === 'object' && value !== null) {
-        if (value.gte !== null) newFilters[key] = MoreThanOrEqual(value.gte);
-        else if (value.gt !== null) newFilters[key] = MoreThan(value.gt);
-        else if (value.lte !== null)
-          newFilters[key] = LessThanOrEqual(value.lte);
-        else if (value.lt !== null) newFilters[key] = LessThan(value.lt);
-      } else if (value !== null && value !== undefined) {
-        const keyValue = key.split('_');
-        let o = newFilters;
-        for (let i = 0; i < keyValue.length - 1; i++) {
-          const prop = keyValue[i];
-          o[prop] = o[prop] || {};
-          o = o[prop];
-        }
-        o[keyValue[keyValue.length - 1]] = value;
+        if (value.gte !== null && value.gte !== undefined) {
+          filters[key] = MoreThanOrEqual(value.gte);
+        } else if (value.gt !== null && value.gt !== undefined) {
+          filters[key] = MoreThan(value.gt);
+        } else if (value.lte !== null && value.lte !== undefined)
+          filters[key] = LessThanOrEqual(value.lte);
+        else if (value.lt !== null && value.lt !== undefined)
+          filters[key] = LessThan(value.lt);
+      }
+      const newValues = filters[key];
+      const keyValue = key.split('_');
+      let o = newFilters;
+      for (let i = 0; i < keyValue.length - 1; i++) {
+        const prop = keyValue[i];
+        o[prop] = o[prop] || {};
+        o = o[prop];
+      }
+      o[keyValue[keyValue.length - 1]] = newValues;
     }
     const sortOrder = {};
     sort.forEach((obj) => {
@@ -139,10 +144,10 @@ export class UserRepository {
       let object = sortOrder;
       for (let i = 0; i < sortOrderBy.length - 1; i++) {
         const prop = sortOrderBy[i];
-        object[prop] = {}
+        object[prop] = {};
         object = object[prop];
       }
-      object[sortOrderBy[sortOrderBy.length - 1]] = obj.order
+      object[sortOrderBy[sortOrderBy.length - 1]] = obj.order;
     });
     const newFields = fields.filter((obj) => obj != 'password');
     if (isGetAll) {

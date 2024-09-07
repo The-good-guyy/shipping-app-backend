@@ -20,6 +20,9 @@ export enum PermissionObject {
   NONE = 'none',
 }
 export enum UserOrderBySearch {
+  USERNAME = 'username',
+  EMAIL = 'email',
+  IS_VERIFIED = 'isVerified',
   CREATED_AT = 'createdAt',
   UPDATED_AT = 'updatedAt',
   ROLE_ID = 'role.id',

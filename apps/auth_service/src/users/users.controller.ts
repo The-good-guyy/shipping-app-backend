@@ -22,7 +22,7 @@ import {
 import { AtGuard, PermissionsGuard, VerifiedGuard } from '../common/guard';
 import { PermissionAction, PermissionObject } from '../common/constants';
 import { Permissions, Possessions } from '../common/decorators';
-import { OffsetPaginationDto } from '../common/dto';
+import { OffsetPaginationDto, OffsetPaginationOptionDto } from '../common/dto';
 import { NotFoundInterceptor } from '../common/interceptors';
 @Controller('users')
 export class UsersController {
@@ -119,8 +119,11 @@ export class UsersController {
     offset.pageNumber = query.page || offset.pageNumber;
     offset.limit = query.limit || offset.limit;
     offset.skip = query.skip || undefined;
+    const options = new OffsetPaginationOptionDto();
+    options.isGetAll = query.getAll || undefined;
     const searchOffset = new SearchUsersOffsetDto();
     searchOffset.pagination = offset;
+    searchOffset.options = options;
     return await this.userService.search(
       searchOffset,
       filterQuery,

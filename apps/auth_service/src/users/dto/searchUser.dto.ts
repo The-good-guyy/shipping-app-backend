@@ -96,6 +96,7 @@ export class SearchUsersDto
     if (value.gte) value.gte = new Date(value.gte);
     if (value.lte) value.lte = new Date(value.lte);
     if (value.gt) value.gt = new Date(value.gt);
+    if (value.lt) value.lt = new Date(value.lt);
     return value;
   })
   @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
@@ -103,7 +104,12 @@ export class SearchUsersDto
 
   @IsOptional()
   @Transform(({ value }) => {
-    return typeof value === 'string' ? new Date(value) : value;
+    if (typeof value === 'string') return new Date(value);
+    if (value.gte) value.gte = new Date(value.gte);
+    if (value.lte) value.lte = new Date(value.lte);
+    if (value.gt) value.gt = new Date(value.gt);
+    if (value.lt) value.lt = new Date(value.lt);
+    return value;
   })
   @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
   updatedAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
@@ -117,5 +123,13 @@ export class SearchUsersDto
   fields?: string;
 
   @IsOptional()
+  @IsString()
   searchTerm?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    return Boolean(value);
+  })
+  @IsBoolean()
+  getAll?: boolean;
 }
