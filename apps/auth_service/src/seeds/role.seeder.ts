@@ -23,6 +23,14 @@ export class RoleSeeder implements Seeder {
       update_routes,
       update_own_users,
       update_own_routes,
+      read_roles,
+      create_roles,
+      delete_roles,
+      update_roles,
+      read_permissions,
+      create_permissions,
+      delete_permissions,
+      update_permissions,
     ] = await Promise.all([
       permissionRepository.findOne({
         where: {
@@ -94,6 +102,46 @@ export class RoleSeeder implements Seeder {
           permission: 'update_own_routes',
         },
       }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'read_roles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'create_roles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'delete_roles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_roles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'read_permissions',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'create_permissions',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'delete_permissions',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_permissions',
+        },
+      }),
     ]);
     const user_role = roleData.find((role) => role.role === 'user');
     user_role.permission = [
@@ -116,15 +164,41 @@ export class RoleSeeder implements Seeder {
       update_users,
       update_routes,
     ];
-    await roleRepository.save({
-      ...user_role,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    await roleRepository.save({
-      ...admin_role,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    const sysadmin_role = roleData.find((role) => role.role === 'sysadmin');
+    sysadmin_role.permission = [
+      read_routes,
+      read_users,
+      create_users,
+      create_routes,
+      delete_users,
+      delete_routes,
+      update_users,
+      update_routes,
+      read_roles,
+      create_roles,
+      delete_roles,
+      update_roles,
+      read_permissions,
+      create_permissions,
+      delete_permissions,
+      update_permissions,
+    ];
+    await Promise.all([
+      roleRepository.save({
+        ...user_role,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+      roleRepository.save({
+        ...admin_role,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+      roleRepository.save({
+        ...sysadmin_role,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+    ]);
   }
 }

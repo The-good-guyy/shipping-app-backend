@@ -116,6 +116,7 @@ export class UserRepository {
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll } = offset.options ?? {};
     const newFilters = {};
+    const newFields = fields.filter((obj) => obj != 'password');
     for (const key in filters) {
       const value = filters[key];
       if (typeof value === 'object' && value !== null) {
@@ -149,7 +150,6 @@ export class UserRepository {
       }
       object[sortOrderBy[sortOrderBy.length - 1]] = obj.order;
     });
-    const newFields = fields.filter((obj) => obj != 'password');
     if (isGetAll) {
       const entities = await this.usersRepository.find({
         select: newFields,
