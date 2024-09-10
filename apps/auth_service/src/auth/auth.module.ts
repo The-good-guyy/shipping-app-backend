@@ -7,6 +7,7 @@ import {
   AtStrategy,
   AtCookieStrategy,
   RtCookieStrategy,
+  ForgotPasswordStrategy,
 } from './strategies';
 import { UserModule } from '../users/users.module';
 import { RedisModule } from '../redis/redis.module';
@@ -40,6 +41,7 @@ import { KafkaModule } from '../kafka';
     RtStrategy,
     AtCookieStrategy,
     RtCookieStrategy,
+    ForgotPasswordStrategy,
   ],
 })
 export class AuthModule {}

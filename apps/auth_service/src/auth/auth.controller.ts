@@ -20,6 +20,7 @@ import {
   RtGuard,
   PermissionsGuard,
   VerifiedGuard,
+  ForgotPasswordGuard,
 } from '../common/guard';
 import { GetCurrentUser, Permissions, Possessions } from '../common/decorators';
 import { PermissionAction, PermissionObject } from '../common/constants';
@@ -99,6 +100,28 @@ export class AuthController {
   @Post()
   postHello(@Body() body) {
     return body;
+  }
+
+  @Post('/forgot-password')
+  sendForgotPasswordEmail(@Body('email') email: string) {
+    return this.authService.sendForgotPasswordEmail(email);
+  }
+
+  @UseGuards(ForgotPasswordGuard)
+  @Get('/forgot-password/:token')
+  confirmForgotPassword(
+    @GetCurrentUser('sub') userId: string,
+    @GetCurrentUser('token') token: string,
+  ) {
+    return this.authService.confirmForgotPasswordEmail(userId, token);
+  }
+
+  @Post('/reset-forgot-password/:token')
+  resetPassword(
+    @Param('token') token: string,
+    @Body('password') password: string,
+  ) {
+    return this.authService.resetForgotPassword(token, password);
   }
 
   @UseGuards(AtCookieGuard)

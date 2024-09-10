@@ -19,6 +19,8 @@ import { Permission } from '../permission/entities/permission.entity';
 import {
   confirmationEmailPrefix,
   resetPasswordEmailPrefix,
+  forgotPasswordEmailPrefix,
+  forgotPasswordFormPrefix,
 } from '../common/constants';
 import { getRandomIntInclusive } from '../common/helpers';
 @Injectable()
@@ -37,6 +39,56 @@ export class AuthService {
   updateRtHash(userId: string, rt: string, ex?: number) {
     this.redisService.insert(userId, rt, ex);
   }
+  async sendForgotPasswordEmail(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    const id = user.id;
+    const time = this.config.get<number>('EXPIRE_FORGOT_PASSWORD_EMAIL_TIME');
+    const token = await this.jwtService.signAsync(
+      { sub: id },
+      {
+        secret: this.config.get<string>('FORGOT_PASSWORD_SECRET'),
+        expiresIn: time,
+      },
+    );
+    this.redisService.insert(
+      forgotPasswordEmailPrefix + id,
+      token,
+      Number(time),
+    );
+    const forgotPasswordURL =
+      this.config.get<string>('AUTH_SERVICE_URL') + '/forgot-password/' + token;
+    this.client.send({
+      topic: 'send-forgot-password-email',
+      messages: [
+        {
+          value: JSON.stringify({ id, url: forgotPasswordURL, ttl: time }),
+          key: id,
+        },
+      ],
+    });
+    return true;
+  }
+  async confirmForgotPasswordEmail(id: string, token: string) {
+    const savedToken = await this.redisService.get(
+      forgotPasswordEmailPrefix + id,
+    );
+    this.redisService.delete(forgotPasswordEmailPrefix + id);
+    if (!savedToken || savedToken != token)
+      throw new NotFoundException(EErrorMessage.TOKEN_INVALID);
+    const newToken = randomBytes(32).toString('hex');
+    const time = this.config.get<number>('EXPIRE_FORGOT_PASSWORD_FORM_TIME');
+    this.redisService.insert(forgotPasswordFormPrefix + newToken, id, time);
+    return newToken;
+  }
+  async resetForgotPassword(token: string, password: string) {
+    const id = await this.redisService.get(forgotPasswordFormPrefix + token);
+    if (!id) throw new NotFoundException(EErrorMessage.TOKEN_INVALID);
+    this.redisService.delete(forgotPasswordFormPrefix + token);
+    const hashPassword = await this.hashData(password);
+    await this.usersService.updatePassword(id, hashPassword);
+    return true;
+  }
   sendConfirmationEmail(email: string) {
     const time = this.config.get<number>('EXPIRE_CONFIR_EMAIL_TIME');
     const token = randomBytes(32).toString('hex');
@@ -45,10 +97,19 @@ export class AuthService {
       email,
       Number(time),
     );
+    const emailConfirmationURL =
+      this.config.get<string>('AUTH_SERVICE_URL') + '/confirm-email/' + token;
     this.client.send({
       topic: 'send-confirmation-email',
       messages: [
-        { value: JSON.stringify({ email, token, ttl: time }), key: email },
+        {
+          value: JSON.stringify({
+            email,
+            url: emailConfirmationURL,
+            ttl: time,
+          }),
+          key: email,
+        },
       ],
     });
   }
