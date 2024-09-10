@@ -54,12 +54,12 @@ export class AuthService {
   }
   async confirmEmail(token: string) {
     const email = await this.redisService.get(confirmationEmailPrefix + token);
-    if (!email) throw new NotFoundException('Token is invalid or expired');
+    if (!email) throw new NotFoundException(EErrorMessage.TOKEN_INVALID);
     return await this.usersService.updateVerificationStatus(email);
   }
   async sendResetPasswordEmail(email: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
     const time = this.config.get<number>('EXPIRE_RESET_PASSWORD_EMAIL_TIME');
     const otp = getRandomIntInclusive(10000000, 99999999).toString();
     this.redisService.insert(
@@ -137,12 +137,13 @@ export class AuthService {
     const user = await this.usersService.findByEmailWithSensitiveInfo(
       LoginUserDto.email,
     );
-    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
     const passwordMatches = await bcrypt.compare(
       LoginUserDto.password,
       user.password,
     );
-    if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    if (!passwordMatches)
+      throw new ForbiddenException(EErrorMessage.USER_LOGIN_INVALID);
     user.role.permission = user.role.permission.map((p) => {
       delete p.id;
       delete p.permission;
@@ -170,14 +171,14 @@ export class AuthService {
   }
   async refreshTokens(userId: string, rt: string) {
     const user = await this.usersService.findById(userId);
-    if (!user) throw new ForbiddenException('Access Denied');
+    if (!user) throw new ForbiddenException(EErrorMessage.USER_NOT_FOUND);
     const [cachedItem, ExpireTime] = await Promise.all([
       this.redisService.get(userId),
       this.redisService.til(userId),
     ]);
     if (!cachedItem || cachedItem !== rt) {
       this.redisService.delete(userId);
-      throw new ForbiddenException('Access Denied');
+      throw new ForbiddenException(EErrorMessage.TOKEN_INVALID);
     }
     user.role.permission = user.role.permission.map((p) => {
       delete p.id;

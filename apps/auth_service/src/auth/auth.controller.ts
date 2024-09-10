@@ -8,12 +8,15 @@ import {
   Get,
   Param,
   Inject,
+  Req,
+  Res,
 } from '@nestjs/common';
 import { Tokens } from './types';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import {
   AtGuard,
+  AtCookieGuard,
   RtGuard,
   PermissionsGuard,
   VerifiedGuard,
@@ -89,11 +92,35 @@ export class AuthController {
     console.log(userId);
     return this.authService.getMe(userId);
   }
+
   @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({ action: PermissionAction.READ, object: PermissionObject.USER })
   @Possessions('body.id')
   @Post()
   postHello(@Body() body) {
     return body;
+  }
+
+  @UseGuards(AtCookieGuard)
+  @Post('/cookie')
+  postCookie() {
+    return 'body';
+  }
+
+  @Get()
+  getHello(@Req() req) {
+    console.log(req.cookies);
+    console.log(req.cookies['access_token']);
+    return req.cookies['access_token'];
+  }
+
+  @Get('/test')
+  test(@Res({ passthrough: true }) res) {
+    res.cookie('access_token', 'test', {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
+    return 'test';
   }
 }

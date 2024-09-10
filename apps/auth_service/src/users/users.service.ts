@@ -30,7 +30,7 @@ export class UserService {
   async update(input: UpdateUserDto) {
     const existingEntity = await this.userRepository.findByCode(input.id);
     if (!existingEntity) {
-      throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+      throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
     }
     const updatedData = getChangedFields<UpdateUserDto>(existingEntity, input);
     return await this.userRepository.update(existingEntity, updatedData);

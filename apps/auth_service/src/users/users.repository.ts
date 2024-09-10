@@ -9,10 +9,9 @@ import {
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { EErrorMessage, SortOrder } from '../common/constants';
+import { EErrorMessage } from '../common/constants';
 import { getCols } from '../common/helpers';
 import { MoreThan, LessThan, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
-import { fi } from '@faker-js/faker';
 @Injectable()
 export class UserRepository {
   constructor(
@@ -64,7 +63,7 @@ export class UserRepository {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
     });
-    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
     const updatedUser = this.usersRepository.create({
       ...user,
       password,
@@ -96,9 +95,9 @@ export class UserRepository {
     const user = await this.usersRepository.findOne({
       where: { email: email },
     });
-    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
     if (user.isVerified)
-      throw new NotFoundException('Email has been verified already');
+      throw new NotFoundException(EErrorMessage.EMAIL_ALREADY_VERIFIED);
     const updatedUser = this.usersRepository.create({
       ...user,
       isVerified: true,

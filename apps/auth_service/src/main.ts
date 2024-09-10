@@ -16,7 +16,7 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
-  app.useLogger(app.get(Logger));
+  // app.useLogger(app.get(Logger));
   await app.listen(3001);
 }
 bootstrap();

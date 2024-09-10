@@ -19,3 +19,20 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
     return payload;
   }
 }
+
+@Injectable()
+export class AtCookieStrategy extends PassportStrategy(Strategy, 'jwt-cookie') {
+  constructor(config: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req) => {
+          return req.cookies['access_token'];
+        },
+      ]),
+      secretOrKey: config.get<string>('AT_SECRET'),
+    });
+  }
+  validate(payload: JwtPayload) {
+    return payload;
+  }
+}
