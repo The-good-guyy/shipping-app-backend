@@ -11,18 +11,27 @@ export class PortService {
   constructor(
     @InjectRepository(Port)
     private portRepository: Repository<Port>,
-    private readonly nominatimService: NominatimService,
+    private nominatimService: NominatimService,
   ) {}
   async create(createPortDto: CreatePortDto): Promise<Port> {
     const { address } = createPortDto;
     const { lat, lon } = await this.nominatimService.getCoordinates(address);
+    const existingPort = await this.portRepository.findOne({
+      where: {
+        address: address,
+      },
+    });
 
+    // Nếu tồn tại port trùng lặp, ném ra lỗi
+    if (existingPort) {
+      throw new NotFoundException(EErrorMessage.PORT_EXISTED);
+    }
     const port = this.portRepository.create({
       ...createPortDto,
-      lat,
-      lon,
+      lat: lat,
+      lon: lon,
     });
-    console.log(port);
+    // console.log(port);
     return this.portRepository.save(port);
   }
 
@@ -47,6 +56,9 @@ export class PortService {
   async update(id: string, updatePortDto: UpdatePortDto): Promise<Port> {
     const port = await this.findOne(id);
 
+    if (!port) {
+      throw new NotFoundException(EErrorMessage.PORT_NOT_FOUND);
+    }
     if (updatePortDto.address) {
       const { lat, lon } = await this.nominatimService.getCoordinates(
         updatePortDto.address,

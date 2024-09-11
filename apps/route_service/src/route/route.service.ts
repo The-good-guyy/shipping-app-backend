@@ -26,6 +26,18 @@ export class RouteService {
       throw new NotFoundException(EErrorMessage.PORT_NOT_FOUND);
     }
 
+    const existingRoute = await this.routeRepository.findOne({
+      where: [
+        { startPort: startPort, endPort: endPort },
+        { startPort: endPort, endPort: startPort },
+      ],
+    });
+
+    if (existingRoute) {
+      throw new NotFoundException(EErrorMessage.ROUTE_EXISTED);
+    }
+
+    // Tính toán khoảng cách
     const distance = calculateDistance(
       startPort.lat,
       startPort.lon,
@@ -33,6 +45,8 @@ export class RouteService {
       endPort.lon,
     );
     const roundedDistance = parseFloat(distance.toFixed(2));
+
+    // Tạo route mới
     const newRoute = this.routeRepository.create({
       ...createRouteDto,
       startPort,

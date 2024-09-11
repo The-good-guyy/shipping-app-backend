@@ -3,6 +3,7 @@ import { PortController } from './port.controller';
 import { PortService } from './port.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Port } from 'apps/route_service/src/port/entity/port.entity';
+// import { GeoModule } from 'apps/route_service/src/geo/geo.module';
 import { NominatimModule } from 'apps/route_service/src/nominatim/nominatim.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Port]), NominatimModule],

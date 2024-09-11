@@ -21,6 +21,8 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "auth_migration:generate": "npx typeorm-ts-node-commonjs migration:generate ./apps/auth_service/src/migrations/add-address-column-to-user-table -d ./apps/auth_service/src/datasources/migration.ts",
     "auth_migration:run": "npx typeorm-ts-node-commonjs migration:run -d ./apps/auth_service/src/datasources/migration.ts",
+    "route_migration:generate": "npx typeorm-ts-node-commonjs migration:generate ./apps/route_service/src/migrations/add-address-column-to-user-table -d ./apps/route_service/src/datasources/migration.ts",
+    "route_migration:run": "npx typeorm-ts-node-commonjs migration:run -d ./apps/route_service/src/datasources/migration.ts",
     "auth_seed:run": "npx ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d ./apps/auth_service/src/datasources/seed.ts"
   },
   "dependencies": {
@@ -51,6 +53,7 @@
     "ioredis": "^5.4.1",
     "kafkajs": "^2.2.4",
     "lodash": "^4.17.21",
+    "node-geocoder": "^4.4.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",

@@ -89,6 +89,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      node-geocoder:
+        specifier: ^4.4.0
+        version: 4.4.0
       passport:
         specifier: ^0.7.0
         version: 0.7.0
@@ -1364,6 +1367,9 @@ packages:
 
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
+
+  bluebird@3.7.2:
+    resolution: {integrity: sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==}
 
   body-parser@1.20.2:
     resolution: {integrity: sha512-ml9pReCu3M61kGlqoTm2umSXTlRTuGTx0bfYj+uIUKKYycG5NtSbeetV3faSU6R7ajOPw0g/J1PvK4qNy7s5bA==}
@@ -3163,6 +3169,10 @@ packages:
     peerDependenciesMeta:
       encoding:
         optional: true
+
+  node-geocoder@4.4.0:
+    resolution: {integrity: sha512-oOGWDPiFiri5HHepSYd3ytXm8UH2yfL2UQxXZ/JzdUZccE3Hiy39pKri33h4dCct3UNCveJ8d/UtJAVJuRCo2A==}
+    engines: {node: '>=18'}
 
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
@@ -5752,6 +5762,8 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
+  bluebird@3.7.2: {}
+
   body-parser@1.20.2:
     dependencies:
       bytes: 3.1.2
@@ -8152,6 +8164,13 @@ snapshots:
   node-fetch@2.7.0:
     dependencies:
       whatwg-url: 5.0.0
+
+  node-geocoder@4.4.0:
+    dependencies:
+      bluebird: 3.7.2
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
 
   node-int64@0.4.0: {}
 

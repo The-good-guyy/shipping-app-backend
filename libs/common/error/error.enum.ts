@@ -48,7 +48,11 @@ export enum EErrorMessage {
 
   //Route Error
   ROUTE_NOT_FOUND = 'route not found',
-
+  ROUTE_EXISTED = 'route is already existed',
   //Port Error
-  PORT_NOT_FOUND = 'portư not found',
+  PORT_NOT_FOUND = 'port not found',
+  PORT_EXISTED = 'port is already existed',
+  //Booking Error
+  BOOKING_NOT_FOUND = 'booking not found',
+  BOOKING_EXISTED = 'booking is already existed',
 }
