@@ -15,7 +15,7 @@ export class ForgotPasswordStrategy extends PassportStrategy(
         (req) => {
           return req.params.token;
         },
-      ]),,
+      ]),
       secretOrKey: config.get<string>('FORGOT_PASSWORD_SECRET'),
     });
   }
