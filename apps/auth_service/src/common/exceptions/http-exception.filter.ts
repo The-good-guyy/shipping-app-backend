@@ -19,11 +19,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const message =
       exception.getResponse()?.['message'] ||
       exception.message ||
-      'An error occurred';
+      'An unexpected error occurred. Please try again later.';
     response.status(status).json({
       message: message,
       error: error,
-      statusCode: status,
+      status,
       timestamp: new Date().toISOString(),
     });
   }

@@ -43,7 +43,9 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
     if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
     const id = user.id;
-    const time = this.config.get<number>('EXPIRE_FORGOT_PASSWORD_EMAIL_TIME');
+    const time = Number(
+      this.config.get<number>('EXPIRE_FORGOT_PASSWORD_EMAIL_TIME'),
+    );
     const token = await this.jwtService.signAsync(
       { sub: id },
       {
@@ -67,7 +69,7 @@ export class AuthService {
         },
       ],
     });
-    return true;
+    return { token };
   }
   async confirmForgotPasswordEmail(id: string, token: string) {
     const savedToken = await this.redisService.get(
@@ -79,7 +81,7 @@ export class AuthService {
     const newToken = randomBytes(32).toString('hex');
     const time = this.config.get<number>('EXPIRE_FORGOT_PASSWORD_FORM_TIME');
     this.redisService.insert(forgotPasswordFormPrefix + newToken, id, time);
-    return newToken;
+    return { token: newToken };
   }
   async resetForgotPassword(token: string, password: string) {
     const id = await this.redisService.get(forgotPasswordFormPrefix + token);

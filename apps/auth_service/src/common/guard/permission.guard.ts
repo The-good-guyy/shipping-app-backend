@@ -20,10 +20,9 @@ export class PermissionsGuard implements CanActivate {
       return true;
     }
     const { user } = context.switchToHttp().getRequest();
-    const funcPossession = deepGet(
-      context.switchToHttp().getRequest(),
-      possession,
-    );
+    const funcPossession = possession
+      ? deepGet(context.switchToHttp().getRequest(), possession)
+      : undefined;
     return requiredPermissions.some((permission) => {
       for (const userPermission of user.permissions) {
         if (
