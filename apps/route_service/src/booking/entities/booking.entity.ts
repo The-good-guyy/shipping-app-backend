@@ -13,8 +13,8 @@ export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  user: string;
+  // @Column()
+  // user: string;
 
   @ManyToOne(() => Route, { eager: true })
   route: Route;

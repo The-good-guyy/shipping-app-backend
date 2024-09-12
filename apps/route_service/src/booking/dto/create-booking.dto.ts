@@ -5,7 +5,7 @@ import {
   IsUUID,
   IsOptional,
   IsEnum,
-  IsDate 
+  IsDate,
 } from 'class-validator';
 
 export class CreateBookingDto {
@@ -13,12 +13,12 @@ export class CreateBookingDto {
   @IsUUID('all', { message: 'routeId must be a valid UUID' })
   routeId: string;
 
-  @IsOptional()
-  @IsString()
-  userId?: string;
+  // @IsOptional()
+  // @IsString()
+  // userId?: string;
   @IsDate()
   departureDate: Date;
-  @IsEnum(BookingStatus)
-  @IsOptional()
-  status?: BookingStatus;
+  // @IsEnum(BookingStatus)
+  // @IsOptional()
+  // status?: BookingStatus;
 }

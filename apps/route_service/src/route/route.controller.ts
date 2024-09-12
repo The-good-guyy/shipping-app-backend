@@ -6,10 +6,13 @@ import {
   Param,
   Put,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { RouteService } from './route.service';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { Route } from 'apps/route_service/src/route/entity/route.entity';
+import { PaginationParams } from 'apps/route_service/src/common/dto/paginationParams.dto';
+import { SearchRouteDto } from 'apps/route_service/src/route/dto/searchRoute.dto';
 
 @Controller('routes')
 export class RouteController {
@@ -21,7 +24,10 @@ export class RouteController {
   }
 
   @Get()
-  async findAll(): Promise<Route[]> {
+  async findAll(
+    @Query('search') search: string,
+    @Query() { offset, limit }: PaginationParams,
+  ): Promise<Route[]> {
     return this.routeService.findAll();
   }
 
@@ -29,7 +35,19 @@ export class RouteController {
   async findOne(@Param('id') id: string): Promise<Route> {
     return this.routeService.findOne(id);
   }
-
+  // @Get('find-by-port')
+  // async findRoutesByPort(
+  //   @Query('port') portName: string,
+  //   @Query('type') type?: string,
+  // ): Promise<Route[]> {
+  //   return this.routeService.findRoutesByPort(portName, type);
+  // }
+  // @Get('search')
+  // async searchRoutes(
+  //   @Query() searchRouteDto: SearchRouteDto,
+  // ): Promise<Route[]> {
+  //   return this.routeService.findRoutes(searchRouteDto);
+  // }
   @Put(':id')
   async update(
     @Param('id') id: string,

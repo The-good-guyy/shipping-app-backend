@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsUUID, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsUUID, IsNumber, IsString } from 'class-validator';
 
 export class CreateRouteDto {
   @IsNotEmpty()
-  @IsUUID()
-  startPort_id: string;
+  @IsString()
+  startPort_address: string;
 
   @IsNotEmpty()
-  @IsUUID()
-  endPort_id: string;
+  @IsString()
+  endPort_address: string;
 
   @IsNumber()
   @IsNotEmpty()

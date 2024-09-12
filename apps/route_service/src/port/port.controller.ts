@@ -6,8 +6,10 @@ import {
   Patch,
   Delete,
   Param,
+  Query,
 } from '@nestjs/common';
 import { CreatePortDto } from 'apps/route_service/src/port/dto/create-port.dto';
+import { FilterPortDto } from 'apps/route_service/src/port/dto/filter-port.dto';
 import { UpdatePortDto } from 'apps/route_service/src/port/dto/update-port.dto';
 import { Port } from 'apps/route_service/src/port/entity/port.entity';
 import { PortService } from 'apps/route_service/src/port/port.service';
@@ -21,8 +23,9 @@ export class PortController {
   }
 
   @Get()
-  async findAll(): Promise<Port[]> {
-    return this.portService.findAll();
+  async findAll(@Query() query: FilterPortDto): Promise<Port[]> {
+    console.log(query)
+    return this.portService.findAll(query);
   }
 
   @Get(':id')

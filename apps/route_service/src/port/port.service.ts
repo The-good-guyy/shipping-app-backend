@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NominatimService } from 'apps/route_service/src/nominatim/nominatim.service';
 import { CreatePortDto } from 'apps/route_service/src/port/dto/create-port.dto';
+import { FilterPortDto } from 'apps/route_service/src/port/dto/filter-port.dto';
 import { UpdatePortDto } from 'apps/route_service/src/port/dto/update-port.dto';
 import { Port } from 'apps/route_service/src/port/entity/port.entity';
 import { EErrorMessage } from 'libs/common/error';
-import { Repository } from 'typeorm';
+import { Like, Repository, ILike } from 'typeorm';
 @Injectable()
 export class PortService {
   constructor(
@@ -44,7 +45,13 @@ export class PortService {
 
     return port;
   }
-
+  async findByAddress(address: string): Promise<Port> {
+    const port = await this.portRepository.findOne({ where: { address } });
+    if (!port) {
+      throw new NotFoundException(`Port with address ${address} not found`);
+    }
+    return port;
+  }
   async remove(id: string): Promise<void> {
     const port = await this.findOne(id);
     if (!port) {
@@ -71,7 +78,41 @@ export class PortService {
     return this.portRepository.save(port);
   }
 
-  async findAll(): Promise<Port[]> {
-    return this.portRepository.find();
+  async findAll(query: FilterPortDto): Promise<any> {
+    const limit = Number(query.limit) || 10;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * limit;
+    const keyword = (query.search || '').trim().toLowerCase();
+
+    const [result, total] = await this.portRepository
+      .createQueryBuilder('port')
+      .where("LOWER(REPLACE(port.address, ' ', '')) LIKE LOWER(:keyword)", {
+        keyword: `%${keyword.replace(/\s+/g, '')}%`,
+      })
+      .orderBy('port.createdAt', 'DESC')
+      .skip(skip)
+      .take(limit)
+      .select([
+        'port.id',
+        'port.createdAt',
+        'port.updatedAt',
+        'port.address',
+        'port.lat',
+        'port.lon',
+      ])
+      .getManyAndCount();
+
+    const lastPage = Math.ceil(total / limit);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+
+    return {
+      data: result,
+      total,
+      currentPage: page,
+      nextPage,
+      prevPage,
+      lastPage,
+    };
   }
 }

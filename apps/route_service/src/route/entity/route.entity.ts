@@ -30,6 +30,4 @@ export class Route {
   updatedAt: Date;
   @Column({ type: 'float' })
   distance: number;
-  // @OneToMany(() => Booking, (booking) => booking.route, { cascade: true })
-  // bookings: Booking[];
 }

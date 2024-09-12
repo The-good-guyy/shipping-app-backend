@@ -7,29 +7,30 @@ import { Repository } from 'typeorm';
 import { BookingStatus } from 'apps/route_service/src/booking/enums/booking-status.enum';
 import { ScheduleService } from 'apps/route_service/src/schedule/schedule.service';
 import { EErrorMessage } from 'libs/common/error';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class BookingService {
   constructor(
+    @InjectRepository(Booking)
+    private readonly bookingRepository: Repository<Booking>,
     private readonly scheduleService: ScheduleService,
     private readonly routeService: RouteService,
-    private readonly bookingRepository: Repository<Booking>,
   ) {}
   async create(createBookingDto: CreateBookingDto): Promise<Booking> {
     const { routeId, departureDate } = createBookingDto;
+    const departureDateObj = new Date(departureDate);
     const route = await this.routeService.findOne(routeId);
     if (!route) {
       throw new NotFoundException('Route not found');
     }
     const travelTime = this.scheduleService.calculateTravelTime(route.distance);
     const arrivalDate = this.scheduleService.calculateArrivalDate(
-      departureDate,
+      departureDateObj,
       travelTime,
     );
-
-    // const newBooking = new Booking();
-    // newBooking.route = route;
-    // newBooking.status = BookingStatus.PENDING;
+    console.log(departureDate);
+    console.log(arrivalDate);
     const newBooking = this.bookingRepository.create({
       ...createBookingDto,
       route,
@@ -37,8 +38,8 @@ export class BookingService {
       arrivalDate,
       status: BookingStatus.PENDING,
     });
-
-    return this.bookingRepository.save(newBooking);
+    const savedBookings = this.bookingRepository.save(newBooking);
+    return savedBookings;
   }
 
   async findAll(): Promise<Booking[]> {
