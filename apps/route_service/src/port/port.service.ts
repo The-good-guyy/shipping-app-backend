@@ -6,7 +6,7 @@ import { FilterPortDto } from 'apps/route_service/src/port/dto/filter-port.dto';
 import { UpdatePortDto } from 'apps/route_service/src/port/dto/update-port.dto';
 import { Port } from 'apps/route_service/src/port/entity/port.entity';
 import { EErrorMessage } from 'libs/common/error';
-import { Like, Repository, ILike } from 'typeorm';
+import { Repository } from 'typeorm';
 @Injectable()
 export class PortService {
   constructor(
@@ -83,13 +83,14 @@ export class PortService {
     const page = Number(query.page) || 1;
     const skip = (page - 1) * limit;
     const keyword = (query.search || '').trim().toLowerCase();
-
+    const sortBy = query.sortBy || 'createdAt';
+    const sortOrder = query.sortOrder?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     const [result, total] = await this.portRepository
       .createQueryBuilder('port')
       .where("LOWER(REPLACE(port.address, ' ', '')) LIKE LOWER(:keyword)", {
         keyword: `%${keyword.replace(/\s+/g, '')}%`,
       })
-      .orderBy('port.createdAt', 'DESC')
+      .orderBy(`port.${sortBy}`, sortOrder)
       .skip(skip)
       .take(limit)
       .select([

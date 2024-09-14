@@ -9,7 +9,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Port } from 'apps/route_service/src/port/entity/port.entity';
 import { Route } from 'apps/route_service/src/route/entity/route.entity';
 import { ConfigService } from '@nestjs/config';
-// import { GeoModule } from 'apps/route_service/src/geo/geo.module';
 import { BookingModule } from './booking/booking.module';
 import { ScheduleModule } from './schedule/schedule.module';
 @Module({
@@ -34,7 +33,6 @@ import { ScheduleModule } from './schedule/schedule.module';
     }),
     PortModule,
     RouteModule,
-    // GeoModule,
     NominatimModule,
     BookingModule,
     ScheduleModule,

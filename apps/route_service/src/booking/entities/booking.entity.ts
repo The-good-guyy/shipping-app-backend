@@ -6,6 +6,7 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -21,6 +22,8 @@ export class Booking {
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
   @Column({ type: 'timestamp' })
   departureDate: Date;
 

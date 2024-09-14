@@ -7,7 +7,7 @@ import { Route } from 'apps/route_service/src/route/entity/route.entity';
 import { calculateDistance } from 'apps/route_service/src/common/utils/distance.util';
 import { EErrorMessage } from 'libs/common/error';
 import { Repository } from 'typeorm';
-import { SearchRouteDto } from 'apps/route_service/src/route/dto/searchRoute.dto';
+import { FilterRouteDto } from 'apps/route_service/src/route/dto/filter-route.dto';
 
 @Injectable()
 export class RouteService {
@@ -34,7 +34,6 @@ export class RouteService {
       throw new NotFoundException(EErrorMessage.ROUTE_EXISTED);
     }
 
-    // Tính toán khoảng cách
     const distance = calculateDistance(
       startPort.lat,
       startPort.lon,
@@ -43,7 +42,6 @@ export class RouteService {
     );
     const roundedDistance = parseFloat(distance.toFixed(2));
 
-    // Tạo route mới
     const newRoute = this.routeRepository.create({
       ...createRouteDto,
       startPort,
@@ -54,8 +52,78 @@ export class RouteService {
     return this.routeRepository.save(newRoute);
   }
 
-  async findAll(): Promise<Route[]> {
-    return this.routeRepository.find();
+  async findAll(query: FilterRouteDto): Promise<any> {
+    const limit = Number(query.limit) || 10;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * limit;
+    const keyword = (query.search || '').trim().toLowerCase();
+
+    const sortBy = query.sortBy || 'createdAt';
+    const order: 'ASC' | 'DESC' =
+      query.order?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    const queryBuilder = this.routeRepository
+      .createQueryBuilder('route')
+      .leftJoinAndSelect('route.startPort', 'startPort')
+      .leftJoinAndSelect('route.endPort', 'endPort')
+      .where(
+        "(LOWER(REPLACE(startPort.address, ' ', '')) LIKE LOWER(:keyword) OR LOWER(REPLACE(endPort.address, ' ', '')) LIKE LOWER(:keyword))",
+        { keyword: `%${keyword.replace(/\s+/g, '')}%` },
+      );
+
+    if (query.createdAt) {
+      queryBuilder.andWhere('route.createdAt >= :createdAt', {
+        createdAt: query.createdAt,
+      });
+    }
+    if (query.updatedAt) {
+      queryBuilder.andWhere('route.updatedAt >= :updatedAt', {
+        updatedAt: query.updatedAt,
+      });
+    }
+
+    switch (sortBy) {
+      case 'startPort':
+        queryBuilder.orderBy('startPort.address', order);
+        break;
+      case 'endPort':
+        queryBuilder.orderBy('endPort.address', order);
+        break;
+      case 'updatedAt':
+        queryBuilder.orderBy('route.updatedAt', order);
+        break;
+      default:
+        queryBuilder.orderBy('route.createdAt', order);
+        break;
+    }
+
+    // Phan trang
+    queryBuilder
+      .skip(skip)
+      .take(limit)
+      .select([
+        'route.id',
+        'route.createdAt',
+        'route.updatedAt',
+        'route.distance',
+        'startPort.address',
+        'endPort.address',
+      ]);
+
+    const [result, total] = await queryBuilder.getManyAndCount();
+
+    const lastPage = Math.ceil(total / limit);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+
+    return {
+      data: result,
+      total,
+      currentPage: page,
+      nextPage,
+      prevPage,
+      lastPage,
+    };
   }
 
   async findOne(id: string): Promise<Route> {
@@ -64,75 +132,6 @@ export class RouteService {
     return route;
   }
 
-  // async findRoutesByPort(portName: string, type?: string): Promise<Route[]> {
-  //   const queryBuilder = this.routeRepository
-  //     .createQueryBuilder('Route')
-  //     .leftJoinAndSelect('Route.startPort', 'startPort')
-  //     .leftJoinAndSelect('Route.endPort', 'endPort');
-
-  //   if (!type || type === 'both') {
-  //     queryBuilder
-  //       .where('startPort.address = :portName', { portName })
-  //       .orWhere('endPort.address = :portName', { portName });
-  //   } else if (type === 'start') {
-  //     queryBuilder.where('startPort.address = :portName', { portName });
-  //   } else if (type === 'end') {
-  //     queryBuilder.where('endPort.address = :portName', { portName });
-  //   }
-  //   console.log(queryBuilder);
-  //   return queryBuilder.getMany();
-  // }
-  // async findRoutes(searchRouteDto: SearchRouteDto): Promise<Route[]> {
-  //   const {
-  //     portName,
-  //     type,
-  //     page = 1,
-  //     limit = 10,
-  //     createdFrom,
-  //     createdTo,
-  //     updatedFrom,
-  //     updatedTo,
-  //   } = searchRouteDto;
-
-  //   const queryBuilder = this.routeRepository
-  //     .createQueryBuilder('route')
-  //     .leftJoinAndSelect('route.startPort', 'startPort')
-  //     .leftJoinAndSelect('route.endPort', 'endPort');
-
-  //   if (portName) {
-  //     if (!type || type === 'both') {
-  //       queryBuilder
-  //         .where('startPort.address = :portName', { portName })
-  //         .orWhere('endPort.address = :portName', { portName });
-  //     } else if (type === 'start') {
-  //       queryBuilder.where('startPort.address = :portName', { portName });
-  //     } else if (type === 'end') {
-  //       queryBuilder.where('endPort.address = :portName', { portName });
-  //     }
-  //   }
-
-  //   if (createdFrom) {
-  //     queryBuilder.andWhere('route.createdDate >= :createdFrom', {
-  //       createdFrom,
-  //     });
-  //   }
-  //   if (createdTo) {
-  //     queryBuilder.andWhere('route.createdDate <= :createdTo', { createdTo });
-  //   }
-
-  //   if (updatedFrom) {
-  //     queryBuilder.andWhere('route.updatedDate >= :updatedFrom', {
-  //       updatedFrom,
-  //     });
-  //   }
-  //   if (updatedTo) {
-  //     queryBuilder.andWhere('route.updatedDate <= :updatedTo', { updatedTo });
-  //   }
-  //   // Thực hiện phân trang
-  //   queryBuilder.skip((page - 1) * limit).take(limit);
-
-  //   return queryBuilder.getMany();
-  // }
   async update(id: string, updateRouteDto: UpdateRouteDto): Promise<Route> {
     //preload download data from database
     const route = await this.routeRepository.preload({

@@ -1,7 +1,7 @@
-import { IsOptional, IsString, IsInt, Min, IsIn } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, IsDate } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class FilterPortDto {
+export class FilterRouteDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -17,14 +17,20 @@ export class FilterPortDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @IsOptional()
+  @IsString()
+  sortBy?: 'createdAt' | 'startPort' | 'endPort' | 'updatedAt';
+
   @IsOptional()
   @IsString()
   order?: 'ASC' | 'DESC';
-  @IsOptional()
-  @IsIn(['createdAt', 'updatedAt', 'address'])
-  sortBy?: 'createdAt' | 'updatedAt' | 'address';
 
   @IsOptional()
-  @IsIn(['ASC', 'DESC'])
-  sortOrder?: 'ASC' | 'DESC';
+  @IsDate()
+  createdAt?: Date;
+
+  @IsOptional()
+  @IsDate()
+  updatedAt?: Date;
 }

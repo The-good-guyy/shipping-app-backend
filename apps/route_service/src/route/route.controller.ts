@@ -11,8 +11,7 @@ import {
 import { RouteService } from './route.service';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { Route } from 'apps/route_service/src/route/entity/route.entity';
-import { PaginationParams } from 'apps/route_service/src/common/dto/paginationParams.dto';
-import { SearchRouteDto } from 'apps/route_service/src/route/dto/searchRoute.dto';
+import { FilterRouteDto } from 'apps/route_service/src/route/dto/filter-route.dto';
 
 @Controller('routes')
 export class RouteController {
@@ -24,11 +23,9 @@ export class RouteController {
   }
 
   @Get()
-  async findAll(
-    @Query('search') search: string,
-    @Query() { offset, limit }: PaginationParams,
-  ): Promise<Route[]> {
-    return this.routeService.findAll();
+  async findAll(@Query() query: FilterRouteDto): Promise<Route[]> {
+    console.log(query);
+    return this.routeService.findAll(query);
   }
 
   @Get(':id')
