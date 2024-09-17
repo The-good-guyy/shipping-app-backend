@@ -15,31 +15,28 @@ export class BookingService {
   constructor(
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
-    private readonly scheduleService: ScheduleService,
     private readonly routeService: RouteService,
   ) {}
   async create(createBookingDto: CreateBookingDto): Promise<Booking> {
-    const { routeId, departureDate } = createBookingDto;
-    const departureDateObj = new Date(departureDate);
+    const { routeId } = createBookingDto;
+    // const departureDateObj = new Date(departureDate);
     const route = await this.routeService.findOne(routeId);
     if (!route) {
       throw new NotFoundException(EErrorMessage.ROUTE_NOT_FOUND);
     }
-    const travelTime = this.scheduleService.calculateTravelTime(route.distance);
-    const arrivalDate = this.scheduleService.calculateArrivalDate(
-      departureDateObj,
-      travelTime,
-    );
+    // const travelTime = this.scheduleService.calculateTravelTime(route.distance);
+    // const arrivalDate = this.scheduleService.calculateArrivalDate(
+    //   // departureDateObj,
+    //   travelTime,
+    // );
     // console.log(departureDate);
     // console.log(arrivalDate);
     const newBooking = this.bookingRepository.create({
       ...createBookingDto,
       route,
-      travelTime,
-      arrivalDate,
       status: BookingStatus.PENDING,
     });
-    console.log(newBooking);
+    // console.log(newBooking);
     const savedBookings = this.bookingRepository.save(newBooking);
     return savedBookings;
   }

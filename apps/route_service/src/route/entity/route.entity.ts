@@ -30,4 +30,10 @@ export class Route {
   updatedAt: Date;
   @Column({ type: 'float' })
   distance: number;
+  @Column({ type: 'timestamp' })
+  departureDate: Date;
+  @Column({ type: 'timestamp' })
+  arrivalDate: Date;
+  @Column({ type: 'float' })
+  travelTime: number;
 }

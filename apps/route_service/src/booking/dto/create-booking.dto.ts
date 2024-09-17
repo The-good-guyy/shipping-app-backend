@@ -16,8 +16,8 @@ export class CreateBookingDto {
   // @IsOptional()
   // @IsString()
   // userId?: string;
-  @IsDate()
-  departureDate: Date;
+  // @IsDate()
+  // departureDate: Date;
   // @IsEnum(BookingStatus)
   // @IsOptional()
   // status?: BookingStatus;

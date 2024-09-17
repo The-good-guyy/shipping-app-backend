@@ -8,24 +8,38 @@ import { calculateDistance } from 'apps/route_service/src/common/utils/distance.
 import { EErrorMessage } from 'libs/common/error';
 import { Repository } from 'typeorm';
 import { FilterRouteDto } from 'apps/route_service/src/route/dto/filter-route.dto';
+import { ScheduleService } from 'apps/route_service/src/schedule/schedule.service';
 
 @Injectable()
 export class RouteService {
   constructor(
     @InjectRepository(Route)
     private readonly routeRepository: Repository<Route>,
+    private readonly scheduleService: ScheduleService,
     private readonly portService: PortService,
   ) {}
 
   async create(createRouteDto: CreateRouteDto): Promise<Route> {
-    const { startPort_address, endPort_address } = createRouteDto;
-
+    const { startPort_address, endPort_address, departureDate } =
+      createRouteDto;
+    const departureDateObj = new Date(departureDate);
     const startPort = await this.portService.findByAddress(startPort_address);
     const endPort = await this.portService.findByAddress(endPort_address);
     if (!startPort || !endPort) {
       throw new NotFoundException(EErrorMessage.PORT_NOT_FOUND);
     }
-
+    const distance = calculateDistance(
+      startPort.lat,
+      startPort.lon,
+      endPort.lat,
+      endPort.lon,
+    );
+    const roundedDistance = parseFloat(distance.toFixed(2));
+    const travelTime = this.scheduleService.calculateTravelTime(distance);
+    const arrivalDate = this.scheduleService.calculateArrivalDate(
+      departureDateObj,
+      travelTime,
+    );
     const existingRoute = await this.routeRepository.findOne({
       where: [{ startPort: startPort, endPort: endPort }],
     });
@@ -34,21 +48,15 @@ export class RouteService {
       throw new NotFoundException(EErrorMessage.ROUTE_EXISTED);
     }
 
-    const distance = calculateDistance(
-      startPort.lat,
-      startPort.lon,
-      endPort.lat,
-      endPort.lon,
-    );
-    const roundedDistance = parseFloat(distance.toFixed(2));
-
     const newRoute = this.routeRepository.create({
       ...createRouteDto,
       startPort,
       endPort,
+      travelTime,
+      arrivalDate,
       distance: roundedDistance,
     });
-
+    console.log(newRoute);
     return this.routeRepository.save(newRoute);
   }
 

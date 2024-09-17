@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsUUID, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsDate, IsNumber, IsString } from 'class-validator';
 
 export class CreateRouteDto {
   @IsNotEmpty()
@@ -12,4 +12,6 @@ export class CreateRouteDto {
   @IsNumber()
   @IsNotEmpty()
   distance: number;
+  @IsDate()
+  departureDate: Date;
 }
