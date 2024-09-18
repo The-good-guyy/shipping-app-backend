@@ -13,19 +13,23 @@
     "shipping_routes_app": {
       "type": "application",
       "root": "apps/shipping_routes_app",
-      "entryFile": "main",
-      "sourceRoot": "apps/shipping_routes_app/src",
+      "entryFile": "src/main",
+      "sourceRoot": "./",
       "compilerOptions": {
-        "tsConfigPath": "apps/shipping_routes_app/tsconfig.app.json"
+        "tsConfigPath": "apps/shipping_routes_app/tsconfig.app.json",
+        "assets": ["proto/*.proto"],
+        "watchAssets": true
       }
     },
     "auth_service": {
       "type": "application",
       "root": "apps/auth_service",
-      "entryFile": "main",
-      "sourceRoot": "apps/auth_service/src",
+      "entryFile": "src/main",
+      "sourceRoot": "./",
       "compilerOptions": {
-        "tsConfigPath": "apps/auth_service/tsconfig.app.json"
+        "tsConfigPath": "apps/auth_service/tsconfig.app.json",
+        "assets": ["proto/*.proto"],
+        "watchAssets": true
       }
     },
     "api_gateway": {
@@ -44,6 +48,15 @@
       "sourceRoot": "apps/notification_service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/notification_service/tsconfig.app.json"
+      }
+    },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     }
   }

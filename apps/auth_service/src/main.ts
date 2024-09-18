@@ -7,6 +7,8 @@ import {
   MicroserviceExceptionFilter,
   AllExceptionsFilter,
 } from './common/exceptions';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { join } from 'path';
 import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
@@ -27,6 +29,14 @@ async function bootstrap() {
     new HttpExceptionFilter(),
   );
   // app.useLogger(app.get(Logger));
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: 'user',
+      protoPath: join(__dirname, '../auth.proto'),
+    },
+  });
+  await app.startAllMicroservices();
   await app.listen(3001);
 }
 bootstrap();

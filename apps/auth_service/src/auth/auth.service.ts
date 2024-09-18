@@ -240,7 +240,6 @@ export class AuthService {
       this.redisService.til(userId),
     ]);
     if (!cachedItem || cachedItem !== rt) {
-      this.redisService.delete(userId);
       throw new ForbiddenException(EErrorMessage.TOKEN_INVALID);
     }
     user.role.permission = user.role.permission.map((p) => {
