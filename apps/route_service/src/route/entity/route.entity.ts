@@ -1,5 +1,6 @@
 import { Booking } from 'apps/route_service/src/booking/entities/booking.entity';
 import { Port } from 'apps/route_service/src/port/entity/port.entity';
+import { RouteStatus } from 'apps/route_service/src/route/enums/route-status.enum';
 import {
   Entity,
   Column,
@@ -36,4 +37,7 @@ export class Route {
   arrivalDate: Date;
   @Column({ type: 'float' })
   travelTime: number;
+
+  @Column({ type: 'enum', enum: RouteStatus, default: RouteStatus.AVAILABLE })
+  status: RouteStatus;
 }

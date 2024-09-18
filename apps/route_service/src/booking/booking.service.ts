@@ -94,9 +94,9 @@ export class BookingService {
       case 'status':
         queryBuilder.orderBy('booking.status', order);
         break;
-      default:
-        queryBuilder.orderBy('booking.createdAt', order);
-        break;
+      // default:
+      //   queryBuilder.orderBy('booking.createdAt', order);
+      //   break;
     }
 
     queryBuilder.skip(skip).take(limit);

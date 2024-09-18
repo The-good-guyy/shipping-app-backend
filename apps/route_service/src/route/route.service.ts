@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PortService } from 'apps/route_service/src/port/port.service';
 import { CreateRouteDto } from 'apps/route_service/src/route/dto/create-route.dto';
 import { UpdateRouteDto } from 'apps/route_service/src/route/dto/update-route.dto';
-import { Route } from 'apps/route_service/src/route/entity/route.entity';
 import { calculateDistance } from 'apps/route_service/src/common/utils/distance.util';
 import { EErrorMessage } from 'libs/common/error';
 import { Repository } from 'typeorm';
 import { FilterRouteDto } from 'apps/route_service/src/route/dto/filter-route.dto';
 import { ScheduleService } from 'apps/route_service/src/schedule/schedule.service';
+import { Route } from 'apps/route_service/src/route/entity/route.entity';
 
 @Injectable()
 export class RouteService {
@@ -41,9 +41,13 @@ export class RouteService {
       travelTime,
     );
     const existingRoute = await this.routeRepository.findOne({
-      where: [{ startPort: startPort, endPort: endPort }],
+      where: {
+        startPort: { id: startPort.id },
+        endPort: { id: endPort.id },
+        arrivalDate,
+      },
     });
-
+    console.log(existingRoute);
     if (existingRoute) {
       throw new NotFoundException(EErrorMessage.ROUTE_EXISTED);
     }
@@ -56,7 +60,7 @@ export class RouteService {
       arrivalDate,
       distance: roundedDistance,
     });
-    console.log(newRoute);
+    // console.log(newRoute);
     return this.routeRepository.save(newRoute);
   }
 

@@ -10,9 +10,8 @@ import {
 } from '@nestjs/common';
 import { RouteService } from './route.service';
 import { CreateRouteDto } from './dto/create-route.dto';
-import { Route } from 'apps/route_service/src/route/entity/route.entity';
 import { FilterRouteDto } from 'apps/route_service/src/route/dto/filter-route.dto';
-
+import { Route } from 'apps/route_service/src/route/entity/route.entity';
 @Controller('routes')
 export class RouteController {
   constructor(private readonly routeService: RouteService) {}
