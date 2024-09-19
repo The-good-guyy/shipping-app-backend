@@ -1,12 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { EErrorMessage } from '../common/constants';
+import { EErrorMessage, UserFilterSearch } from '../common/constants';
 import { UserRepository } from './users.repository';
-import { createUserDto, updateUserDto } from './dto';
+import {
+  CreateUserDto,
+  SearchUsersFilterDto,
+  SearchUsersOffsetDto,
+  SortUserDto,
+  UpdateUserDto,
+} from './dto';
 import { getChangedFields } from '../common/helpers';
+import { User } from './entities/user.entity';
+import { stringToEnum } from '../common/helpers';
+import {
+  SortOrder,
+  UserOrderBySearch,
+  UserFieldSearch,
+} from '../common/constants';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
-  async create(input: createUserDto) {
+  async create(input: CreateUserDto) {
     const newUser = await this.userRepository.create(input);
     return newUser;
   }
@@ -14,12 +27,12 @@ export class UserService {
     await this.userRepository.findByCode(userId);
     await this.userRepository.remove(userId);
   }
-  async update(input: updateUserDto) {
+  async update(input: UpdateUserDto) {
     const existingEntity = await this.userRepository.findByCode(input.id);
     if (!existingEntity) {
-      throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+      throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
     }
-    const updatedData = getChangedFields<updateUserDto>(existingEntity, input);
+    const updatedData = getChangedFields<UpdateUserDto>(existingEntity, input);
     return await this.userRepository.update(existingEntity, updatedData);
   }
   async findById(userId: string) {
@@ -44,5 +57,47 @@ export class UserService {
   }
   async updateVerificationStatus(email: string) {
     return await this.userRepository.updateVerificationStatus(email);
+  }
+
+  async search(
+    offset: SearchUsersOffsetDto,
+    filters: object,
+    fields: string[],
+    sort: { orderBy: string; order: string }[],
+  ) {
+    const userCols = this.userRepository.getColsUser();
+    let userFields = fields.filter(
+      (field) =>
+        userCols.includes(field as keyof User) &&
+        stringToEnum(UserFieldSearch, field),
+    ) as (keyof User)[];
+    userFields = userFields.length > 0 ? userFields : userCols;
+    let sortObj: SortUserDto[] = [];
+    if (!Array.isArray(sort) || !sort.length) {
+      sortObj = [new SortUserDto()];
+    } else {
+      for (const obj of sort) {
+        const { orderBy, order } = obj;
+        if (stringToEnum(UserOrderBySearch, orderBy)) {
+          sortObj.push({
+            orderBy: stringToEnum(UserOrderBySearch, orderBy),
+            order: stringToEnum(SortOrder, order) || SortOrder.desc,
+          });
+        }
+      }
+    }
+    sortObj = sortObj.length > 0 ? sortObj : [new SortUserDto()];
+    const filtersObject = new SearchUsersFilterDto();
+    for (const k in filters) {
+      if (stringToEnum(UserFilterSearch, k)) {
+        filtersObject[k] = filters[k];
+      }
+    }
+    return await this.userRepository.search(
+      offset,
+      filtersObject,
+      userFields,
+      sortObj,
+    );
   }
 }

@@ -94,13 +94,12 @@ export class BookingService {
       case 'status':
         queryBuilder.orderBy('booking.status', order);
         break;
-      // default:
-      //   queryBuilder.orderBy('booking.createdAt', order);
-      //   break;
+      default:
+        queryBuilder.orderBy('booking.route', order);
+        break;
     }
 
     queryBuilder.skip(skip).take(limit);
-
     const [result, total] = await queryBuilder.getManyAndCount();
 
     const lastPage = Math.ceil(total / limit);

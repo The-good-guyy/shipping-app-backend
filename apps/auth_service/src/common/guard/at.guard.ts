@@ -5,3 +5,8 @@ export class AtGuard extends AuthGuard('jwt') {
     super();
   }
 }
+export class AtCookieGuard extends AuthGuard('jwt-cookie') {
+  constructor() {
+    super();
+  }
+}

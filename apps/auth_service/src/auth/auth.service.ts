@@ -4,7 +4,7 @@ import {
   NotFoundException,
   Inject,
 } from '@nestjs/common';
-import { createUserDto, loginUserDto } from './dto';
+import { CreateUserDto, LoginUserDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service';
@@ -15,9 +15,12 @@ import { Tokens } from './types';
 import { EErrorMessage } from '../common/constants';
 import { KafkaService } from '../kafka';
 import { randomBytes } from 'crypto';
+import { Permission } from '../permission/entities/permission.entity';
 import {
   confirmationEmailPrefix,
   resetPasswordEmailPrefix,
+  forgotPasswordEmailPrefix,
+  forgotPasswordFormPrefix,
 } from '../common/constants';
 import { getRandomIntInclusive } from '../common/helpers';
 @Injectable()
@@ -36,6 +39,56 @@ export class AuthService {
   updateRtHash(userId: string, rt: string, ex?: number) {
     this.redisService.insert(userId, rt, ex);
   }
+  async sendForgotPasswordEmail(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    const id = user.id;
+    const time = this.config.get<number>('EXPIRE_FORGOT_PASSWORD_EMAIL_TIME');
+    const token = await this.jwtService.signAsync(
+      { sub: id },
+      {
+        secret: this.config.get<string>('FORGOT_PASSWORD_SECRET'),
+        expiresIn: time,
+      },
+    );
+    this.redisService.insert(
+      forgotPasswordEmailPrefix + id,
+      token,
+      Number(time),
+    );
+    const forgotPasswordURL =
+      this.config.get<string>('AUTH_SERVICE_URL') + '/forgot-password/' + token;
+    this.client.send({
+      topic: 'send-forgot-password-email',
+      messages: [
+        {
+          value: JSON.stringify({ id, url: forgotPasswordURL, ttl: time }),
+          key: id,
+        },
+      ],
+    });
+    return true;
+  }
+  async confirmForgotPasswordEmail(id: string, token: string) {
+    const savedToken = await this.redisService.get(
+      forgotPasswordEmailPrefix + id,
+    );
+    this.redisService.delete(forgotPasswordEmailPrefix + id);
+    if (!savedToken || savedToken != token)
+      throw new NotFoundException(EErrorMessage.TOKEN_INVALID);
+    const newToken = randomBytes(32).toString('hex');
+    const time = this.config.get<number>('EXPIRE_FORGOT_PASSWORD_FORM_TIME');
+    this.redisService.insert(forgotPasswordFormPrefix + newToken, id, time);
+    return newToken;
+  }
+  async resetForgotPassword(token: string, password: string) {
+    const id = await this.redisService.get(forgotPasswordFormPrefix + token);
+    if (!id) throw new NotFoundException(EErrorMessage.TOKEN_INVALID);
+    this.redisService.delete(forgotPasswordFormPrefix + token);
+    const hashPassword = await this.hashData(password);
+    await this.usersService.updatePassword(id, hashPassword);
+    return true;
+  }
   sendConfirmationEmail(email: string) {
     const time = this.config.get<number>('EXPIRE_CONFIR_EMAIL_TIME');
     const token = randomBytes(32).toString('hex');
@@ -44,21 +97,30 @@ export class AuthService {
       email,
       Number(time),
     );
+    const emailConfirmationURL =
+      this.config.get<string>('AUTH_SERVICE_URL') + '/confirm-email/' + token;
     this.client.send({
       topic: 'send-confirmation-email',
       messages: [
-        { value: JSON.stringify({ email, token, ttl: time }), key: email },
+        {
+          value: JSON.stringify({
+            email,
+            url: emailConfirmationURL,
+            ttl: time,
+          }),
+          key: email,
+        },
       ],
     });
   }
   async confirmEmail(token: string) {
     const email = await this.redisService.get(confirmationEmailPrefix + token);
-    if (!email) throw new NotFoundException('Token is invalid or expired');
+    if (!email) throw new NotFoundException(EErrorMessage.TOKEN_INVALID);
     return await this.usersService.updateVerificationStatus(email);
   }
   async sendResetPasswordEmail(email: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
     const time = this.config.get<number>('EXPIRE_RESET_PASSWORD_EMAIL_TIME');
     const otp = getRandomIntInclusive(10000000, 99999999).toString();
     this.redisService.insert(
@@ -72,13 +134,20 @@ export class AuthService {
         { value: JSON.stringify({ email, otp, ttl: time }), key: email },
       ],
     });
+    return true;
   }
-  async getTokens(userId: string, email: string) {
+  async getTokens(
+    userId: string,
+    email: string,
+    isVerified: boolean = false,
+    role: string,
+    permissions: Partial<Permission>[],
+  ): Promise<Tokens> {
     const AT_TIME = Number(this.config.get<number>('AT_SECRET_TIME'));
     const RT_TIME = Number(this.config.get<number>('RT_SECRET_TIME'));
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, isVerified, role, permissions },
         {
           secret: this.config.get<string>('AT_SECRET'),
           expiresIn: AT_TIME,
@@ -89,6 +158,7 @@ export class AuthService {
         {
           secret: this.config.get<string>('RT_SECRET'),
           expiresIn: RT_TIME,
+          notBefore: AT_TIME - 30,
         },
       ),
     ]);
@@ -97,12 +167,25 @@ export class AuthService {
       refresh_token: rt,
     };
   }
-  async signUpLocal(createUserDto: createUserDto) {
+  async signUpLocal(CreateUserDto: CreateUserDto) {
     const role = await this.roleService.findByName('user');
-    const hashPassword = await this.hashData(createUserDto.password);
-    const newUser = { ...createUserDto, role, password: hashPassword };
+    const hashPassword = await this.hashData(CreateUserDto.password);
+    const newUser = { ...CreateUserDto, role, password: hashPassword };
     const searchUser = await this.usersService.create(newUser);
-    const tokens = await this.getTokens(searchUser.id, searchUser.email);
+    searchUser.role.permission = searchUser.role.permission.map((p) => {
+      delete p.id;
+      delete p.permission;
+      delete p.createdAt;
+      delete p.updatedAt;
+      return p;
+    });
+    const tokens = await this.getTokens(
+      searchUser.id,
+      searchUser.email,
+      false,
+      searchUser.role.role,
+      searchUser.role.permission,
+    );
     this.sendConfirmationEmail(searchUser.email);
     this.updateRtHash(
       searchUser.id,
@@ -111,17 +194,31 @@ export class AuthService {
     );
     return tokens;
   }
-  async signInLocal(loginUserDto: loginUserDto): Promise<Tokens> {
+  async signInLocal(LoginUserDto: LoginUserDto): Promise<Tokens> {
     const user = await this.usersService.findByEmailWithSensitiveInfo(
-      loginUserDto.email,
+      LoginUserDto.email,
     );
-    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
     const passwordMatches = await bcrypt.compare(
-      loginUserDto.password,
+      LoginUserDto.password,
       user.password,
     );
-    if (!passwordMatches) throw new ForbiddenException('Access Denied');
-    const tokens = await this.getTokens(user.id, user.email);
+    if (!passwordMatches)
+      throw new ForbiddenException(EErrorMessage.USER_LOGIN_INVALID);
+    user.role.permission = user.role.permission.map((p) => {
+      delete p.id;
+      delete p.permission;
+      delete p.createdAt;
+      delete p.updatedAt;
+      return p;
+    });
+    const tokens = await this.getTokens(
+      user.id,
+      user.email,
+      user.isVerified,
+      user.role.role,
+      user.role.permission,
+    );
     this.updateRtHash(
       user.id,
       tokens.refresh_token,
@@ -135,18 +232,30 @@ export class AuthService {
   }
   async refreshTokens(userId: string, rt: string) {
     const user = await this.usersService.findById(userId);
-    if (!user) throw new ForbiddenException('Access Denied');
-    const cachedItem = await this.redisService.get(userId);
+    if (!user) throw new ForbiddenException(EErrorMessage.USER_NOT_FOUND);
+    const [cachedItem, ExpireTime] = await Promise.all([
+      this.redisService.get(userId),
+      this.redisService.til(userId),
+    ]);
     if (!cachedItem || cachedItem !== rt) {
       this.redisService.delete(userId);
-      throw new ForbiddenException('Access Denied');
+      throw new ForbiddenException(EErrorMessage.TOKEN_INVALID);
     }
-    const tokens = await this.getTokens(user.id, user.email);
-    this.updateRtHash(
+    user.role.permission = user.role.permission.map((p) => {
+      delete p.id;
+      delete p.permission;
+      delete p.createdAt;
+      delete p.updatedAt;
+      return p;
+    });
+    const tokens = await this.getTokens(
       user.id,
-      tokens.refresh_token,
-      this.config.get<number>('RT_SECRET_TIME'),
+      user.email,
+      user.isVerified,
+      user.role.role,
+      user.role.permission,
     );
+    this.updateRtHash(user.id, tokens.refresh_token, ExpireTime);
     return tokens;
   }
   async getMe(userId: string) {

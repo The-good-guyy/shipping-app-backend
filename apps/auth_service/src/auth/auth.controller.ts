@@ -6,25 +6,38 @@ import {
   HttpStatus,
   UseGuards,
   Get,
+  Param,
+  Inject,
+  Req,
+  Res,
 } from '@nestjs/common';
 import { Tokens } from './types';
 import { AuthService } from './auth.service';
-import { createUserDto, loginUserDto } from './dto';
-import { AtGuard, RtGuard } from '../common/guard';
-import { GetCurrentUser } from '../common/decorators';
-
+import { CreateUserDto, LoginUserDto } from './dto';
+import {
+  AtGuard,
+  AtCookieGuard,
+  RtGuard,
+  PermissionsGuard,
+  VerifiedGuard,
+  ForgotPasswordGuard,
+} from '../common/guard';
+import { GetCurrentUser, Permissions, Possessions } from '../common/decorators';
+import { PermissionAction, PermissionObject } from '../common/constants';
+// import { KafkaService } from '../kafka';
+// import { SubscribeTo } from '../kafka';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('/local/signup')
   @HttpCode(HttpStatus.CREATED)
-  signInLocal(@Body() createUserDto: createUserDto): Promise<Tokens> {
-    return this.authService.signUpLocal(createUserDto);
+  signInLocal(@Body() CreateUserDto: CreateUserDto): Promise<Tokens> {
+    return this.authService.signUpLocal(CreateUserDto);
   }
   @Post('/local/signin')
   @HttpCode(HttpStatus.OK)
-  siginLocal(@Body() loginUserDto: loginUserDto): Promise<Tokens> {
-    return this.authService.signInLocal(loginUserDto);
+  siginLocal(@Body() LoginUserDto: LoginUserDto): Promise<Tokens> {
+    return this.authService.signInLocal(LoginUserDto);
   }
   @UseGuards(AtGuard)
   @Post('/logout')
@@ -33,6 +46,12 @@ export class AuthController {
     return this.authService.logout(userId);
   }
 
+  @UseGuards(AtGuard)
+  @Post('/reset-password')
+  @HttpCode(HttpStatus.OK)
+  forgotPassword(@GetCurrentUser('email') email: string): Promise<boolean> {
+    return this.authService.sendResetPasswordEmail(email);
+  }
   @UseGuards(RtGuard)
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
@@ -51,8 +70,56 @@ export class AuthController {
     return this.authService.getMe(userId);
   }
 
+  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({ action: PermissionAction.READ, object: PermissionObject.USER })
+  @Possessions('body.id')
+  @Post()
+  postHello(@Body() body) {
+    return body;
+  }
+
+  @Post('/forgot-password')
+  sendForgotPasswordEmail(@Body('email') email: string) {
+    return this.authService.sendForgotPasswordEmail(email);
+  }
+
+  @UseGuards(ForgotPasswordGuard)
+  @Get('/forgot-password/:token')
+  confirmForgotPassword(
+    @GetCurrentUser('sub') userId: string,
+    @GetCurrentUser('token') token: string,
+  ) {
+    return this.authService.confirmForgotPasswordEmail(userId, token);
+  }
+
+  @Post('/reset-forgot-password/:token')
+  resetPassword(
+    @Param('token') token: string,
+    @Body('password') password: string,
+  ) {
+    return this.authService.resetForgotPassword(token, password);
+  }
+
+  @UseGuards(AtCookieGuard)
+  @Post('/cookie')
+  postCookie() {
+    return 'body';
+  }
+
   @Get()
-  getHello(): string {
-    return 'get auth';
+  getHello(@Req() req) {
+    console.log(req.cookies);
+    console.log(req.cookies['access_token']);
+    return req.cookies['access_token'];
+  }
+
+  @Get('/test')
+  test(@Res({ passthrough: true }) res) {
+    res.cookie('access_token', 'test', {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
+    return 'test';
   }
 }

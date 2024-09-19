@@ -1,7 +1,13 @@
-import { IsNotEmpty, IsString, IsUrl, IsOptional } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsUrl,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 import { UserInterface } from '../entities/user.interface';
 import { PartialPick } from '../../common/types';
-export class updateUserDto
+export class UpdateUserDto
   implements
     PartialPick<
       Pick<UserInterface, 'id' | 'username' | 'profileImage'>,
@@ -9,7 +15,7 @@ export class updateUserDto
     >
 {
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   id: string;
 
   @IsOptional()
@@ -19,4 +25,9 @@ export class updateUserDto
   @IsOptional()
   @IsUrl()
   profileImage?: string;
+}
+export class UpdateUserPasswordDto implements Pick<UserInterface, 'password'> {
+  @IsNotEmpty()
+  @IsString()
+  password: string;
 }

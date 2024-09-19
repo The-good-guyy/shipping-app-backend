@@ -5,3 +5,8 @@ export class RtGuard extends AuthGuard('jwt-refresh') {
     super();
   }
 }
+export class RtCookieGuard extends AuthGuard('jwt-refresh-cookie') {
+  constructor() {
+    super();
+  }
+}

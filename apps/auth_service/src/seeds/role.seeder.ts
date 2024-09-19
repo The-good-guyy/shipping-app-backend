@@ -8,42 +8,197 @@ export class RoleSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
     const permissionRepository = dataSource.getRepository(Permission);
     const roleRepository = dataSource.getRepository(Role);
-    const [manage_routes, manage_users, read_routes, read_users] =
-      await Promise.all([
-        permissionRepository.findOne({
-          where: {
-            permission: 'manage_routes',
-          },
-        }),
-        permissionRepository.findOne({
-          where: {
-            permission: 'manage_users',
-          },
-        }),
-        permissionRepository.findOne({
-          where: {
-            permission: 'read_routes',
-          },
-        }),
-        permissionRepository.findOne({
-          where: {
-            permission: 'read_users',
-          },
-        }),
-      ]);
+    const [
+      read_routes,
+      read_users,
+      read_own_routes,
+      read_own_users,
+      create_routes,
+      create_users,
+      delete_users,
+      delete_own_users,
+      delete_routes,
+      delete_own_routes,
+      update_users,
+      update_routes,
+      update_own_users,
+      update_own_routes,
+      read_roles,
+      create_roles,
+      delete_roles,
+      update_roles,
+      read_permissions,
+      create_permissions,
+      delete_permissions,
+      update_permissions,
+    ] = await Promise.all([
+      permissionRepository.findOne({
+        where: {
+          permission: 'read_routes',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'read_users',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'read_own_routes',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'read_own_users',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'create_routes',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'create_users',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'delete_users',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'delete_own_users',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'delete_routes',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'delete_own_routes',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_users',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_routes',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_own_users',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_own_routes',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'read_roles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'create_roles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'delete_roles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_roles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'read_permissions',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'create_permissions',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'delete_permissions',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_permissions',
+        },
+      }),
+    ]);
     const user_role = roleData.find((role) => role.role === 'user');
-    user_role.permission = [read_routes, read_users];
+    user_role.permission = [
+      read_routes,
+      read_own_users,
+      create_routes,
+      delete_own_users,
+      delete_own_routes,
+      update_own_users,
+      update_own_routes,
+    ];
     const admin_role = roleData.find((role) => role.role === 'admin');
-    admin_role.permission = [manage_routes, manage_users];
-    await roleRepository.save({
-      ...user_role,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    await roleRepository.save({
-      ...admin_role,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    admin_role.permission = [
+      read_routes,
+      read_users,
+      create_users,
+      create_routes,
+      delete_users,
+      delete_routes,
+      update_users,
+      update_routes,
+    ];
+    const sysadmin_role = roleData.find((role) => role.role === 'sysadmin');
+    sysadmin_role.permission = [
+      read_routes,
+      read_users,
+      create_users,
+      create_routes,
+      delete_users,
+      delete_routes,
+      update_users,
+      update_routes,
+      read_roles,
+      create_roles,
+      delete_roles,
+      update_roles,
+      read_permissions,
+      create_permissions,
+      delete_permissions,
+      update_permissions,
+    ];
+    await Promise.all([
+      roleRepository.save({
+        ...user_role,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+      roleRepository.save({
+        ...admin_role,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+      roleRepository.save({
+        ...sysadmin_role,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+    ]);
   }
 }

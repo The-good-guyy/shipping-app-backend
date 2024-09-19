@@ -2,7 +2,13 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
-import { RtStrategy, AtStrategy } from './strategies';
+import {
+  RtStrategy,
+  AtStrategy,
+  AtCookieStrategy,
+  RtCookieStrategy,
+  ForgotPasswordStrategy,
+} from './strategies';
 import { UserModule } from '../users/users.module';
 import { RedisModule } from '../redis/redis.module';
 import { RoleModule } from '../role/role.module';
@@ -29,6 +35,13 @@ import { KafkaModule } from '../kafka';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AtStrategy, RtStrategy],
+  providers: [
+    AuthService,
+    AtStrategy,
+    RtStrategy,
+    AtCookieStrategy,
+    RtCookieStrategy,
+    ForgotPasswordStrategy,
+  ],
 })
 export class AuthModule {}
