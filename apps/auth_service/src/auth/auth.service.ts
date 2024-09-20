@@ -115,6 +115,12 @@ export class AuthService {
       ],
     });
   }
+  async resendEmail(id: string) {
+    const user = await this.usersService.findById(id);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    this.sendConfirmationEmail(user.email);
+    return true;
+  }
   async confirmEmail(token: string) {
     const email = await this.redisService.get(confirmationEmailPrefix + token);
     if (!email) throw new NotFoundException(EErrorMessage.TOKEN_INVALID);

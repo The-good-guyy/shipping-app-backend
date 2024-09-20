@@ -76,6 +76,12 @@ export class AuthController {
   }
 
   @UseGuards(AtGuard)
+  @Get('/verify')
+  @HttpCode(HttpStatus.OK)
+  resendEmail(@GetCurrentUser('sub') userId: string) {
+    return this.authService.resendEmail(userId);
+  }
+  @UseGuards(AtGuard)
   @Post('/reset-password')
   @HttpCode(HttpStatus.OK)
   forgotPassword(@GetCurrentUser('email') email: string): Promise<boolean> {
