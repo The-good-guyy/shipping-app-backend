@@ -1,7 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Request } from 'express';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -20,14 +19,7 @@ export class ForgotPasswordStrategy extends PassportStrategy(
     });
   }
 
-  validate(req: Request, payload: any) {
-    const token = req.params.token;
-
-    if (!token) throw new ForbiddenException('Refresh token malformed');
-
-    return {
-      ...payload,
-      token,
-    };
+  validate(payload: any) {
+    return payload;
   }
 }

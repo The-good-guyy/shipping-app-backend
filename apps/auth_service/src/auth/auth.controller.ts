@@ -13,7 +13,12 @@ import {
 } from '@nestjs/common';
 import { Tokens } from './types';
 import { AuthService } from './auth.service';
-import { CreateUserDto, LoginUserDto } from './dto';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  ResetForgotPassword,
+  ForgotPasswordEmailDto,
+} from './dto';
 import {
   AtGuard,
   AtCookieGuard,
@@ -79,15 +84,19 @@ export class AuthController {
   }
 
   @Post('/forgot-password')
-  sendForgotPasswordEmail(@Body('email') email: string) {
-    return this.authService.sendForgotPasswordEmail(email);
+  sendForgotPasswordEmail(
+    @Body() ForgotPasswordEmailDto: ForgotPasswordEmailDto,
+  ) {
+    return this.authService.sendForgotPasswordEmail(
+      ForgotPasswordEmailDto.email,
+    );
   }
 
   @UseGuards(ForgotPasswordGuard)
   @Get('/forgot-password/:token')
   confirmForgotPassword(
     @GetCurrentUser('sub') userId: string,
-    @GetCurrentUser('token') token: string,
+    @Param('token') token: string,
   ) {
     return this.authService.confirmForgotPasswordEmail(userId, token);
   }
@@ -95,9 +104,12 @@ export class AuthController {
   @Post('/reset-forgot-password/:token')
   resetPassword(
     @Param('token') token: string,
-    @Body('password') password: string,
+    @Body() ResetForgotPassword: ResetForgotPassword,
   ) {
-    return this.authService.resetForgotPassword(token, password);
+    return this.authService.resetForgotPassword(
+      token,
+      ResetForgotPassword.password,
+    );
   }
 
   @UseGuards(AtCookieGuard)
@@ -106,11 +118,10 @@ export class AuthController {
     return 'body';
   }
 
+  @UseGuards(AtGuard)
   @Get()
-  getHello(@Req() req) {
-    console.log(req.cookies);
-    console.log(req.cookies['access_token']);
-    return req.cookies['access_token'];
+  getHello(@GetCurrentUser() user: any) {
+    return user;
   }
 
   @Get('/test')

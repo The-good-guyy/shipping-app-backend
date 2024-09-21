@@ -1,39 +1,75 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { RouteService } from 'apps/route_service/src/route/route.service';
 import { Booking } from 'apps/route_service/src/booking/entities/booking.entity';
 import { Repository } from 'typeorm';
 import { BookingStatus } from 'apps/route_service/src/booking/enums/booking-status.enum';
-import { ScheduleService } from 'apps/route_service/src/schedule/schedule.service';
 import { EErrorMessage } from 'libs/common/error';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FilterBookingDto } from 'apps/route_service/src/booking/dto/filter-booking.dto';
+import { ClientGrpc } from '@nestjs/microservices';
+import { Observable, firstValueFrom } from 'rxjs';
 
+interface UsersService {
+  getUser(data: {
+    id: string;
+  }): Observable<{ id: string; isVerified: boolean }>;
+}
 @Injectable()
-export class BookingService {
+export class BookingService implements OnModuleInit {
+  private usersService: UsersService;
   constructor(
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
     private readonly routeService: RouteService,
+    @Inject('USER_PACKAGE') private readonly grpcClient: ClientGrpc,
   ) {}
-  async create(createBookingDto: CreateBookingDto): Promise<Booking> {
+  onModuleInit() {
+    this.usersService =
+      this.grpcClient.getService<UsersService>('UsersService');
+  }
+
+  async create(
+    createBookingDto: CreateBookingDto,
+    userId: string,
+  ): Promise<Booking> {
+    let userResponse: {
+      isVerified: boolean;
+      id: string;
+    };
+    try {
+      userResponse = await firstValueFrom(
+        this.usersService.getUser({ id: userId }),
+      );
+    } catch (error) {
+      console.error('Failed to retrieve user via gRPC:', error);
+      throw new NotFoundException('User not found');
+    }
+    if (!userResponse.isVerified) {
+      throw new BadRequestException(
+        'User is not verified and cannot create a booking.',
+      );
+    }
+    if (!userResponse || !userResponse.id) {
+      throw new NotFoundException('User not found');
+    }
     const { routeId } = createBookingDto;
-    // const departureDateObj = new Date(departureDate);
     const route = await this.routeService.findOne(routeId);
     if (!route) {
       throw new NotFoundException(EErrorMessage.ROUTE_NOT_FOUND);
     }
-    // const travelTime = this.scheduleService.calculateTravelTime(route.distance);
-    // const arrivalDate = this.scheduleService.calculateArrivalDate(
-    //   // departureDateObj,
-    //   travelTime,
-    // );
-    // console.log(departureDate);
-    // console.log(arrivalDate);
+
     const newBooking = this.bookingRepository.create({
       ...createBookingDto,
       route,
+      userId: userResponse.id,
       status: BookingStatus.PENDING,
     });
     // console.log(newBooking);

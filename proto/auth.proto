@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package user;
+
+service UsersService {
+    rpc GetUser(GetUserRequest) returns (user);
+    rpc GetUserRoles(GetUserRequest) returns (role);
+    rpc GetUserPermissions(GetUserRequest) returns (permissionResponse);
+}
+
+message permission{
+    string id=1;
+    string permission=2;
+    string action=3;
+    string object=4;
+    string possession=5;
+    google.protobuf.Timestamp createdAt = 6;
+    google.protobuf.Timestamp updatedAt = 7;
+}
+message role{
+    string id=1;
+    string role=2;
+    repeated permission permissions=3;
+    google.protobuf.Timestamp createdAt = 4;
+    google.protobuf.Timestamp updatedAt = 5;
+}
+message user{
+    string id=1;
+    string username=2;
+    string email=3;
+    string profileImage =4;
+    bool isVerified=5;
+    role role=6;
+    google.protobuf.Timestamp createdAt = 7;
+    google.protobuf.Timestamp updatedAt = 8;
+}
+message GetUserRequest{
+    string id=1;
+}
+message permissionResponse{
+    repeated permission permissions=1;
+}

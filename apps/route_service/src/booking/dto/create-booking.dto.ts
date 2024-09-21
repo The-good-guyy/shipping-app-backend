@@ -13,9 +13,9 @@ export class CreateBookingDto {
   @IsUUID('all', { message: 'routeId must be a valid UUID' })
   routeId: string;
 
-  // @IsOptional()
-  // @IsString()
-  // userId?: string;
+  @IsOptional()
+  @IsString()
+  userId?: string;
   // @IsDate()
   // departureDate: Date;
   // @IsEnum(BookingStatus)

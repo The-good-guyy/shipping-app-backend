@@ -19,8 +19,11 @@ export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
   @Post()
-  create(@Body() createBookingDto: CreateBookingDto): Promise<Booking> {
-    return this.bookingService.create(createBookingDto);
+  async createBooking(
+    @Body() createBookingDto: CreateBookingDto,
+    @Body('userId') userId: string,
+  ) {
+    return this.bookingService.create(createBookingDto, userId);
   }
 
   @Get()

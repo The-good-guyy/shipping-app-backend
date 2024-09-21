@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PortService } from 'apps/route_service/src/port/port.service';
 import { CreateRouteDto } from 'apps/route_service/src/route/dto/create-route.dto';
@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { FilterRouteDto } from 'apps/route_service/src/route/dto/filter-route.dto';
 import { ScheduleService } from 'apps/route_service/src/schedule/schedule.service';
 import { Route } from 'apps/route_service/src/route/entity/route.entity';
+import { ClientGrpc } from '@nestjs/microservices';
 
 @Injectable()
 export class RouteService {
@@ -17,7 +18,9 @@ export class RouteService {
     private readonly routeRepository: Repository<Route>,
     private readonly scheduleService: ScheduleService,
     private readonly portService: PortService,
+    @Inject('USER_PACKAGE') private readonly grpcClient: ClientGrpc,
   ) {}
+
 
   async create(createRouteDto: CreateRouteDto): Promise<Route> {
     const { startPort_address, endPort_address, departureDate } =
