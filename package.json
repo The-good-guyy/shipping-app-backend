@@ -28,6 +28,7 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.11.3",
     "@grpc/proto-loader": "^0.7.13",
+    "@grpc/reflection": "^1.0.4",
     "@kafkajs/confluent-schema-registry": "^3.3.0",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/axios": "^3.0.3",
