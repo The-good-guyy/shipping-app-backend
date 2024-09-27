@@ -57,15 +57,34 @@ export class AuthController {
   signInLocal(@Body() CreateUserDto: CreateUserDto): Promise<Tokens> {
     return this.authService.signUpLocal(CreateUserDto);
   }
+
+  // @Post('local/signin')
+  // @HttpCode(HttpStatus.OK)
+  // siginLocal(@Body() LoginUserDto: LoginUserDto) {
+  //   return this.authService.signInLocal(LoginUserDto);
+  // }
+
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
-  siginLocal(@Body() LoginUserDto: LoginUserDto): Promise<Tokens> {
-    return this.authService.signInLocal(LoginUserDto);
+  async siginLocal(
+    @Res({ passthrough: true }) response,
+    @Body() LoginUserDto: LoginUserDto,
+  ) {
+    const tokens: Tokens = await this.authService.signInLocal(LoginUserDto);
+    response.cookie('access_token', tokens.access_token);
+    response.cookie('refresh_token', tokens.refresh_token);
+    return tokens;
   }
+
   @UseGuards(AtGuard)
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUser('sub') userId: string): Promise<boolean> {
+  logout(
+    @Res({ passthrough: true }) response,
+    @GetCurrentUser('sub') userId: string,
+  ): Promise<boolean> {
+    response.clearCookie('access_token');
+    response.clearCookie('refresh_token');
     return this.authService.logout(userId);
   }
 
@@ -87,14 +106,31 @@ export class AuthController {
   forgotPassword(@GetCurrentUser('email') email: string): Promise<boolean> {
     return this.authService.sendResetPasswordEmail(email);
   }
+  // @UseGuards(RtGuard)
+  // @Post('/refresh')
+  // @HttpCode(HttpStatus.OK)
+  // refreshTokens(
+  //   @GetCurrentUser('sub') userId: string,
+  //   @GetCurrentUser('refreshToken') refreshToken: string,
+  // ): Promise<Tokens> {
+  //   return this.authService.refreshTokens(userId, refreshToken);
+  // }
+
   @UseGuards(RtGuard)
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
-  refreshTokens(
+  async refreshTokens(
+    @Res({ passthrough: true }) response,
     @GetCurrentUser('sub') userId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
-  ): Promise<Tokens> {
-    return this.authService.refreshTokens(userId, refreshToken);
+  ) {
+    const tokens: Tokens = await this.authService.refreshTokens(
+      userId,
+      refreshToken,
+    );
+    response.cookie('access_token', tokens.access_token);
+    response.cookie('refresh_token', tokens.refresh_token);
+    return tokens;
   }
 
   @UseGuards(AtGuard)

@@ -42,6 +42,7 @@ export class Http2gRPCExceptionFilter implements ExceptionFilter {
       message: unknown;
       error?: unknown;
     };
+
     return throwError(() => ({
       statusCode:
         Http2gRPCExceptionFilter.HttpStatusCode[httpStatus] ?? status.UNKNOWN,
