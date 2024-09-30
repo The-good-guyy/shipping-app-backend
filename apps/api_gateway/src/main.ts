@@ -5,7 +5,14 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
   const configService = app.get(ConfigService);
-  app.enableCors({ credentials: true });
+  const whitelist = ['http://localhost:2999'];
+  const corsOptions = {
+    origin: 'http://localhost:2999',
+    credentials: true,
+    optionSuccessStatus: 200,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  };
+  app.enableCors(corsOptions);
   app.use((req, _, next) => {
     console.log(`Got invoked: '${req.originalUrl}'`);
     next();

@@ -23,6 +23,7 @@ import {
   forgotPasswordFormPrefix,
 } from '../common/constants';
 import { getRandomIntInclusive } from '../common/helpers';
+import { User } from '../users/entities/user.entity';
 @Injectable()
 export class AuthService {
   constructor(
@@ -175,7 +176,11 @@ export class AuthService {
       refresh_token: rt,
     };
   }
-  async signUpLocal(CreateUserDto: CreateUserDto) {
+  async signUpLocal(
+    CreateUserDto: CreateUserDto,
+  ): Promise<{ user: User; tokens: Tokens }> {
+    if (CreateUserDto.password !== CreateUserDto.confirmPassword)
+      throw new ForbiddenException(EErrorMessage.PASSWORD_NOT_MATCH);
     const role = await this.roleService.findByName('user');
     const hashPassword = await this.hashData(CreateUserDto.password);
     const newUser = { ...CreateUserDto, role, password: hashPassword };
@@ -200,9 +205,11 @@ export class AuthService {
       tokens.refresh_token,
       this.config.get<number>('RT_SECRET_TIME'),
     );
-    return tokens;
+    return { user: searchUser, tokens };
   }
-  async signInLocal(LoginUserDto: LoginUserDto): Promise<Tokens> {
+  async signInLocal(
+    LoginUserDto: LoginUserDto,
+  ): Promise<{ user: User; tokens: Tokens }> {
     const user = await this.usersService.findByEmailWithSensitiveInfo(
       LoginUserDto.email,
     );
@@ -232,13 +239,16 @@ export class AuthService {
       tokens.refresh_token,
       this.config.get<number>('RT_SECRET_TIME'),
     );
-    return tokens;
+    return { user, tokens };
   }
   async logout(userId: string): Promise<boolean> {
     this.redisService.delete(userId);
     return true;
   }
-  async refreshTokens(userId: string, rt: string) {
+  async refreshTokens(
+    userId: string,
+    rt: string,
+  ): Promise<{ user: User; tokens: Tokens }> {
     const user = await this.usersService.findById(userId);
     if (!user) throw new ForbiddenException(EErrorMessage.USER_NOT_FOUND);
     const [cachedItem, ExpireTime] = await Promise.all([
@@ -263,10 +273,18 @@ export class AuthService {
       user.role.permission,
     );
     this.updateRtHash(user.id, tokens.refresh_token, ExpireTime);
-    return tokens;
+    return { user, tokens };
   }
-  async getMe(userId: string) {
+  async getMe(userId: string): Promise<User> {
     const user = await this.usersService.findById(userId);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    user.role.permission = user.role.permission.map((p) => {
+      delete p.id;
+      delete p.permission;
+      delete p.createdAt;
+      delete p.updatedAt;
+      return p;
+    });
     return user;
   }
 }

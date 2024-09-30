@@ -29,6 +29,8 @@ import {
 } from '../common/guard';
 import { GetCurrentUser, Permissions, Possessions } from '../common/decorators';
 import { PermissionAction, PermissionObject } from '../common/constants';
+import { Response, Request } from 'express';
+import { User } from '../users/entities/user.entity';
 // import { KafkaService } from '../kafka';
 // import { SubscribeTo } from '../kafka';
 @Controller('auth')
@@ -54,8 +56,23 @@ export class AuthController {
   // }
   @Post('/local/signup')
   @HttpCode(HttpStatus.CREATED)
-  signInLocal(@Body() CreateUserDto: CreateUserDto): Promise<Tokens> {
-    return this.authService.signUpLocal(CreateUserDto);
+  async signUpLocal(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
+    @Body() CreateUserDto: CreateUserDto,
+  ): Promise<User> {
+    const { tokens, user } = await this.authService.signUpLocal(CreateUserDto);
+    response.cookie('access_token', tokens.access_token, {
+      expires: new Date(Date.now() + 900 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    response.cookie('refresh_token', tokens.refresh_token, {
+      expires: new Date(Date.now() + 2332800 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    return user;
   }
 
   // @Post('local/signin')
@@ -66,14 +83,23 @@ export class AuthController {
 
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
-  async siginLocal(
-    @Res({ passthrough: true }) response,
+  async signInLocal(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
     @Body() LoginUserDto: LoginUserDto,
   ) {
-    const tokens: Tokens = await this.authService.signInLocal(LoginUserDto);
-    response.cookie('access_token', tokens.access_token);
-    response.cookie('refresh_token', tokens.refresh_token);
-    return tokens;
+    const { tokens, user } = await this.authService.signInLocal(LoginUserDto);
+    response.cookie('access_token', tokens.access_token, {
+      expires: new Date(Date.now() + 900 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    response.cookie('refresh_token', tokens.refresh_token, {
+      expires: new Date(Date.now() + 2332800 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    return user;
   }
 
   @UseGuards(AtGuard)
@@ -120,24 +146,32 @@ export class AuthController {
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
   async refreshTokens(
-    @Res({ passthrough: true }) response,
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
     @GetCurrentUser('sub') userId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ) {
-    const tokens: Tokens = await this.authService.refreshTokens(
+    const { user, tokens } = await this.authService.refreshTokens(
       userId,
       refreshToken,
     );
-    response.cookie('access_token', tokens.access_token);
-    response.cookie('refresh_token', tokens.refresh_token);
-    return tokens;
+    response.cookie('access_token', tokens.access_token, {
+      expires: new Date(Date.now() + 900 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    response.cookie('refresh_token', tokens.refresh_token, {
+      expires: new Date(Date.now() + 2332800 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    return user;
   }
 
-  @UseGuards(AtGuard)
+  @UseGuards(AtCookieGuard)
   @Get('/getMe')
   @HttpCode(HttpStatus.OK)
   getMe(@GetCurrentUser('sub') userId: string) {
-    console.log(userId);
     return this.authService.getMe(userId);
   }
 

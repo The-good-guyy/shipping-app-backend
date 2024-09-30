@@ -15,10 +15,17 @@ export class CreateUserDto
   email: string;
 
   @IsNotEmpty()
+  @IsString()
   @MinLength(8)
   @MaxLength(24)
   // @IsStrongPassword()
   password: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8)
+  @MaxLength(24)
+  confirmPassword: string;
 
   @IsNotEmpty()
   @IsString()
