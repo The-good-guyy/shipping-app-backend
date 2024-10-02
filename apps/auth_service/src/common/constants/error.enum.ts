@@ -49,4 +49,5 @@ export enum EErrorMessage {
   DATA_LOADERS_NOT_LOAD = 'Data loaders can not be loaded in context',
   TOKEN_INVALID = 'token is invalid or expired',
   EMAIL_ALREADY_VERIFIED = 'email is already verified',
+  PASSWORD_NOT_MATCH = 'Password and Confirm Password must match',
 }

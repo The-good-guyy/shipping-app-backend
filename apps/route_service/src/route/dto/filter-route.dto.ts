@@ -20,7 +20,7 @@ export class FilterRouteDto {
 
   @IsOptional()
   @IsString()
-  sortBy?: 'createdAt' | 'startPort' | 'endPort' | 'updatedAt';
+  sortBy?: 'createdAt' | 'startPort' | 'endPort' | 'updatedAt' | 'status';
 
   @IsOptional()
   @IsString()

@@ -23,7 +23,6 @@ export class PortService {
       },
     });
 
-    // Nếu tồn tại port trùng lặp, ném ra lỗi
     if (existingPort) {
       throw new NotFoundException(EErrorMessage.PORT_EXISTED);
     }

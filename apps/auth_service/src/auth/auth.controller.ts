@@ -29,49 +29,149 @@ import {
 } from '../common/guard';
 import { GetCurrentUser, Permissions, Possessions } from '../common/decorators';
 import { PermissionAction, PermissionObject } from '../common/constants';
+import { Response, Request } from 'express';
+import { User } from '../users/entities/user.entity';
 // import { KafkaService } from '../kafka';
 // import { SubscribeTo } from '../kafka';
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    // @Inject('AUTH_SERVICE') private client: KafkaService,
+  ) {}
+
+  // onModuleInit(): void {
+  //   this.client.subscribeToResponseOf('send-confirmation-email', this);
+  // }
+  // @SubscribeTo('send-confirmation-email')
+  // async getWorld(
+  //   data: any,
+  //   key: any,
+  //   offset: number,
+  //   timestamp: number,
+  //   partition: number,
+  // ): Promise<void> {
+  //   const dataObj = JSON.parse(data);
+  //   console.log(dataObj, key, offset, timestamp, partition);
+  // }
   @Post('/local/signup')
   @HttpCode(HttpStatus.CREATED)
-  signInLocal(@Body() CreateUserDto: CreateUserDto): Promise<Tokens> {
-    return this.authService.signUpLocal(CreateUserDto);
+  async signUpLocal(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
+    @Body() CreateUserDto: CreateUserDto,
+  ): Promise<User> {
+    const { tokens, user } = await this.authService.signUpLocal(CreateUserDto);
+    response.cookie('access_token', tokens.access_token, {
+      expires: new Date(Date.now() + 900 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    response.cookie('refresh_token', tokens.refresh_token, {
+      expires: new Date(Date.now() + 2332800 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    return user;
   }
-  @Post('/local/signin')
+
+  // @Post('local/signin')
+  // @HttpCode(HttpStatus.OK)
+  // siginLocal(@Body() LoginUserDto: LoginUserDto) {
+  //   return this.authService.signInLocal(LoginUserDto);
+  // }
+
+  @Post('local/signin')
   @HttpCode(HttpStatus.OK)
-  siginLocal(@Body() LoginUserDto: LoginUserDto): Promise<Tokens> {
-    return this.authService.signInLocal(LoginUserDto);
+  async signInLocal(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
+    @Body() LoginUserDto: LoginUserDto,
+  ) {
+    const { tokens, user } = await this.authService.signInLocal(LoginUserDto);
+    response.cookie('access_token', tokens.access_token, {
+      expires: new Date(Date.now() + 900 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    response.cookie('refresh_token', tokens.refresh_token, {
+      expires: new Date(Date.now() + 2332800 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    return user;
   }
+
   @UseGuards(AtGuard)
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUser('sub') userId: string): Promise<boolean> {
+  logout(
+    @Res({ passthrough: true }) response,
+    @GetCurrentUser('sub') userId: string,
+  ): Promise<boolean> {
+    response.clearCookie('access_token');
+    response.clearCookie('refresh_token');
     return this.authService.logout(userId);
   }
 
+  @Post('/verify/:token')
+  @HttpCode(HttpStatus.OK)
+  verify(@Param('token') token: string): Promise<boolean> {
+    return this.authService.confirmEmail(token);
+  }
+
+  @UseGuards(AtGuard)
+  @Get('/verify')
+  @HttpCode(HttpStatus.OK)
+  resendEmail(@GetCurrentUser('sub') userId: string) {
+    return this.authService.resendEmail(userId);
+  }
   @UseGuards(AtGuard)
   @Post('/reset-password')
   @HttpCode(HttpStatus.OK)
   forgotPassword(@GetCurrentUser('email') email: string): Promise<boolean> {
     return this.authService.sendResetPasswordEmail(email);
   }
+  // @UseGuards(RtGuard)
+  // @Post('/refresh')
+  // @HttpCode(HttpStatus.OK)
+  // refreshTokens(
+  //   @GetCurrentUser('sub') userId: string,
+  //   @GetCurrentUser('refreshToken') refreshToken: string,
+  // ): Promise<Tokens> {
+  //   return this.authService.refreshTokens(userId, refreshToken);
+  // }
+
   @UseGuards(RtGuard)
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
-  refreshTokens(
+  async refreshTokens(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
     @GetCurrentUser('sub') userId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
-  ): Promise<Tokens> {
-    return this.authService.refreshTokens(userId, refreshToken);
+  ) {
+    const { user, tokens } = await this.authService.refreshTokens(
+      userId,
+      refreshToken,
+    );
+    response.cookie('access_token', tokens.access_token, {
+      expires: new Date(Date.now() + 900 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    response.cookie('refresh_token', tokens.refresh_token, {
+      expires: new Date(Date.now() + 2332800 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    return user;
   }
 
-  @UseGuards(AtGuard)
+  @UseGuards(AtCookieGuard)
   @Get('/getMe')
   @HttpCode(HttpStatus.OK)
   getMe(@GetCurrentUser('sub') userId: string) {
-    console.log(userId);
     return this.authService.getMe(userId);
   }
 

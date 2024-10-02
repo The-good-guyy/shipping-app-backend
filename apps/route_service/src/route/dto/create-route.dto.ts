@@ -3,11 +3,11 @@ import { IsNotEmpty, IsDate, IsNumber, IsString } from 'class-validator';
 export class CreateRouteDto {
   @IsNotEmpty()
   @IsString()
-  startPort_address: string;
+  startPort_id: string;
 
   @IsNotEmpty()
   @IsString()
-  endPort_address: string;
+  endPort_id: string;
 
   @IsNumber()
   @IsNotEmpty()

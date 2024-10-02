@@ -21,13 +21,11 @@ export class RouteService {
     @Inject('USER_PACKAGE') private readonly grpcClient: ClientGrpc,
   ) {}
 
-
   async create(createRouteDto: CreateRouteDto): Promise<Route> {
-    const { startPort_address, endPort_address, departureDate } =
-      createRouteDto;
+    const { startPort_id, endPort_id, departureDate } = createRouteDto;
     const departureDateObj = new Date(departureDate);
-    const startPort = await this.portService.findByAddress(startPort_address);
-    const endPort = await this.portService.findByAddress(endPort_address);
+    const startPort = await this.portService.findOne(startPort_id);
+    const endPort = await this.portService.findOne(endPort_id);
     if (!startPort || !endPort) {
       throw new NotFoundException(EErrorMessage.PORT_NOT_FOUND);
     }
@@ -50,7 +48,7 @@ export class RouteService {
         arrivalDate,
       },
     });
-    console.log(existingRoute);
+    // console.log(existingRoute);
     if (existingRoute) {
       throw new NotFoundException(EErrorMessage.ROUTE_EXISTED);
     }
@@ -63,7 +61,7 @@ export class RouteService {
       arrivalDate,
       distance: roundedDistance,
     });
-    // console.log(newRoute);
+    console.log(newRoute);
     return this.routeRepository.save(newRoute);
   }
 
@@ -107,6 +105,9 @@ export class RouteService {
       case 'updatedAt':
         queryBuilder.orderBy('route.updatedAt', order);
         break;
+      case 'status':
+        queryBuilder.orderBy('route.status', order);
+        break;
       default:
         queryBuilder.orderBy('route.createdAt', order);
         break;
@@ -134,7 +135,7 @@ export class RouteService {
     const lastPage = Math.ceil(total / limit);
     const nextPage = page + 1 > lastPage ? null : page + 1;
     const prevPage = page - 1 < 1 ? null : page - 1;
-    console.log(result);
+    // console.log(result);
     return {
       data: result,
       total,

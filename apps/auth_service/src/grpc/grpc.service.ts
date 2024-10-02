@@ -3,11 +3,13 @@ import { permission, role, user, GetUserRequest } from '@app/common';
 import { UserService } from '../users/users.service';
 import { Permission } from '../permission/entities/permission.entity';
 import { Role } from '../role/entities/role.entity';
+import { NotFoundException } from '@nestjs/common';
+import { EErrorMessage } from '../common/constants';
 
 @Injectable()
 export class UsersGrpcService {
   constructor(private readonly userService: UserService) {}
-  async getUserPermissions(EntityPermission: Permission[]) {
+  getUserPermissions(EntityPermission: Permission[]) {
     const permissions: permission[] = [];
     for (const p of EntityPermission) {
       const permission: permission = {
@@ -29,8 +31,8 @@ export class UsersGrpcService {
     }
     return permissions;
   }
-  async getUserRoles(EntityRole: Role) {
-    const permissions: permission[] = await this.getUserPermissions(
+  getUserRoles(EntityRole: Role) {
+    const permissions: permission[] = this.getUserPermissions(
       EntityRole.permission,
     );
     const role: role = {
@@ -50,7 +52,10 @@ export class UsersGrpcService {
   }
   async getUser(request: GetUserRequest) {
     const res = await this.userService.findById(request.id);
-    const newRole = await this.getUserRoles(res.role);
+    if (!res) {
+      throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    }
+    const newRole = this.getUserRoles(res.role);
     const user: user = {
       id: res.id,
       username: res.username,

@@ -14,18 +14,6 @@ import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create(AuthServiceModule, { bufferLogs: true });
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.GRPC,
-    options: {
-      package: 'user',
-      url: 'localhost:5000',
-      protoPath: join(__dirname, '../auth.proto'),
-      onLoadPackageDefinition: (pkg, server) => {
-        new ReflectionService(pkg).addToServer(server);
-      },
-    },
-  });
-  await app.startAllMicroservices();
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -41,6 +29,18 @@ async function bootstrap() {
     new MicroserviceExceptionFilter(),
     new HttpExceptionFilter(),
   );
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: 'user',
+      url: 'localhost:5002',
+      protoPath: join(__dirname, '../auth.proto'),
+      onLoadPackageDefinition: (pkg, server) => {
+        new ReflectionService(pkg).addToServer(server);
+      },
+    },
+  });
+  await app.startAllMicroservices();
   // app.useLogger(app.get(Logger));
   await app.listen(3001);
 }
