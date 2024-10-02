@@ -37,25 +37,7 @@ import { RtGuardExceptionFilter } from '../common/exceptions';
 // import { SubscribeTo } from '../kafka';
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    // @Inject('AUTH_SERVICE') private client: KafkaService,
-  ) {}
-
-  // onModuleInit(): void {
-  //   this.client.subscribeToResponseOf('send-confirmation-email', this);
-  // }
-  // @SubscribeTo('send-confirmation-email')
-  // async getWorld(
-  //   data: any,
-  //   key: any,
-  //   offset: number,
-  //   timestamp: number,
-  //   partition: number,
-  // ): Promise<void> {
-  //   const dataObj = JSON.parse(data);
-  //   console.log(dataObj, key, offset, timestamp, partition);
-  // }
+  constructor(private readonly authService: AuthService) {}
   @Post('/local/signup')
   @HttpCode(HttpStatus.CREATED)
   async signUpLocal(
@@ -114,12 +96,6 @@ export class AuthController {
     response.clearCookie('access_token');
     response.clearCookie('refresh_token');
     return this.authService.logout(userId);
-  }
-
-  @Post('/verify/:token')
-  @HttpCode(HttpStatus.OK)
-  verify(@Param('token') token: string): Promise<boolean> {
-    return this.authService.confirmEmail(token);
   }
 
   @UseGuards(AtGuard)

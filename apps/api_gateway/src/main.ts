@@ -24,6 +24,13 @@ async function bootstrap() {
       changeOrigin: true,
     }),
   );
+  app.use(
+    '/api/v1/route-api',
+    createProxyMiddleware({
+      target: configService.get('ROUTE_SERVICE_URL'),
+      changeOrigin: true,
+    }),
+  );
   //http
   await app.listen(3000);
 }

@@ -5,6 +5,7 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
+    "assets": ["mail/templates/**/*"],
     "tsConfigPath": "apps/shipping_routes_app/tsconfig.app.json"
   },
   "monorepo": true,
@@ -48,6 +49,15 @@
       "sourceRoot": "apps/notification_service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/notification_service/tsconfig.app.json"
+      }
+    },
+    "route_service": {
+      "type": "application",
+      "root": "apps/route_service",
+      "entryFile": "main",
+      "sourceRoot": "apps/route_service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/route_service/tsconfig.app.json"
       }
     },
     "common": {
