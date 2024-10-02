@@ -1,6 +1,6 @@
 import { AuthGuard } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-
+import { EErrorMessage } from '../constants';
 @Injectable()
 export class AtGuard extends AuthGuard('jwt') {
   constructor() {
@@ -9,8 +9,7 @@ export class AtGuard extends AuthGuard('jwt') {
   handleRequest(err, user) {
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
-      console.log('AtGuardExceptionFilter');
-      throw err || new UnauthorizedException();
+      throw new UnauthorizedException(EErrorMessage.TOKEN_INVALID);
     }
     return user;
   }
@@ -24,7 +23,7 @@ export class AtCookieGuard extends AuthGuard('jwt-cookie') {
   handleRequest(err, user) {
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
-      throw err || new UnauthorizedException();
+      throw new UnauthorizedException(EErrorMessage.TOKEN_INVALID);
     }
     return user;
   }

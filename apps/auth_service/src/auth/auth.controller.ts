@@ -10,6 +10,7 @@ import {
   Inject,
   Req,
   Res,
+  UseFilters,
 } from '@nestjs/common';
 import { Tokens } from './types';
 import { AuthService } from './auth.service';
@@ -31,6 +32,7 @@ import { GetCurrentUser, Permissions, Possessions } from '../common/decorators';
 import { PermissionAction, PermissionObject } from '../common/constants';
 import { Response, Request } from 'express';
 import { User } from '../users/entities/user.entity';
+import { RtGuardExceptionFilter } from '../common/exceptions';
 // import { KafkaService } from '../kafka';
 // import { SubscribeTo } from '../kafka';
 @Controller('auth')
@@ -102,7 +104,7 @@ export class AuthController {
     return user;
   }
 
-  @UseGuards(AtGuard)
+  @UseGuards(AtCookieGuard)
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
   logout(
@@ -144,6 +146,7 @@ export class AuthController {
 
   @UseGuards(RtGuard)
   @Post('/refresh')
+  @UseFilters(RtGuardExceptionFilter)
   @HttpCode(HttpStatus.OK)
   async refreshTokens(
     @Req() req: Request,

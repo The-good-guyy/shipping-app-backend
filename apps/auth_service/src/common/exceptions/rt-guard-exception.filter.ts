@@ -11,7 +11,6 @@ export class RtGuardExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    response.clearCookie('access_token');
     response.clearCookie('refresh_token');
   }
 }

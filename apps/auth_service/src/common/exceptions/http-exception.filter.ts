@@ -5,6 +5,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { EErrorMessage } from '../constants';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -20,6 +21,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       exception.getResponse()?.['message'] ||
       exception.message ||
       'An unexpected error occurred. Please try again later.';
+    if (status === 401 && message === EErrorMessage.TOKEN_INVALID) {
+      response.clearCookie('access_token');
+    }
     response.status(status).json({
       message: message,
       error: error,
