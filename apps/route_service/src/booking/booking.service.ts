@@ -4,6 +4,8 @@ import {
   Injectable,
   NotFoundException,
   OnModuleInit,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
@@ -23,6 +25,7 @@ interface UsersService {
   }): Observable<{ id: string; isVerified: boolean }>;
 }
 @Injectable()
+// @UseInterceptors(ClassSerializerInterceptor)
 export class BookingService implements OnModuleInit {
   private usersService: UsersService;
   constructor(
@@ -41,18 +44,20 @@ export class BookingService implements OnModuleInit {
     userId: string,
   ): Promise<Booking> {
     let userResponse: {
-      isVerified: boolean;
       id: string;
+      isVerified: boolean;
     };
     try {
       userResponse = await firstValueFrom(
         this.usersService.getUser({ id: userId }),
       );
+      // console.log(userResponse);
     } catch (error) {
       console.error('Failed to retrieve user via gRPC:', error);
       throw new NotFoundException('User not found');
     }
     if (!userResponse.isVerified) {
+      console.log('User is not verified and cannot create a booking.');
       throw new BadRequestException(
         'User is not verified and cannot create a booking.',
       );

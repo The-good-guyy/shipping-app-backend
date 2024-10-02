@@ -47,7 +47,7 @@ export enum EErrorMessage {
   CONTACT_ADMIN = 'something went wrong. Please contact admin for more detail',
   EMAIL_TEMPLATE_NOT_FOUND = 'email template not found',
   DATA_LOADERS_NOT_LOAD = 'Data loaders can not be loaded in context',
-  TOKEN_INVALID = 'token is invalid or expired',
+  TOKEN_INVALID = 'Token is invalid or expired',
   EMAIL_ALREADY_VERIFIED = 'email is already verified',
   PASSWORD_NOT_MATCH = 'Password and Confirm Password must match',
 }
