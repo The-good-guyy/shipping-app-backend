@@ -1,23 +1,30 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { createUserDto, updateUserDto } from './dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  SearchUsersOffsetDto,
+  SortUserDto,
+  SearchUsersFilterDto,
+} from './dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { EErrorMessage } from '../common/constants';
 import { getCols } from '../common/helpers';
+import { MoreThan, LessThan, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 @Injectable()
 export class UserRepository {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
-  async create(createUserDto: createUserDto) {
+  async create(CreateUserDto: CreateUserDto) {
     const user = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
+      where: { email: CreateUserDto.email },
     });
     if (user) throw new NotFoundException(EErrorMessage.ENTITY_EXISTED);
     let newUser = this.usersRepository.create({
-      ...createUserDto,
+      ...CreateUserDto,
     });
     newUser = await this.usersRepository.save(newUser);
     delete newUser.password;
@@ -29,7 +36,7 @@ export class UserRepository {
     });
     if (user) this.usersRepository.delete(user);
   }
-  async update(user: User, input: Partial<updateUserDto>) {
+  async update(user: User, input: Partial<UpdateUserDto>) {
     if (input.id) {
       delete input['id'];
     }
@@ -56,7 +63,7 @@ export class UserRepository {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
     });
-    if (!user) throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
     const updatedUser = this.usersRepository.create({
       ...user,
       password,
@@ -83,5 +90,94 @@ export class UserRepository {
       },
     });
     return user;
+  }
+  async updateVerificationStatus(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email: email },
+    });
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    if (user.isVerified)
+      throw new NotFoundException(EErrorMessage.EMAIL_ALREADY_VERIFIED);
+    const updatedUser = this.usersRepository.create({
+      ...user,
+      isVerified: true,
+    });
+    await this.usersRepository.save(updatedUser);
+    return true;
+  }
+
+  async search(
+    offset: SearchUsersOffsetDto,
+    filters: SearchUsersFilterDto,
+    fields: (keyof User)[],
+    sort: SortUserDto[],
+  ) {
+    const { limit, pageNumber, skip } = offset.pagination;
+    const { isGetAll } = offset.options ?? {};
+    const newFilters = {};
+    const newFields = fields.filter((obj) => obj != 'password');
+    for (const key in filters) {
+      const value = filters[key];
+      if (typeof value === 'object' && value !== null) {
+        if (value.gte !== null && value.gte !== undefined) {
+          filters[key] = MoreThanOrEqual(value.gte);
+        } else if (value.gt !== null && value.gt !== undefined) {
+          filters[key] = MoreThan(value.gt);
+        } else if (value.lte !== null && value.lte !== undefined)
+          filters[key] = LessThanOrEqual(value.lte);
+        else if (value.lt !== null && value.lt !== undefined)
+          filters[key] = LessThan(value.lt);
+      }
+      const newValues = filters[key];
+      const keyValue = key.split('_');
+      let o = newFilters;
+      for (let i = 0; i < keyValue.length - 1; i++) {
+        const prop = keyValue[i];
+        o[prop] = o[prop] || {};
+        o = o[prop];
+      }
+      o[keyValue[keyValue.length - 1]] = newValues;
+    }
+    const sortOrder = {};
+    sort.forEach((obj) => {
+      const sortOrderBy = obj.orderBy.split('.');
+      let object = sortOrder;
+      for (let i = 0; i < sortOrderBy.length - 1; i++) {
+        const prop = sortOrderBy[i];
+        object[prop] = {};
+        object = object[prop];
+      }
+      object[sortOrderBy[sortOrderBy.length - 1]] = obj.order;
+    });
+    if (isGetAll) {
+      const entities = await this.usersRepository.find({
+        select: newFields,
+        where: newFilters ? newFilters : undefined,
+        relations: newFields.includes('role')
+          ? { role: { permission: true } }
+          : undefined,
+        order: sortOrder ? sortOrder : undefined,
+      });
+      return {
+        totalCount: entities.length,
+        users: entities,
+      };
+    }
+    const [entities, count] = await this.usersRepository.findAndCount({
+      skip: skip || limit * (pageNumber - 1),
+      take: limit,
+      select: newFields,
+      where: newFilters ? newFilters : undefined,
+      relations: newFields.includes('role')
+        ? { role: { permission: true } }
+        : undefined,
+      order: sortOrder ? sortOrder : undefined,
+    });
+    return {
+      pageNumber,
+      pageSize: limit,
+      totalCount: count,
+      users: entities,
+    };
   }
 }

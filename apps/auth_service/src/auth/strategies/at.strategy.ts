@@ -3,10 +3,6 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 
-type JwtPayload = {
-  sub: string;
-  email: string;
-};
 @Injectable()
 export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(config: ConfigService) {
@@ -15,7 +11,24 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
       secretOrKey: config.get<string>('AT_SECRET'),
     });
   }
-  validate(payload: JwtPayload) {
+  validate(payload: any) {
+    return payload;
+  }
+}
+
+@Injectable()
+export class AtCookieStrategy extends PassportStrategy(Strategy, 'jwt-cookie') {
+  constructor(config: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req) => {
+          return req.cookies['access_token'];
+        },
+      ]),
+      secretOrKey: config.get<string>('AT_SECRET'),
+    });
+  }
+  validate(payload: any) {
     return payload;
   }
 }

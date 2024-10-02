@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entities/permission.entity';
-import { createPermissionDto, udpatePermissionDto } from './dto';
+import { CreatePermissionDto, UdpatePermissionDto } from './dto';
 import { EErrorMessage } from '../common/constants';
 @Injectable()
 export class PermissionRepository {
@@ -10,13 +10,13 @@ export class PermissionRepository {
     @InjectRepository(Permission)
     private permissionRepository: Repository<Permission>,
   ) {}
-  async create(createPermissionDto: createPermissionDto) {
+  async create(CreatePermissionDto: CreatePermissionDto) {
     const permission = await this.permissionRepository.findOne({
-      where: { permission: createPermissionDto.permission },
+      where: { permission: CreatePermissionDto.permission },
     });
     if (permission) throw new NotFoundException(EErrorMessage.ENTITY_EXISTED);
     let newPermission = this.permissionRepository.create({
-      ...createPermissionDto,
+      ...CreatePermissionDto,
     });
     newPermission = await this.permissionRepository.save(newPermission);
     return newPermission;
@@ -27,13 +27,13 @@ export class PermissionRepository {
     });
     if (permission) this.permissionRepository.delete(permission);
   }
-  // async update(permissionId: string, input: Partial<udpatePermissionDto>) {
+  // async update(permissionId: string, input: Partial<UdpatePermissionDto>) {
   //   return await this.permissionRepository.update(permissionId, {
   //     ...input,
   //     updatedAt: new Date(),
   //   });
   // }
-  async update(permission: Permission, input: Partial<udpatePermissionDto>) {
+  async update(permission: Permission, input: Partial<UdpatePermissionDto>) {
     if (input.id) {
       delete input['id'];
     }

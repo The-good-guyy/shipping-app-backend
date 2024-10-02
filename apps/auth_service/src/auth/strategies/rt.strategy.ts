@@ -28,3 +28,32 @@ export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
     };
   }
 }
+
+@Injectable()
+export class RtCookieStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh-cookie',
+) {
+  constructor(config: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req) => {
+          return req.cookies['refresh_token'];
+        },
+      ]),
+      secretOrKey: config.get<string>('RT_SECRET'),
+      passReqToCallback: true,
+    });
+  }
+
+  validate(req: Request, payload: any) {
+    const refreshToken = req.cookies['refresh_token'];
+
+    if (!refreshToken) throw new ForbiddenException('Refresh token malformed');
+
+    return {
+      ...payload,
+      refreshToken,
+    };
+  }
+}

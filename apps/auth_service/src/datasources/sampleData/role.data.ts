@@ -8,4 +8,8 @@ export const roleData: Array<Pick<RoleInterface, 'role' | 'permission'>> = [
     role: 'user',
     permission: [],
   },
+  {
+    role: 'sysadmin',
+    permission: [],
+  },
 ];

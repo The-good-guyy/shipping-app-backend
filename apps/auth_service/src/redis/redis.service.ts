@@ -23,7 +23,12 @@ export class RedisService {
       this.redisClient.set(key, value, 'EX', ex);
     }
   }
-
+  exprie(key: string, ex: number): void {
+    this.redisClient.expire(key, ex);
+  }
+  async til(key: string): Promise<number> {
+    return await this.redisClient.ttl(key);
+  }
   async get(key: string): Promise<string> {
     return this.redisClient.get(key);
   }

@@ -8,6 +8,7 @@ export enum EErrorStatusCode {
   INTERNAL_SERVER_ERROR = 500,
   UNAUTHORIZED_ERROR = 401,
   BAD_REQUEST_ERROR = 400,
+  FORBIDDEN_ERROR = 403,
 }
 
 export enum EErrorMessage {
@@ -23,6 +24,7 @@ export enum EErrorMessage {
   USER_NOT_FOUND = 'user not found',
   USER_UNAUTHORIZED = 'user is not authorized',
   USER_PASSWORD_INVALID = 'password is invalid',
+  USER_PASSWORD_INCORRECT = 'password is incorrect',
   USER_ROLE_NOT_FOUND = 'user role not found',
   USER_PERMISSION_NOT_FOUND = 'user permission not found',
   USER_DEACTIVATED = 'user was deactivated. Please contact admin',
@@ -45,4 +47,7 @@ export enum EErrorMessage {
   CONTACT_ADMIN = 'something went wrong. Please contact admin for more detail',
   EMAIL_TEMPLATE_NOT_FOUND = 'email template not found',
   DATA_LOADERS_NOT_LOAD = 'Data loaders can not be loaded in context',
+  TOKEN_INVALID = 'Token is invalid or expired',
+  EMAIL_ALREADY_VERIFIED = 'email is already verified',
+  PASSWORD_NOT_MATCH = 'Password and Confirm Password must match',
 }
