@@ -23,10 +23,11 @@ import {
 import {
   AtGuard,
   AtCookieGuard,
-  RtGuard,
+  RtCookieGuard,
   PermissionsGuard,
   VerifiedGuard,
   ForgotPasswordGuard,
+  RtGuard,
 } from '../common/guard';
 import { GetCurrentUser, Permissions, Possessions } from '../common/decorators';
 import { PermissionAction, PermissionObject } from '../common/constants';
@@ -120,7 +121,7 @@ export class AuthController {
   //   return this.authService.refreshTokens(userId, refreshToken);
   // }
 
-  @UseGuards(RtGuard)
+  @UseGuards(RtCookieGuard)
   @Post('/refresh')
   @UseFilters(RtGuardExceptionFilter)
   @HttpCode(HttpStatus.OK)
@@ -130,6 +131,7 @@ export class AuthController {
     @GetCurrentUser('sub') userId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ) {
+    console.log('refreshTokens');
     const { user, tokens } = await this.authService.refreshTokens(
       userId,
       refreshToken,
