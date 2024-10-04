@@ -167,10 +167,11 @@ export class AuthService {
         {
           secret: this.config.get<string>('RT_SECRET'),
           expiresIn: RT_TIME,
-          notBefore: AT_TIME - 30,
+          // notBefore: AT_TIME - 30,
         },
       ),
     ]);
+    console.log('RT_TIME', rt);
     return {
       access_token: at,
       refresh_token: rt,

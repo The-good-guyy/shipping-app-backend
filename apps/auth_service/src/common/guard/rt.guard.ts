@@ -6,13 +6,6 @@ export class RtGuard extends AuthGuard('jwt-refresh') {
   constructor() {
     super();
   }
-  handleRequest(err, user) {
-    // You can throw an exception based on either "info" or "err" arguments
-    if (err || !user) {
-      throw new UnauthorizedException(EErrorMessage.TOKEN_INVALID);
-    }
-    return user;
-  }
 }
 
 @Injectable()
@@ -21,8 +14,8 @@ export class RtCookieGuard extends AuthGuard('jwt-refresh-cookie') {
     super();
   }
   handleRequest(err, user) {
-    // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
+      console.log('RT COOKIE GUARD');
       throw new UnauthorizedException(EErrorMessage.TOKEN_INVALID);
     }
     return user;
