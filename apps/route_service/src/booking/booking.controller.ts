@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Query,
+  ForbiddenException,
+  Request,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -34,6 +36,21 @@ export class BookingController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Booking> {
     return this.bookingService.findOne(id);
+  }
+
+  //guard to check authorized
+  // @UseGuards(JwtAuthGuard)
+  @Get('history/:userId')
+  async getBookingHistory(
+    @Param('userId') userId: string,
+    @Request() req: any,
+  ) {
+    if (req.user.id !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to view this booking history.',
+      );
+    }
+    return this.bookingService.getBookingHistory(userId);
   }
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto) {

@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { RouteService } from './route.service';
 import { CreateRouteDto } from './dto/create-route.dto';
@@ -51,7 +52,10 @@ export class RouteController {
   ): Promise<Route> {
     return this.routeService.update(id, updateRouteDto);
   }
-
+  @Patch(':id/status')
+  async updateStatus(@Param('id') id: string): Promise<Route> {
+    return this.routeService.updateRouteStatus(id);
+  }
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
     return this.routeService.remove(id);

@@ -107,6 +107,9 @@ importers:
       node-geocoder:
         specifier: ^4.4.0
         version: 4.4.0
+      nodemailer:
+        specifier: ^6.9.15
+        version: 6.9.15
       passport:
         specifier: ^0.7.0
         version: 0.7.0

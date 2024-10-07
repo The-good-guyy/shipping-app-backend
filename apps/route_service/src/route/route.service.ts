@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PortService } from 'apps/route_service/src/port/port.service';
 import { CreateRouteDto } from 'apps/route_service/src/route/dto/create-route.dto';
@@ -10,6 +15,7 @@ import { FilterRouteDto } from 'apps/route_service/src/route/dto/filter-route.dt
 import { ScheduleService } from 'apps/route_service/src/schedule/schedule.service';
 import { Route } from 'apps/route_service/src/route/entity/route.entity';
 import { ClientGrpc } from '@nestjs/microservices';
+import { RouteStatus } from 'apps/route_service/src/route/enums/route-status.enum';
 
 @Injectable()
 export class RouteService {
@@ -185,7 +191,30 @@ export class RouteService {
 
     return this.routeRepository.save(route);
   }
+  async updateRouteStatus(id: string): Promise<Route> {
+    const route = await this.routeRepository.findOneBy({ id });
 
+    if (!route) {
+      throw new NotFoundException(EErrorMessage.ROUTE_NOT_FOUND);
+    }
+
+  switch (route.status) {
+    case RouteStatus.AVAILABLE:
+      route.status = RouteStatus.TRANSIT;
+      break;
+    case RouteStatus.TRANSIT:
+      route.status = RouteStatus.COMPLETED;
+      break;
+    case RouteStatus.COMPLETED:
+      throw new BadRequestException(
+        'Route is already completed and cannot be updated further.',
+      );
+    default:
+      throw new BadRequestException('Invalid route status');
+  }
+
+    return this.routeRepository.save(route);
+  }
   async remove(id: string): Promise<void> {
     const route = await this.routeRepository.findOneBy({ id });
     if (!route) {
