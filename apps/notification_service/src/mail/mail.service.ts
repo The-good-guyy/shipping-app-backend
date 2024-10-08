@@ -8,7 +8,7 @@ export class MailService {
   async sendUserConfirmation(email: string, url: string, ttl: string) {
     await this.mailerService.sendMail({
       to: email,
-      subject: 'Welcome to Nice App! Confirm your Email',
+      subject: 'Welcome to SSMS App! Confirm your Email',
       template: './confirmation',
       context: {
         email,
