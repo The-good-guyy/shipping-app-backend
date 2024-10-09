@@ -7,6 +7,8 @@ import {
   SearchUsersOffsetDto,
   SortUserDto,
   UpdateUserDto,
+  UpdateUserRoleDto,
+  UpdateUserVerifiedDto,
 } from './dto';
 import { getChangedFields } from '../common/helpers';
 import { User } from './entities/user.entity';
@@ -16,15 +18,18 @@ import {
   UserOrderBySearch,
   UserFieldSearch,
 } from '../common/constants';
+import { RoleService } from '../role/role.service';
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly roleService: RoleService,
+  ) {}
   async create(input: CreateUserDto) {
     const newUser = await this.userRepository.create(input);
     return newUser;
   }
   async remove(userId: string): Promise<void> {
-    await this.userRepository.findByCode(userId);
     await this.userRepository.remove(userId);
   }
   async update(input: UpdateUserDto) {
@@ -58,12 +63,33 @@ export class UserService {
   async updateVerificationStatus(email: string) {
     return await this.userRepository.updateVerificationStatus(email);
   }
-
+  async updateRole(input: UpdateUserRoleDto) {
+    const user = await this.userRepository.findByCode(input.id);
+    if (!user) {
+      throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    }
+    const role = await this.roleService.findById(input.roleId);
+    if (!role) {
+      throw new NotFoundException(EErrorMessage.SOME_ROLES_NOT_FOUND);
+    }
+    return await this.userRepository.updateRole(user, role);
+  }
+  async updateVerifiedStatus(input: UpdateUserVerifiedDto) {
+    const user = await this.userRepository.findByCode(input.id);
+    if (!user) {
+      throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    }
+    return await this.userRepository.updateVerifiedStatus(
+      user,
+      input.isVerified,
+    );
+  }
   async search(
     offset: SearchUsersOffsetDto,
     filters: object,
     fields: string[],
     sort: { orderBy: string; order: string }[],
+    search: string,
   ) {
     const userCols = this.userRepository.getColsUser();
     let userFields = fields.filter(
@@ -98,6 +124,7 @@ export class UserService {
       filtersObject,
       userFields,
       sortObj,
+      search,
     );
   }
 }
