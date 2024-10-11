@@ -57,7 +57,8 @@ export class SearchUsersDto
 
   @IsOptional()
   @Transform(({ value }) => {
-    return Boolean(value);
+    // return Boolean(value);
+    return value == 'true' || value == 'True';
   })
   @IsBoolean()
   isVerified?: boolean;

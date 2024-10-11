@@ -18,8 +18,14 @@ import {
   UpdateUserDto,
   SearchUsersOffsetDto,
   SearchUsersDto,
+  UpdateUserRoleDto,
+  UpdateUserVerifiedDto,
 } from './dto';
-import { AtGuard, PermissionsGuard, VerifiedGuard } from '../common/guard';
+import {
+  PermissionsGuard,
+  VerifiedGuard,
+  AtCookieGuard,
+} from '../common/guard';
 import { PermissionAction, PermissionObject } from '../common/constants';
 import { Permissions, Possessions } from '../common/decorators';
 import { OffsetPaginationDto, OffsetPaginationOptionDto } from '../common/dto';
@@ -27,13 +33,37 @@ import { NotFoundInterceptor } from '../common/interceptors';
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({
+    action: PermissionAction.UPDATE,
+    object: PermissionObject.USER,
+  })
+  @Possessions('body.id')
+  @Patch('/role')
+  @HttpCode(HttpStatus.OK)
+  async updateRole(@Body() UpdateUserRoleDto: UpdateUserRoleDto) {
+    return this.userService.updateRole(UpdateUserRoleDto);
+  }
+
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({
+    action: PermissionAction.UPDATE,
+    object: PermissionObject.USER,
+  })
+  @Possessions('body.id')
+  @Patch('/verify')
+  @HttpCode(HttpStatus.OK)
+  async updateVerify(@Body() UpdateUserVerifiedDto: UpdateUserVerifiedDto) {
+    return this.userService.updateVerifiedStatus(UpdateUserVerifiedDto);
+  }
+
   @Post()
   @UseInterceptors(NotFoundInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() CreateUserDto: CreateUserDto) {
     return this.userService.create(CreateUserDto);
   }
-  @UseGuards(AtGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.READ,
     object: PermissionObject.USER,
@@ -45,19 +75,19 @@ export class UsersController {
     return this.userService.findById(id);
   }
 
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.UPDATE,
     object: PermissionObject.USER,
   })
   @Possessions('body.id')
-  @Patch()
+  @Patch('/profile')
   @HttpCode(HttpStatus.OK)
   async update(@Body() UpdateUserDto: UpdateUserDto) {
     return this.userService.update(UpdateUserDto);
   }
 
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.DELETE,
     object: PermissionObject.USER,
@@ -89,6 +119,7 @@ export class UsersController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() query: SearchUsersDto) {
+    console.log(query);
     const filterQuery = { ...query };
     const excludedFields = [
       'page',
@@ -129,6 +160,7 @@ export class UsersController {
       filterQuery,
       fieldsQuery,
       sortQuery,
+      query.searchTerm,
     );
   }
 }
