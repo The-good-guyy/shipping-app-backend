@@ -23,7 +23,7 @@ export class UpdateUserDto
   @IsString()
   username?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
   roleId?: string;
 
@@ -33,11 +33,6 @@ export class UpdateUserDto
   })
   @IsBoolean()
   isVerified?: boolean;
-}
-export class UpdateUserPasswordDto implements Pick<UserInterface, 'password'> {
-  @IsNotEmpty()
-  @IsString()
-  password: string;
 }
 export class UpdateUserRoleDto implements Pick<UserInterface, 'id'> {
   @IsNotEmpty()

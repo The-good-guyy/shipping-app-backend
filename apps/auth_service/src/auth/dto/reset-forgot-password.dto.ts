@@ -6,7 +6,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { User } from '../../users/entities/user.entity';
-export class ResetForgotPassword implements Pick<User, 'password'> {
+export class ResetForgotPasswordDto implements Pick<User, 'password'> {
   @IsNotEmpty()
   @IsString()
   @MinLength(8)

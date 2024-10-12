@@ -11,14 +11,16 @@ import {
   Req,
   Res,
   UseFilters,
+  Patch,
 } from '@nestjs/common';
 import { Tokens } from './types';
 import { AuthService } from './auth.service';
 import {
   CreateUserDto,
   LoginUserDto,
-  ResetForgotPassword,
+  ResetForgotPasswordDto,
   ForgotPasswordEmailDto,
+  ChangePasswordDto,
 } from './dto';
 import {
   AtGuard,
@@ -105,11 +107,14 @@ export class AuthController {
   resendEmail(@GetCurrentUser('sub') userId: string) {
     return this.authService.resendEmail(userId);
   }
-  @UseGuards(AtGuard)
-  @Post('/reset-password')
+  @UseGuards(AtCookieGuard)
+  @Patch('/password')
   @HttpCode(HttpStatus.OK)
-  forgotPassword(@GetCurrentUser('email') email: string): Promise<boolean> {
-    return this.authService.sendResetPasswordEmail(email);
+  forgotPassword(
+    @GetCurrentUser('sub') userId: string,
+    @Body() ChangePasswordDto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(userId, ChangePasswordDto);
   }
   // @UseGuards(RtGuard)
   // @Post('/refresh')
@@ -185,11 +190,11 @@ export class AuthController {
   @Post('/reset-forgot-password/:token')
   resetPassword(
     @Param('token') token: string,
-    @Body() ResetForgotPassword: ResetForgotPassword,
+    @Body() ResetForgotPasswordDto: ResetForgotPasswordDto,
   ) {
     return this.authService.resetForgotPassword(
       token,
-      ResetForgotPassword.password,
+      ResetForgotPasswordDto.password,
     );
   }
 

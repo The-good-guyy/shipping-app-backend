@@ -46,5 +46,5 @@ export class SearchPermissionsFilterDto
   @IsOptional()
   @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
   updatedAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
-\
+
 }
