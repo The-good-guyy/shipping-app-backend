@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   BeforeInsert,
   BeforeUpdate,
+  ManyToMany,
 } from 'typeorm';
 import { IsString } from 'class-validator';
 import {
@@ -11,6 +12,7 @@ import {
   PermissionObject,
   PermissionPossession,
 } from '../../common/constants';
+import { Role } from '../../role/entities/role.entity';
 @Entity({ name: 'permission' })
 export class Permission {
   @PrimaryGeneratedColumn('uuid')
@@ -40,6 +42,9 @@ export class Permission {
   })
   @IsString()
   possession: PermissionPossession;
+
+  @ManyToMany(() => Role, (role) => role.permission)
+  role: Role[];
 
   @Column()
   createdAt: Date;

@@ -18,7 +18,6 @@ export class SearchPermissionsFilterDto
       'permission' | 'action' | 'object' | 'possession'
     >
 {
-
   @IsUUID()
   @IsOptional()
   id?: string;
@@ -47,4 +46,11 @@ export class SearchPermissionsFilterDto
   @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
   updatedAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
 
+  @IsOptional()
+  @IsUUID()
+  role_id?: string;
+
+  @IsOptional()
+  @IsString()
+  role_role?: string;
 }

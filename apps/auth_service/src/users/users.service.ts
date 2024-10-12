@@ -92,6 +92,7 @@ export class UserService {
     search: string,
   ) {
     const userCols = this.userRepository.getColsUser();
+    console.log(userCols);
     let userFields = fields.filter(
       (field) =>
         userCols.includes(field as keyof User) &&

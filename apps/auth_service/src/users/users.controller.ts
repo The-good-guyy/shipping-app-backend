@@ -119,7 +119,6 @@ export class UsersController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() query: SearchUsersDto) {
-    console.log(query);
     const filterQuery = { ...query };
     const excludedFields = [
       'page',

@@ -135,6 +135,7 @@ export class UserRepository {
     sort: SortUserDto[],
     search: string,
   ) {
+    // console.log('fields', fields);
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll } = offset.options ?? {};
     const newFilters = {};
