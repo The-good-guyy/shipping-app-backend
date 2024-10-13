@@ -31,6 +31,12 @@ export class RoleController {
     return this.roleService.create(CreateRoleDto);
   }
 
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async findAll() {
+    return true;
+  }
+
   @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.READ,
@@ -42,16 +48,16 @@ export class RoleController {
     return this.roleService.findById(id);
   }
 
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
-  @Permissions({
-    action: PermissionAction.READ,
-    object: PermissionObject.ROLE,
-  })
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  async findOneByName(@Body() findOneByNameDto: { name: string }) {
-    return this.roleService.findByName(findOneByNameDto.name);
-  }
+  // @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  // @Permissions({
+  //   action: PermissionAction.READ,
+  //   object: PermissionObject.ROLE,
+  // })
+  // @Get()
+  // @HttpCode(HttpStatus.OK)
+  // async findOneByName(@Body() findOneByNameDto: { name: string }) {
+  //   return this.roleService.findByName(findOneByNameDto.name);
+  // }
 
   // Update role is obselete ,please use updatePermission instead
   @Patch()

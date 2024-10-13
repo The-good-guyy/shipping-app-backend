@@ -2,8 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { getChangedFields, stringToEnum } from '../common/helpers';
 import {
   CreatePermissionDto,
-  SearchPermissionOffsetDto,
+  SearchExcludePermissionsDto,
   UdpatePermissionDto,
+  SortPermissionDto,
+  SearchPermissionsFilterDto,
 } from './dto';
 import { PermissionRepository } from './permission.repository';
 import {
@@ -13,8 +15,7 @@ import {
   SortOrder,
 } from '../common/constants';
 import { Permission } from './entities/permission.entity';
-import { SortPermissionDto } from './dto/permissionSort.dto';
-import { SearchPermissionsFilterDto } from './dto/searchPermissionFilter.dto';
+import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()
 export class PermissionService {
   constructor(private readonly permissionRepository: PermissionRepository) {}
@@ -48,14 +49,14 @@ export class PermissionService {
     return await this.permissionRepository.update(existingEntity, updatedData);
   }
   async search(
-    offset: SearchPermissionOffsetDto,
+    offset: SearchOffsetPaginationDto,
     filters: object,
     fields: string[],
     sort: { orderBy: string; order: string }[],
     search: string,
+    body: SearchExcludePermissionsDto,
   ) {
     const permissionCols = this.permissionRepository.getColsPermission();
-    console.log(permissionCols);
     let permissionFields = fields.filter(
       (field) =>
         permissionCols.includes(field as keyof Permission) &&
@@ -90,6 +91,7 @@ export class PermissionService {
       permissionFields,
       sortObj,
       search,
+      body,
     );
   }
 }

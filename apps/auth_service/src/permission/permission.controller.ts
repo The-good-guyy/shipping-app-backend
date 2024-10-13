@@ -22,11 +22,16 @@ import {
   CreatePermissionDto,
   UdpatePermissionDto,
   SearchPermissionsDto,
-  SearchPermissionOffsetDto,
+  SearchExcludePermissionsDto,
 } from './dto';
 import { Permissions } from '../common/decorators';
 import { PermissionAction, PermissionObject } from '../common/constants';
-import { OffsetPaginationDto, OffsetPaginationOptionDto } from '../common/dto';
+import {
+  OffsetPaginationDto,
+  OffsetPaginationOptionDto,
+  SearchOffsetPaginationDto,
+} from '../common/dto';
+
 @Controller('permission')
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
@@ -87,8 +92,12 @@ export class PermissionController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(@Query() query: SearchPermissionsDto) {
+  async findAll(
+    @Query() query: SearchPermissionsDto,
+    @Body() body: SearchExcludePermissionsDto,
+  ) {
     const filterQuery = { ...query };
+    console.log(filterQuery);
     const excludedFields = [
       'page',
       'sort',
@@ -120,7 +129,7 @@ export class PermissionController {
     offset.skip = query.skip || undefined;
     const options = new OffsetPaginationOptionDto();
     options.isGetAll = query.getAll || undefined;
-    const searchOffset = new SearchPermissionOffsetDto();
+    const searchOffset = new SearchOffsetPaginationDto();
     searchOffset.pagination = offset;
     searchOffset.options = options;
     return await this.permissionService.search(
@@ -129,6 +138,7 @@ export class PermissionController {
       fieldsQuery,
       sortQuery,
       query.searchTerm,
+      body,
     );
   }
 }

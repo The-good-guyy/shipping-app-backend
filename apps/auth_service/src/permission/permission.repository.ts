@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entities/permission.entity';
 import {
   CreatePermissionDto,
-  SearchPermissionOffsetDto,
   UdpatePermissionDto,
+  SearchExcludePermissionsDto,
+  SortPermissionDto,
+  SearchPermissionsFilterDto,
 } from './dto';
 import { EErrorMessage } from '../common/constants';
 import { getCols } from '../common/helpers';
-import { SearchPermissionsFilterDto } from './dto/searchPermissionFilter.dto';
-import { SortPermissionDto } from './dto/permissionSort.dto';
 import {
   MoreThan,
   LessThan,
@@ -19,6 +19,7 @@ import {
   Like,
   Not,
 } from 'typeorm';
+import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()
 export class PermissionRepository {
   constructor(
@@ -75,11 +76,12 @@ export class PermissionRepository {
     return fields;
   }
   async search(
-    offset: SearchPermissionOffsetDto,
+    offset: SearchOffsetPaginationDto,
     filters: SearchPermissionsFilterDto,
     fields: (keyof Permission)[],
     sort: SortPermissionDto[],
     search: string,
+    body: SearchExcludePermissionsDto,
   ) {
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll } = offset.options ?? {};
@@ -119,11 +121,11 @@ export class PermissionRepository {
       }
       object[sortOrderBy[sortOrderBy.length - 1]] = obj.order;
     });
+    newFilters['id'] = body.exclude
+      ? Not(In(body.exclude))
+      : newFilters['id'] || undefined;
     const newFilterGroup = search
-      ? [
-          { username: Like(`%${search}%`), ...newFilters },
-          { email: Like(`%${search}%`), ...newFilters },
-        ]
+      ? { permission: Like(`%${search.toLowerCase()}%`), ...newFilters }
       : newFilters;
     if (isGetAll) {
       const entities = await this.permissionRepository.find({
