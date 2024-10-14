@@ -4,7 +4,6 @@ import { UserRepository } from './users.repository';
 import {
   CreateUserDto,
   SearchUsersFilterDto,
-  SearchUsersOffsetDto,
   SortUserDto,
   UpdateUserDto,
   UpdateUserRoleDto,
@@ -19,6 +18,7 @@ import {
   UserFieldSearch,
 } from '../common/constants';
 import { RoleService } from '../role/role.service';
+import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -85,13 +85,14 @@ export class UserService {
     );
   }
   async search(
-    offset: SearchUsersOffsetDto,
+    offset: SearchOffsetPaginationDto,
     filters: object,
     fields: string[],
     sort: { orderBy: string; order: string }[],
     search: string,
   ) {
     const userCols = this.userRepository.getColsUser();
+    console.log(userCols);
     let userFields = fields.filter(
       (field) =>
         userCols.includes(field as keyof User) &&

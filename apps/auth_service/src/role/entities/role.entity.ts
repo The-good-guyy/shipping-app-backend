@@ -16,7 +16,7 @@ export class Role {
   @Column({ unique: true })
   role: string;
 
-  @ManyToMany(() => Permission)
+  @ManyToMany(() => Permission, (permission) => permission.role)
   @JoinTable()
   permission: Permission[];
 

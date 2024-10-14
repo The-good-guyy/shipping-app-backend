@@ -1,8 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { getChangedFields } from '../common/helpers';
-import { CreatePermissionDto, UdpatePermissionDto } from './dto';
+import { getChangedFields, stringToEnum } from '../common/helpers';
+import {
+  CreatePermissionDto,
+  SearchExcludePermissionsDto,
+  UdpatePermissionDto,
+  SortPermissionDto,
+  SearchPermissionsFilterDto,
+} from './dto';
 import { PermissionRepository } from './permission.repository';
-import { EErrorMessage } from '../common/constants';
+import {
+  EErrorMessage,
+  PermissionFieldSearch,
+  PermissionOrderBySearch,
+  SortOrder,
+} from '../common/constants';
+import { Permission } from './entities/permission.entity';
+import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()
 export class PermissionService {
   constructor(private readonly permissionRepository: PermissionRepository) {}
@@ -34,5 +47,51 @@ export class PermissionService {
       input,
     );
     return await this.permissionRepository.update(existingEntity, updatedData);
+  }
+  async search(
+    offset: SearchOffsetPaginationDto,
+    filters: object,
+    fields: string[],
+    sort: { orderBy: string; order: string }[],
+    search: string,
+    body: SearchExcludePermissionsDto,
+  ) {
+    const permissionCols = this.permissionRepository.getColsPermission();
+    let permissionFields = fields.filter(
+      (field) =>
+        permissionCols.includes(field as keyof Permission) &&
+        stringToEnum(PermissionFieldSearch, field),
+    ) as (keyof Permission)[];
+    permissionFields =
+      permissionFields.length > 0 ? permissionFields : permissionCols;
+    let sortObj: SortPermissionDto[] = [];
+    if (!Array.isArray(sort) || !sort.length) {
+      sortObj = [new SortPermissionDto()];
+    } else {
+      for (const obj of sort) {
+        const { orderBy, order } = obj;
+        if (stringToEnum(PermissionOrderBySearch, orderBy)) {
+          sortObj.push({
+            orderBy: stringToEnum(PermissionOrderBySearch, orderBy),
+            order: stringToEnum(SortOrder, order) || SortOrder.desc,
+          });
+        }
+      }
+    }
+    sortObj = sortObj.length > 0 ? sortObj : [new SortPermissionDto()];
+    const filtersObject = new SearchPermissionsFilterDto();
+    for (const k in filters) {
+      if (stringToEnum(PermissionFieldSearch, k)) {
+        filtersObject[k] = filters[k];
+      }
+    }
+    return await this.permissionRepository.search(
+      offset,
+      filtersObject,
+      permissionFields,
+      sortObj,
+      search,
+      body,
+    );
   }
 }

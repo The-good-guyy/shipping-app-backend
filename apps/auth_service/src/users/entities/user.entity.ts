@@ -3,7 +3,7 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
-  JoinColumn,
+  JoinTable,
   BeforeUpdate,
   BeforeInsert,
 } from 'typeorm';
@@ -31,8 +31,8 @@ export class User {
   @Column({ default: false })
   isVerified: boolean;
 
-  @ManyToOne(() => Role)
-  @JoinColumn()
+  @ManyToOne(() => Role, (role) => role.permission)
+  @JoinTable()
   role: Role;
 
   @Column()

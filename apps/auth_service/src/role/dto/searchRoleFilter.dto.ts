@@ -1,22 +1,15 @@
-import { Gte, Lt, Lte, Gt } from '../../common/types';
 import { IsOptional, IsString, IsUUID, IsEnum } from 'class-validator';
 import { IsType } from '../../common/helpers';
-import { PermissionInterface } from '../entities/permission.interface';
+import { Gte, Lte, Lt, Gt } from '../../common/types';
+import { PartialPick } from '../../common/types';
+import { RoleInterface } from '../entities/role.interface';
 import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
 } from '../../common/constants';
-import { PartialPick } from '../../common/types';
-export class SearchPermissionsFilterDto
-  implements
-    PartialPick<
-      Pick<
-        PermissionInterface,
-        'permission' | 'action' | 'object' | 'possession'
-      >,
-      'permission' | 'action' | 'object' | 'possession'
-    >
+export class SearchRoleFilterDto
+  implements PartialPick<Pick<RoleInterface, 'id' | 'role'>, 'id' | 'role'>
 {
   @IsUUID()
   @IsOptional()
@@ -24,19 +17,27 @@ export class SearchPermissionsFilterDto
 
   @IsString()
   @IsOptional()
-  permission?: string;
+  role?: string;
+
+  @IsOptional()
+  @IsUUID()
+  permission_id?: string;
+
+  @IsOptional()
+  @IsString()
+  permission_permission?: string;
 
   @IsOptional()
   @IsEnum(PermissionAction)
-  action: PermissionAction;
+  permission_action?: PermissionAction;
 
   @IsOptional()
   @IsEnum(PermissionObject)
-  object: PermissionObject;
+  permission_object?: PermissionObject;
 
   @IsOptional()
   @IsEnum(PermissionPossession)
-  possession: PermissionPossession;
+  permission_possession?: PermissionPossession;
 
   @IsOptional()
   @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
@@ -45,12 +46,4 @@ export class SearchPermissionsFilterDto
   @IsOptional()
   @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
   updatedAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
-
-  @IsOptional()
-  @IsUUID()
-  role_id?: string;
-
-  @IsOptional()
-  @IsString()
-  role_role?: string;
 }

@@ -16,7 +16,6 @@ import { UserService } from './users.service';
 import {
   CreateUserDto,
   UpdateUserDto,
-  SearchUsersOffsetDto,
   SearchUsersDto,
   UpdateUserRoleDto,
   UpdateUserVerifiedDto,
@@ -28,7 +27,11 @@ import {
 } from '../common/guard';
 import { PermissionAction, PermissionObject } from '../common/constants';
 import { Permissions, Possessions } from '../common/decorators';
-import { OffsetPaginationDto, OffsetPaginationOptionDto } from '../common/dto';
+import {
+  OffsetPaginationDto,
+  OffsetPaginationOptionDto,
+  SearchOffsetPaginationDto,
+} from '../common/dto';
 import { NotFoundInterceptor } from '../common/interceptors';
 @Controller('users')
 export class UsersController {
@@ -119,7 +122,6 @@ export class UsersController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() query: SearchUsersDto) {
-    console.log(query);
     const filterQuery = { ...query };
     const excludedFields = [
       'page',
@@ -152,7 +154,7 @@ export class UsersController {
     offset.skip = query.skip || undefined;
     const options = new OffsetPaginationOptionDto();
     options.isGetAll = query.getAll || undefined;
-    const searchOffset = new SearchUsersOffsetDto();
+    const searchOffset = new SearchOffsetPaginationDto();
     searchOffset.pagination = offset;
     searchOffset.options = options;
     return await this.userService.search(

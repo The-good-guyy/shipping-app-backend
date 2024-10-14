@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateUserDto,
   UpdateUserDto,
-  SearchUsersOffsetDto,
   SortUserDto,
   SearchUsersFilterDto,
 } from './dto';
@@ -16,10 +15,11 @@ import {
   LessThan,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Like,
+  ILike,
   Not,
 } from 'typeorm';
 import { Role } from '../role/entities/role.entity';
+import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()
 export class UserRepository {
   constructor(
@@ -129,12 +129,13 @@ export class UserRepository {
     return await this.usersRepository.save(updatedUser);
   }
   async search(
-    offset: SearchUsersOffsetDto,
+    offset: SearchOffsetPaginationDto,
     filters: SearchUsersFilterDto,
     fields: (keyof User)[],
     sort: SortUserDto[],
     search: string,
   ) {
+    // console.log('fields', fields);
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll } = offset.options ?? {};
     const newFilters = {};
@@ -176,8 +177,8 @@ export class UserRepository {
     });
     const newFilterGroup = search
       ? [
-          { username: Like(`%${search}%`), ...newFilters },
-          { email: Like(`%${search}%`), ...newFilters },
+          { username: ILike(`%${search}%`), ...newFilters },
+          { email: ILike(`%${search}%`), ...newFilters },
         ]
       : newFilters;
     if (isGetAll) {

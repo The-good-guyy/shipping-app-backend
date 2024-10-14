@@ -9,12 +9,29 @@ import {
   Patch,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
-import { AtGuard, PermissionsGuard, VerifiedGuard } from '../common/guard';
+import {
+  AtGuard,
+  PermissionsGuard,
+  VerifiedGuard,
+  AtCookieGuard,
+} from '../common/guard';
 import { PermissionService } from './permission.service';
-import { CreatePermissionDto, UdpatePermissionDto } from './dto';
+import {
+  CreatePermissionDto,
+  UdpatePermissionDto,
+  SearchPermissionsDto,
+  SearchExcludePermissionsDto,
+} from './dto';
 import { Permissions } from '../common/decorators';
 import { PermissionAction, PermissionObject } from '../common/constants';
+import {
+  OffsetPaginationDto,
+  OffsetPaginationOptionDto,
+  SearchOffsetPaginationDto,
+} from '../common/dto';
+
 @Controller('permission')
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
@@ -29,7 +46,7 @@ export class PermissionController {
     return this.permissionService.create(CreatePermissionDto);
   }
 
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.READ,
     object: PermissionObject.PERMISSION,
@@ -40,16 +57,16 @@ export class PermissionController {
     return this.permissionService.findById(id);
   }
 
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
-  @Permissions({
-    action: PermissionAction.READ,
-    object: PermissionObject.PERMISSION,
-  })
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  async findOneByName(@Body() findByNameDto: { name: string }) {
-    return this.permissionService.findByName(findByNameDto.name);
-  }
+  // @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  // @Permissions({
+  //   action: PermissionAction.READ,
+  //   object: PermissionObject.PERMISSION,
+  // })
+  // @Get()
+  // @HttpCode(HttpStatus.OK)
+  // async findOneByName(@Body() findByNameDto: { name: string }) {
+  //   return this.permissionService.findByName(findByNameDto.name);
+  // }
 
   @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
@@ -75,7 +92,53 @@ export class PermissionController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll() {
-    return 'findAll';
+  async findAll(
+    @Query() query: SearchPermissionsDto,
+    @Body() body: SearchExcludePermissionsDto,
+  ) {
+    const filterQuery = { ...query };
+    console.log(filterQuery);
+    const excludedFields = [
+      'page',
+      'sort',
+      'limit',
+      'fields',
+      'searchTerm',
+      'password',
+      'skip',
+    ];
+    excludedFields.forEach((el) => delete filterQuery[el]);
+    const sortQuery: { orderBy: string; order: string }[] = [];
+    if (query.sort) {
+      const sortObj = query.sort.split(',');
+      for (const obj of sortObj) {
+        const [orderBy, order] = obj.split(':');
+        sortQuery.push({
+          orderBy,
+          order: order ? order.toUpperCase() : order,
+        });
+      }
+    }
+    let fieldsQuery: string[] = [];
+    if (query.fields) {
+      fieldsQuery = query.fields.split(',');
+    }
+    const offset = new OffsetPaginationDto();
+    offset.pageNumber = query.page || offset.pageNumber;
+    offset.limit = query.limit || offset.limit;
+    offset.skip = query.skip || undefined;
+    const options = new OffsetPaginationOptionDto();
+    options.isGetAll = query.getAll || undefined;
+    const searchOffset = new SearchOffsetPaginationDto();
+    searchOffset.pagination = offset;
+    searchOffset.options = options;
+    return await this.permissionService.search(
+      searchOffset,
+      filterQuery,
+      fieldsQuery,
+      sortQuery,
+      query.searchTerm,
+      body,
+    );
   }
 }

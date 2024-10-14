@@ -5,26 +5,19 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  IsEnum,
   IsBoolean,
+  IsEnum,
 } from 'class-validator';
 import { IsType } from '../../common/helpers';
-import { PermissionInterface } from '../entities/permission.interface';
+import { PartialPick } from '../../common/types';
+import { RoleInterface } from '../entities/role.interface';
 import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
 } from '../../common/constants';
-import { PartialPick } from '../../common/types';
-export class SearchPermissionsDto
-  implements
-    PartialPick<
-      Pick<
-        PermissionInterface,
-        'permission' | 'action' | 'object' | 'possession'
-      >,
-      'permission' | 'action' | 'object' | 'possession'
-    >
+export class SearchRoleDto
+  implements PartialPick<Pick<RoleInterface, 'id' | 'role'>, 'id' | 'role'>
 {
   @IsOptional()
   @IsInt()
@@ -53,19 +46,27 @@ export class SearchPermissionsDto
 
   @IsString()
   @IsOptional()
-  permission?: string;
+  role?: string;
+
+  @IsOptional()
+  @IsUUID()
+  permission_id?: string;
+
+  @IsOptional()
+  @IsString()
+  permission_permission?: string;
 
   @IsOptional()
   @IsEnum(PermissionAction)
-  action: PermissionAction;
+  permission_action?: PermissionAction;
 
   @IsOptional()
   @IsEnum(PermissionObject)
-  object: PermissionObject;
+  permission_object?: PermissionObject;
 
   @IsOptional()
   @IsEnum(PermissionPossession)
-  possession: PermissionPossession;
+  permission_possession?: PermissionPossession;
 
   @IsOptional()
   @Transform(({ value }) => {
@@ -73,6 +74,7 @@ export class SearchPermissionsDto
     if (value.gte) value.gte = new Date(value.gte);
     if (value.lte) value.lte = new Date(value.lte);
     if (value.gt) value.gt = new Date(value.gt);
+    if (value.lt) value.lt = new Date(value.lt);
     return value;
   })
   @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
@@ -80,35 +82,13 @@ export class SearchPermissionsDto
 
   @IsOptional()
   @Transform(({ value }) => {
-    return typeof value === 'string' ? new Date(value) : value;
+    if (typeof value === 'string') return new Date(value);
+    if (value.gte) value.gte = new Date(value.gte);
+    if (value.lte) value.lte = new Date(value.lte);
+    if (value.gt) value.gt = new Date(value.gt);
+    if (value.lt) value.lt = new Date(value.lt);
+    return value;
   })
   @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
   updatedAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
-
-  @IsOptional()
-  @IsString()
-  sort?: string;
-
-  @IsOptional()
-  @IsString()
-  fields?: string;
-
-  @IsOptional()
-  @IsString()
-  searchTerm?: string;
-
-  @IsOptional()
-  @Transform(({ value }) => {
-    return value == 'true' || value == 'True';
-  })
-  @IsBoolean()
-  getAll?: boolean;
-
-  @IsOptional()
-  @IsUUID()
-  role_id?: string;
-
-  @IsOptional()
-  @IsString()
-  role_role?: string;
 }
