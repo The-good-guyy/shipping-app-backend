@@ -10,6 +10,7 @@ export enum PermissionAction {
   DELETE = 'delete',
   UPDATE = 'update',
   MANAGE = 'manage',
+  SEARCH = 'search',
   NONE = 'none',
 }
 export enum PermissionObject {
@@ -17,6 +18,8 @@ export enum PermissionObject {
   ROUTE = 'route',
   ROLE = 'role',
   PERMISSION = 'permission',
+  PROFILE = 'profile',
+  USER_ROLE = 'user_role',
   NONE = 'none',
 }
 export enum UserOrderBySearch {

@@ -101,8 +101,8 @@ export class AuthController {
     return this.authService.logout(userId);
   }
 
-  @UseGuards(AtGuard)
-  @Get('/verify')
+  @UseGuards(AtCookieGuard)
+  @Post('/verify')
   @HttpCode(HttpStatus.OK)
   resendEmail(@GetCurrentUser('sub') userId: string) {
     return this.authService.resendEmail(userId);

@@ -1,6 +1,6 @@
 import { IsOptional, IsString, IsUUID, IsEnum } from 'class-validator';
 import { IsType } from '../../common/helpers';
-import { Gte, Lte, Lt, Gt } from '../../common/types';
+import { Gte, Lte, Lt, Gt, Ne, Il, Like } from '../../common/types';
 import { PartialPick } from '../../common/types';
 import { RoleInterface } from '../entities/role.interface';
 import {
@@ -40,10 +40,44 @@ export class SearchRoleFilterDto
   permission_possession?: PermissionPossession;
 
   @IsOptional()
-  @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
-  createdAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
+  @IsType([
+    'date',
+    'gteDate',
+    'lteDate',
+    'ltDate',
+    'gtDate',
+    'neDate',
+    'ilDate',
+    'likeDate',
+  ])
+  createdAt?:
+    | Date
+    | Gte<Date>
+    | Lte<Date>
+    | Lt<Date>
+    | Gt<Date>
+    | Ne<Date>
+    | Il<Date>
+    | Like<Date>;
 
   @IsOptional()
-  @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
-  updatedAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
+  @IsType([
+    'date',
+    'gteDate',
+    'lteDate',
+    'ltDate',
+    'gtDate',
+    'neDate',
+    'ilDate',
+    'likeDate',
+  ])
+  updatedAt?:
+    | Date
+    | Gte<Date>
+    | Lte<Date>
+    | Lt<Date>
+    | Gt<Date>
+    | Ne<Date>
+    | Il<Date>
+    | Like<Date>;
 }

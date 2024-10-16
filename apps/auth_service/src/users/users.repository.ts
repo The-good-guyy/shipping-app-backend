@@ -16,6 +16,7 @@ import {
   LessThanOrEqual,
   MoreThanOrEqual,
   ILike,
+  Like,
   Not,
 } from 'typeorm';
 import { Role } from '../role/entities/role.entity';
@@ -153,6 +154,10 @@ export class UserRepository {
           filters[key] = LessThan(value.lt);
         else if (value.ne !== null && value.ne !== undefined)
           filters[key] = Not(value.ne);
+        else if (value.il !== null && value.il !== undefined)
+          filters[key] = ILike(`%${value.ilike}%`);
+        else if (value.like !== null && value.like !== undefined)
+          filters[key] = Like(`%${value.like}%`);
       }
       const newValues = filters[key];
       const keyValue = key.split('_');

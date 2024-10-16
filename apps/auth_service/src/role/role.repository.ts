@@ -3,14 +3,26 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
 import { EErrorMessage } from '../common/constants';
-import { CreateRoleDto, UpdateRoleDto } from './dto';
+import { UpdateRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
+import { getCols } from '../common/helpers';
+import { SearchOffsetPaginationDto } from '../common/dto';
+import {
+  MoreThan,
+  LessThan,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  ILike,
+  Like,
+  Not,
+} from 'typeorm';
+import { SearchRoleFilterDto, SortRoleDto } from './dto';
 @Injectable()
 export class RoleRepository {
   constructor(
     @InjectRepository(Role) private roleRepository: Repository<Role>,
   ) {}
-  async create(CreateRoleDto: CreateRoleDto) {
+  async create(CreateRoleDto: { role: string; permission: Permission[] }) {
     const role = await this.roleRepository.findOne({
       where: { role: CreateRoleDto.role },
     });
@@ -54,5 +66,92 @@ export class RoleRepository {
       relations: ['permission'],
     });
     return role;
+  }
+  getColsRole() {
+    const fields = getCols(this.roleRepository);
+    return [...fields, 'permission'];
+  }
+  async search(
+    offset: SearchOffsetPaginationDto,
+    filters: SearchRoleFilterDto,
+    fields: (keyof Role)[],
+    sort: SortRoleDto[],
+    search: string,
+  ) {
+    const { limit, pageNumber, skip } = offset.pagination;
+    const { isGetAll } = offset.options ?? {};
+    const newFilters = {};
+    for (const key in filters) {
+      const value = filters[key];
+      if (typeof value === 'object' && value !== null) {
+        if (value.gte !== null && value.gte !== undefined) {
+          filters[key] = MoreThanOrEqual(value.gte);
+        } else if (value.gt !== null && value.gt !== undefined) {
+          filters[key] = MoreThan(value.gt);
+        } else if (value.lte !== null && value.lte !== undefined)
+          filters[key] = LessThanOrEqual(value.lte);
+        else if (value.lt !== null && value.lt !== undefined)
+          filters[key] = LessThan(value.lt);
+        else if (value.ne !== null && value.ne !== undefined)
+          filters[key] = Not(value.ne);
+        else if (value.il !== null && value.il !== undefined)
+          filters[key] = ILike(`%${value.ilike}%`);
+        else if (value.like !== null && value.like !== undefined)
+          filters[key] = Like(`%${value.like}%`);
+      }
+      const newValues = filters[key];
+      const keyValue = key.split('_');
+      let o = newFilters;
+      for (let i = 0; i < keyValue.length - 1; i++) {
+        const prop = keyValue[i];
+        o[prop] = o[prop] || {};
+        o = o[prop];
+      }
+      o[keyValue[keyValue.length - 1]] = newValues;
+    }
+    const sortOrder = {};
+    sort.forEach((obj) => {
+      const sortOrderBy = obj.orderBy.split('.');
+      let object = sortOrder;
+      for (let i = 0; i < sortOrderBy.length - 1; i++) {
+        const prop = sortOrderBy[i];
+        object[prop] = {};
+        object = object[prop];
+      }
+      object[sortOrderBy[sortOrderBy.length - 1]] = obj.order;
+    });
+    const newFilterGroup = search
+      ? { role: ILike(`%${search}%`), ...newFilters }
+      : newFilters;
+    if (isGetAll) {
+      const entities = await this.roleRepository.find({
+        select: fields,
+        where: newFilterGroup ? newFilterGroup : undefined,
+        relations: fields.includes('permission')
+          ? { permission: true }
+          : undefined,
+        order: sortOrder ? sortOrder : undefined,
+      });
+      return {
+        totalCount: entities.length,
+        roles: entities,
+      };
+    }
+    const [entities, count] = await this.roleRepository.findAndCount({
+      skip: skip || limit * (pageNumber - 1),
+      take: limit,
+      select: fields,
+      where: newFilterGroup ? newFilterGroup : undefined,
+      relations: fields.includes('permission')
+        ? { permission: true }
+        : undefined,
+      order: sortOrder ? sortOrder : undefined,
+    });
+    return {
+      pageNumber,
+      pageSize: limit,
+      totalCount: count,
+      roles: entities,
+    };
   }
 }

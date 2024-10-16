@@ -11,7 +11,6 @@ export class RoleSeeder implements Seeder {
     const [
       read_routes,
       read_users,
-      read_own_routes,
       read_own_users,
       create_routes,
       create_users,
@@ -19,9 +18,7 @@ export class RoleSeeder implements Seeder {
       delete_own_users,
       delete_routes,
       delete_own_routes,
-      update_users,
       update_routes,
-      update_own_users,
       update_own_routes,
       read_roles,
       create_roles,
@@ -31,6 +28,13 @@ export class RoleSeeder implements Seeder {
       create_permissions,
       delete_permissions,
       update_permissions,
+      update_profiles,
+      update_user_roles,
+      update_own_profiles,
+      search_users,
+      search_routes,
+      search_roles,
+      search_permissions,
     ] = await Promise.all([
       permissionRepository.findOne({
         where: {
@@ -40,11 +44,6 @@ export class RoleSeeder implements Seeder {
       permissionRepository.findOne({
         where: {
           permission: 'read_users',
-        },
-      }),
-      permissionRepository.findOne({
-        where: {
-          permission: 'read_own_routes',
         },
       }),
       permissionRepository.findOne({
@@ -84,17 +83,7 @@ export class RoleSeeder implements Seeder {
       }),
       permissionRepository.findOne({
         where: {
-          permission: 'update_users',
-        },
-      }),
-      permissionRepository.findOne({
-        where: {
           permission: 'update_routes',
-        },
-      }),
-      permissionRepository.findOne({
-        where: {
-          permission: 'update_own_users',
         },
       }),
       permissionRepository.findOne({
@@ -142,6 +131,41 @@ export class RoleSeeder implements Seeder {
           permission: 'update_permissions',
         },
       }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_profiles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_user_roles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'update_own_profiles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'search_users',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'search_routes',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'search_roles',
+        },
+      }),
+      permissionRepository.findOne({
+        where: {
+          permission: 'search_permissions',
+        },
+      }),
     ]);
     const user_role = roleData.find((role) => role.role === 'user');
     user_role.permission = [
@@ -150,7 +174,7 @@ export class RoleSeeder implements Seeder {
       create_routes,
       delete_own_users,
       delete_own_routes,
-      update_own_users,
+      update_own_profiles,
       update_own_routes,
     ];
     const admin_role = roleData.find((role) => role.role === 'admin');
@@ -161,8 +185,13 @@ export class RoleSeeder implements Seeder {
       create_routes,
       delete_users,
       delete_routes,
-      update_users,
+      update_profiles,
+      update_user_roles,
       update_routes,
+      search_users,
+      search_routes,
+      search_roles,
+      search_permissions,
     ];
     const sysadmin_role = roleData.find((role) => role.role === 'sysadmin');
     sysadmin_role.permission = [
@@ -172,7 +201,12 @@ export class RoleSeeder implements Seeder {
       create_routes,
       delete_users,
       delete_routes,
-      update_users,
+      update_user_roles,
+      update_profiles,
+      search_users,
+      search_routes,
+      search_roles,
+      search_permissions,
       update_routes,
       read_roles,
       create_roles,

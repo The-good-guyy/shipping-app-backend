@@ -1,4 +1,4 @@
-import { Gte, Lt, Lte, Gt } from '../../common/types';
+import { Gte, Lt, Lte, Gt, Ne, Il, Like } from '../../common/types';
 import { Transform } from 'class-transformer';
 import {
   IsInt,
@@ -98,10 +98,30 @@ export class SearchUsersDto
     if (value.lte) value.lte = new Date(value.lte);
     if (value.gt) value.gt = new Date(value.gt);
     if (value.lt) value.lt = new Date(value.lt);
+    if (value.ne) value.ne = new Date(value.ne);
+    if (value.il) value.il = new Date(value.il);
+    if (value.like) value.like = new Date(value.like);
     return value;
   })
-  @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
-  createdAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
+  @IsType([
+    'date',
+    'gteDate',
+    'lteDate',
+    'ltDate',
+    'gtDate',
+    'neDate',
+    'ilDate',
+    'likeDate',
+  ])
+  createdAt?:
+    | Date
+    | Gte<Date>
+    | Lte<Date>
+    | Lt<Date>
+    | Gt<Date>
+    | Ne<Date>
+    | Il<Date>
+    | Like<Date>;
 
   @IsOptional()
   @Transform(({ value }) => {
@@ -110,10 +130,30 @@ export class SearchUsersDto
     if (value.lte) value.lte = new Date(value.lte);
     if (value.gt) value.gt = new Date(value.gt);
     if (value.lt) value.lt = new Date(value.lt);
+    if (value.ne) value.ne = new Date(value.ne);
+    if (value.il) value.il = new Date(value.il);
+    if (value.like) value.like = new Date(value.like);
     return value;
   })
-  @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
-  updatedAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
+  @IsType([
+    'date',
+    'gteDate',
+    'lteDate',
+    'ltDate',
+    'gtDate',
+    'neDate',
+    'ilDate',
+    'likeDate',
+  ])
+  updatedAt?:
+    | Date
+    | Gte<Date>
+    | Lte<Date>
+    | Lt<Date>
+    | Gt<Date>
+    | Ne<Date>
+    | Il<Date>
+    | Like<Date>;
 
   @IsOptional()
   @IsString()
