@@ -39,10 +39,17 @@ export class RoleRepository {
     });
     if (role) this.roleRepository.delete(role);
   }
-  async update(UpdateRoleDto: UpdateRoleDto) {
+  async update(role: UpdateRoleDto, permissions: Permission[]) {
+    const existingRole = await this.roleRepository.findOne({
+      where: { id: role.id },
+    });
+    if (!existingRole) {
+      throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
+    }
     const updatedRole = this.roleRepository.create({
-      ...UpdateRoleDto,
-      permission: UpdateRoleDto.permission,
+      ...existingRole,
+      role: role.role || existingRole.role,
+      permission: permissions || existingRole.permission,
     });
     return await this.roleRepository.save(updatedRole);
   }

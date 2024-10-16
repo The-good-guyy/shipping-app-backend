@@ -110,9 +110,12 @@ export class RoleController {
   //   return this.roleService.findByName(findOneByNameDto.name);
   // }
 
-  // Update role is obselete ,please use updatePermission instead
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({
+    action: PermissionAction.UPDATE,
+    object: PermissionObject.ROLE,
+  })
   @Patch()
-  @UseInterceptors(NotFoundInterceptor)
   @HttpCode(HttpStatus.OK)
   async update(@Body() UpdateRoleDto: UpdateRoleDto) {
     return this.roleService.update(UpdateRoleDto);
@@ -124,6 +127,7 @@ export class RoleController {
     object: PermissionObject.ROLE,
   })
   @Patch(':id')
+  @UseInterceptors(NotFoundInterceptor)
   @HttpCode(HttpStatus.OK)
   async updatePermission(
     @Body() updatePermissionDto: { permissionCode: string[] },

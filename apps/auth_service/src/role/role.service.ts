@@ -35,6 +35,18 @@ export class RoleService {
       permission: permissions,
     });
   }
+  async update(role: UpdateRoleDto) {
+    const permission = role.permissionId;
+    const permissions: Permission[] = [];
+    for await (const p of permission) {
+      const searchPermission = await this.permissionService.findById(p);
+      if (!searchPermission) {
+        throw new NotFoundException(EErrorMessage.SOME_PERMISSIONS_NOT_FOUND);
+      }
+      permissions.push(searchPermission);
+    }
+    return await this.roleRepository.update(role, permissions);
+  }
   async remove(roleId: string) {
     await this.roleRepository.findByCode(roleId);
     await this.roleRepository.remove(roleId);
@@ -47,28 +59,7 @@ export class RoleService {
     const role = await this.roleRepository.findByName(roleName);
     return role;
   }
-  async update(UpdateRoleDto: UpdateRoleDto) {
-    const role = await this.roleRepository.findByCode(UpdateRoleDto.id);
-    if (!role) {
-      throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
-    }
-    const permission = UpdateRoleDto.permission;
-    const permissions: Permission[] = [];
-    for await (const p of permission) {
-      const searchPermission = await this.permissionService.findById(p.id);
-      if (!searchPermission) {
-        throw new NotFoundException(EErrorMessage.SOME_PERMISSIONS_NOT_FOUND);
-      }
-      permissions.push(searchPermission);
-    }
 
-    return await this.roleRepository.update({
-      id: UpdateRoleDto.id,
-      role: UpdateRoleDto.role,
-      permission: permissions,
-    });
-    // return await this.roleRepository.findByCode(UpdateRoleDto.id);
-  }
   // async updatePermission(
   //   roleId: string,
   //   permissionsCode: string[],

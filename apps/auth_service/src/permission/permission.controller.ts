@@ -12,7 +12,6 @@ import {
   Query,
 } from '@nestjs/common';
 import {
-  AtGuard,
   PermissionsGuard,
   VerifiedGuard,
   AtCookieGuard,
@@ -35,7 +34,7 @@ import {
 @Controller('permission')
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.CREATE,
     object: PermissionObject.PERMISSION,
@@ -68,7 +67,7 @@ export class PermissionController {
   //   return this.permissionService.findByName(findByNameDto.name);
   // }
 
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.UPDATE,
     object: PermissionObject.PERMISSION,
@@ -79,7 +78,7 @@ export class PermissionController {
     return this.permissionService.update(UdpatePermissionDto);
   }
 
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.DELETE,
     object: PermissionObject.PERMISSION,
