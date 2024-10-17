@@ -78,7 +78,7 @@ export class PortService {
   }
 
   async findAll(query: FilterPortDto): Promise<any> {
-    const limit = Number(query.limit) || 4;
+    const limit = Number(query.limit) || 10;
     const page = Number(query.page) || 1;
     const skip = (page - 1) * limit;
     const keyword = (query.search || '').trim().toLowerCase();

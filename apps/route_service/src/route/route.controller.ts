@@ -13,6 +13,7 @@ import { RouteService } from './route.service';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { FilterRouteDto } from 'apps/route_service/src/route/dto/filter-route.dto';
 import { Route } from 'apps/route_service/src/route/entity/route.entity';
+import { UpdateRouteDto } from 'apps/route_service/src/route/dto/update-route.dto';
 @Controller('routes')
 export class RouteController {
   constructor(private readonly routeService: RouteService) {}
@@ -48,7 +49,7 @@ export class RouteController {
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateRouteDto: CreateRouteDto,
+    @Body() updateRouteDto: UpdateRouteDto,
   ): Promise<Route> {
     return this.routeService.update(id, updateRouteDto);
   }

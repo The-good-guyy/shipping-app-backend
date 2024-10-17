@@ -19,11 +19,12 @@ export class MailController {
       };
     }
   }
-  @MessagePattern('send-reset-password-email')
+  @MessagePattern('send-forgot-password-email')
   async handleSendPasswordResetEmail(@Payload() data: any) {
-    const { email, otp, ttl } = data;
+    const { email, id, url, ttl } = data;
+    console.log('okeforgot');
     try {
-      await this.mailService.sendResetPasswordEmail(email,otp,ttl);
+      await this.mailService.sendResetPasswordEmail(email, id, url, ttl);
       return { message: 'Confirmation email sent successfully' };
     } catch (error) {
       return {
@@ -32,18 +33,17 @@ export class MailController {
       };
     }
   }
-    }
-  // @MessagePattern('send-forgot-password-email')
-  // async handleSendForgotPasswordEmail(@Payload() data: any) {
-  //   const { id, url, ttl } = data;
-  //   try {
-  //     await this.mailService.sendForgotPasswordEmail(id, url, ttl);
-  //     return { message: 'Confirmation email sent successfully' };
-  //   } catch (error) {
-  //     return {
-  //       message: 'Failed to send confirmation email',
-  //       error: error.message,
-  //     };
-  //   }
-  // }
-
+}
+// @MessagePattern('send-forgot-password-email')
+// async handleSendForgotPasswordEmail(@Payload() data: any) {
+//   const { id, url, ttl } = data;
+//   try {
+//     await this.mailService.sendForgotPasswordEmail(id, url, ttl);
+//     return { message: 'Confirmation email sent successfully' };
+//   } catch (error) {
+//     return {
+//       message: 'Failed to send confirmation email',
+//       error: error.message,
+//     };
+//   }
+// }

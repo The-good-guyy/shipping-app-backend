@@ -40,25 +40,7 @@ import { RtGuardExceptionFilter } from '../common/exceptions';
 // import { SubscribeTo } from '../kafka';
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    // @Inject('AUTH_SERVICE') private client: KafkaService,
-  ) {}
-
-  // onModuleInit(): void {
-  //   this.client.subscribeToResponseOf('send-confirmation-email', this);
-  // }
-  // @SubscribeTo('send-confirmation-email')
-  // async getWorld(
-  //   data: any,
-  //   key: any,
-  //   offset: number,
-  //   timestamp: number,
-  //   partition: number,
-  // ): Promise<void> {
-  //   const dataObj = JSON.parse(data);
-  //   console.log(dataObj, key, offset, timestamp, partition);
-  // }
+  constructor(private readonly authService: AuthService) {}
   @Post('/local/signup')
   @HttpCode(HttpStatus.CREATED)
   async signUpLocal(
@@ -79,12 +61,6 @@ export class AuthController {
     });
     return user;
   }
-
-  // @Post('local/signin')
-  // @HttpCode(HttpStatus.OK)
-  // siginLocal(@Body() LoginUserDto: LoginUserDto) {
-  //   return this.authService.signInLocal(LoginUserDto);
-  // }
 
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
@@ -125,6 +101,14 @@ export class AuthController {
   resendEmail(@GetCurrentUser('sub') userId: string) {
     return this.authService.resendEmail(userId);
   }
+
+  @Get('/verify/:token')
+  @HttpCode(HttpStatus.OK)
+  confirmEmail(@Param('token') token: string) {
+    console.log('ok');
+    return this.authService.confirmEmail(token);
+  }
+
   @UseGuards(AtCookieGuard)
   @Patch('/password')
   @HttpCode(HttpStatus.OK)
@@ -134,15 +118,6 @@ export class AuthController {
   ) {
     return this.authService.changePassword(userId, ChangePasswordDto);
   }
-  // @UseGuards(RtGuard)
-  // @Post('/refresh')
-  // @HttpCode(HttpStatus.OK)
-  // refreshTokens(
-  //   @GetCurrentUser('sub') userId: string,
-  //   @GetCurrentUser('refreshToken') refreshToken: string,
-  // ): Promise<Tokens> {
-  //   return this.authService.refreshTokens(userId, refreshToken);
-  // }
 
   @UseGuards(RtCookieGuard)
   @Post('/refresh')

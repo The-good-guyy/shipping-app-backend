@@ -14,7 +14,7 @@ export class ScheduleService {
   calculateArrivalDate(departureDate: Date, travelTime: number): Date {
     const arrivalDate = new Date(departureDate);
     arrivalDate.setDate(arrivalDate.getDate() + travelTime);
-    // console.log(arrivalDate + ' arrival');
+    console.log(arrivalDate + ' arrival');
     return arrivalDate;
   }
 }

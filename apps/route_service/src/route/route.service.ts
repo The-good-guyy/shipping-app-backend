@@ -78,7 +78,7 @@ export class RouteService {
     const keyword = (query.search || '').trim().toLowerCase();
 
     const sortBy = query.sortBy || 'createdAt';
-    const order: 'ASC' | 'DESC' =
+    const sortOrder: 'ASC' | 'DESC' =
       query.order?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     const queryBuilder = this.routeRepository
@@ -90,32 +90,32 @@ export class RouteService {
         { keyword: `%${keyword.replace(/\s+/g, '')}%` },
       );
 
-    if (query.createdAt) {
-      queryBuilder.andWhere('route.createdAt >= :createdAt', {
-        createdAt: query.createdAt,
-      });
-    }
-    if (query.updatedAt) {
-      queryBuilder.andWhere('route.updatedAt >= :updatedAt', {
-        updatedAt: query.updatedAt,
-      });
-    }
+    // if (query.createdAt) {
+    //   queryBuilder.andWhere('route.createdAt >= :createdAt', {
+    //     createdAt: query.createdAt,
+    //   });
+    // }
+    // if (query.updatedAt) {
+    //   queryBuilder.andWhere('route.updatedAt >= :updatedAt', {
+    //     updatedAt: query.updatedAt,
+    //   });
+    // }
 
     switch (sortBy) {
       case 'startPort':
-        queryBuilder.orderBy('startPort.address', order);
+        queryBuilder.orderBy('startPort.address', sortOrder);
         break;
       case 'endPort':
-        queryBuilder.orderBy('endPort.address', order);
+        queryBuilder.orderBy('endPort.address', sortOrder);
         break;
       case 'updatedAt':
-        queryBuilder.orderBy('route.updatedAt', order);
+        queryBuilder.orderBy('route.updatedAt', sortOrder);
         break;
       case 'status':
-        queryBuilder.orderBy('route.status', order);
+        queryBuilder.orderBy('route.status', sortOrder);
         break;
       default:
-        queryBuilder.orderBy('route.createdAt', order);
+        queryBuilder.orderBy('route.createdAt', sortOrder);
         break;
     }
 
@@ -123,6 +123,7 @@ export class RouteService {
     queryBuilder
       .skip(skip)
       .take(limit)
+      .orderBy(`route.${sortBy}`, sortOrder)
       .select([
         'route.id',
         'route.createdAt',
@@ -198,20 +199,20 @@ export class RouteService {
       throw new NotFoundException(EErrorMessage.ROUTE_NOT_FOUND);
     }
 
-  switch (route.status) {
-    case RouteStatus.AVAILABLE:
-      route.status = RouteStatus.TRANSIT;
-      break;
-    case RouteStatus.TRANSIT:
-      route.status = RouteStatus.COMPLETED;
-      break;
-    case RouteStatus.COMPLETED:
-      throw new BadRequestException(
-        'Route is already completed and cannot be updated further.',
-      );
-    default:
-      throw new BadRequestException('Invalid route status');
-  }
+    switch (route.status) {
+      case RouteStatus.AVAILABLE:
+        route.status = RouteStatus.TRANSIT;
+        break;
+      case RouteStatus.TRANSIT:
+        route.status = RouteStatus.COMPLETED;
+        break;
+      case RouteStatus.COMPLETED:
+        throw new BadRequestException(
+          'Route is already completed and cannot be updated further.',
+        );
+      default:
+        throw new BadRequestException('Invalid route status');
+    }
 
     return this.routeRepository.save(route);
   }

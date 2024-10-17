@@ -24,7 +24,7 @@ export class PortController {
 
   @Get()
   async findAll(@Query() query: FilterPortDto): Promise<Port[]> {
-    console.log(query)
+    console.log(query);
     return this.portService.findAll(query);
   }
 
