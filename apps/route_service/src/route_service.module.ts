@@ -11,6 +11,7 @@ import { Route } from 'apps/route_service/src/route/entity/route.entity';
 import { ConfigService } from '@nestjs/config';
 import { BookingModule } from './booking/booking.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { CommonModule } from '@app/common';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,6 +37,7 @@ import { ScheduleModule } from './schedule/schedule.module';
     NominatimModule,
     BookingModule,
     ScheduleModule,
+    CommonModule,
   ],
   controllers: [RouteServiceController],
   providers: [RouteServiceService],

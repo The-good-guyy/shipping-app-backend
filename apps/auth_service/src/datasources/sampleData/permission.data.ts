@@ -242,22 +242,6 @@ export const permissionData: Array<
     updatedAt: new Date(),
   },
   {
-    permission: 'manage_users',
-    action: PermissionAction.MANAGE,
-    object: PermissionObject.USER,
-    possession: PermissionPossession.ANY,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    permission: 'manage_routes',
-    action: PermissionAction.MANAGE,
-    object: PermissionObject.ROUTE,
-    possession: PermissionPossession.ANY,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
     permission: 'read_roles',
     action: PermissionAction.READ,
     object: PermissionObject.ROLE,
