@@ -151,7 +151,6 @@ export class AuthService {
         },
       ),
     ]);
-    console.log('RT_TIME', rt);
     return {
       access_token: at,
       refresh_token: rt,

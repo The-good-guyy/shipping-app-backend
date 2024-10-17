@@ -62,12 +62,6 @@ export class AuthController {
     return user;
   }
 
-  // @Post('local/signin')
-  // @HttpCode(HttpStatus.OK)
-  // siginLocal(@Body() LoginUserDto: LoginUserDto) {
-  //   return this.authService.signInLocal(LoginUserDto);
-  // }
-
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
   async signInLocal(
@@ -107,6 +101,13 @@ export class AuthController {
   resendEmail(@GetCurrentUser('sub') userId: string) {
     return this.authService.resendEmail(userId);
   }
+
+  @Get('/verify/:token')
+  @HttpCode(HttpStatus.OK)
+  confirmEmail(@Param('token') token: string) {
+    return this.authService.confirmEmail(token);
+  }
+
   @UseGuards(AtCookieGuard)
   @Patch('/password')
   @HttpCode(HttpStatus.OK)
@@ -116,15 +117,6 @@ export class AuthController {
   ) {
     return this.authService.changePassword(userId, ChangePasswordDto);
   }
-  // @UseGuards(RtGuard)
-  // @Post('/refresh')
-  // @HttpCode(HttpStatus.OK)
-  // refreshTokens(
-  //   @GetCurrentUser('sub') userId: string,
-  //   @GetCurrentUser('refreshToken') refreshToken: string,
-  // ): Promise<Tokens> {
-  //   return this.authService.refreshTokens(userId, refreshToken);
-  // }
 
   @UseGuards(RtCookieGuard)
   @Post('/refresh')
