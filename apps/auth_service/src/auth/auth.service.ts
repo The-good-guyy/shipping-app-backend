@@ -99,7 +99,7 @@ export class AuthService {
       Number(time),
     );
     const emailConfirmationURL =
-      this.config.get<string>('AUTH_SERVICE_URL') + '/verify/' + token;
+      this.config.get<string>('AUTH_SERVICE_API_URL') + '/verify/' + token;
     this.client.send({
       topic: 'send-confirmation-email',
       messages: [
