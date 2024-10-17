@@ -9,8 +9,8 @@ import {
   SortPermissionDto,
   SearchPermissionsFilterDto,
 } from './dto';
-import { EErrorMessage } from '../common/constants';
-import { getCols } from '../common/helpers';
+import { EErrorMessage } from 'libs/common/error';
+import { getCols } from 'libs/common/helpers';
 import {
   MoreThan,
   LessThan,

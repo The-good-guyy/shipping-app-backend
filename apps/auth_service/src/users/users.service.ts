@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
-  EErrorMessage,
   UserFilterSearch,
   SortOrder,
   UserOrderBySearch,
   UserFieldSearch,
 } from '../common/constants';
+import { EErrorMessage } from 'libs/common/error';
 import { UserRepository } from './users.repository';
 import {
   CreateUserDto,
@@ -15,9 +15,9 @@ import {
   UpdateUserRoleDto,
   UpdateUserVerifiedDto,
 } from './dto';
-import { getChangedFields } from '../common/helpers';
+import { getChangedFields } from 'libs/common/helpers';
 import { User } from './entities/user.entity';
-import { stringToEnum } from '../common/helpers';
+import { stringToEnum } from 'libs/common/helpers';
 import { RoleService } from '../role/role.service';
 import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()

@@ -15,7 +15,7 @@ import {
   PermissionsGuard,
   VerifiedGuard,
   AtCookieGuard,
-} from '../common/guard';
+} from 'libs/common/guard';
 import { PermissionService } from './permission.service';
 import {
   CreatePermissionDto,
@@ -23,7 +23,7 @@ import {
   SearchPermissionsDto,
   SearchExcludePermissionsDto,
 } from './dto';
-import { Permissions } from '../common/decorators';
+import { Permissions } from 'libs/common/decorators';
 import { PermissionAction, PermissionObject } from '../common/constants';
 import {
   OffsetPaginationDto,

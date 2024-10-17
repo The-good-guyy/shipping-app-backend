@@ -8,7 +8,7 @@ import {
   IsEnum,
   IsBoolean,
 } from 'class-validator';
-import { IsType } from '../../common/helpers';
+import { IsType } from 'libs/common/helpers';
 import { PermissionInterface } from '../entities/permission.interface';
 import {
   PermissionAction,

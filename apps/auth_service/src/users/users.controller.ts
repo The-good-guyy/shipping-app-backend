@@ -24,9 +24,9 @@ import {
   PermissionsGuard,
   VerifiedGuard,
   AtCookieGuard,
-} from '../common/guard';
+} from 'libs/common/guard';
 import { PermissionAction, PermissionObject } from '../common/constants';
-import { Permissions, Possessions } from '../common/decorators';
+import { Permissions, Possessions } from 'libs/common/decorators';
 import {
   OffsetPaginationDto,
   OffsetPaginationOptionDto,

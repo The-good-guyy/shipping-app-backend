@@ -1,8 +1,18 @@
 import { Module } from '@nestjs/common';
-import { CommonService } from './common.service';
-
+import {
+  RtStrategy,
+  AtStrategy,
+  AtCookieStrategy,
+  RtCookieStrategy,
+  ForgotPasswordStrategy,
+} from './strategies';
 @Module({
-  providers: [CommonService],
-  exports: [CommonService],
+  providers: [
+    AtStrategy,
+    RtStrategy,
+    AtCookieStrategy,
+    RtCookieStrategy,
+    ForgotPasswordStrategy,
+  ],
 })
 export class CommonModule {}

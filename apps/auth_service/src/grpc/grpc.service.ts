@@ -4,7 +4,7 @@ import { UserService } from '../users/users.service';
 import { Permission } from '../permission/entities/permission.entity';
 import { Role } from '../role/entities/role.entity';
 import { NotFoundException } from '@nestjs/common';
-import { EErrorMessage } from '../common/constants';
+import { EErrorMessage } from 'libs/common/error';
 
 @Injectable()
 export class UsersGrpcService {

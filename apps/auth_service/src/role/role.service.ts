@@ -4,10 +4,10 @@ import { CreateRoleDto, SearchRoleFilterDto, SortRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
 import { Role } from './entities/role.entity';
 import { PermissionService } from '../permission/permission.service';
-import { EErrorMessage } from '../common/constants';
+import { EErrorMessage } from 'libs/common/error';
 import { UpdateRoleDto } from './dto';
 import { SearchOffsetPaginationDto } from '../common/dto';
-import { stringToEnum } from '../common/helpers';
+import { stringToEnum } from 'libs/common/helpers';
 import {
   SortOrder,
   RoleOrderBySearch,

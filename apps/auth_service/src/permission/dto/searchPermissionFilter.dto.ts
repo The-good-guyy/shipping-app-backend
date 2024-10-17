@@ -1,6 +1,6 @@
 import { Gte, Lt, Lte, Gt } from '../../common/types';
 import { IsOptional, IsString, IsUUID, IsEnum } from 'class-validator';
-import { IsType } from '../../common/helpers';
+import { IsType } from 'libs/common/helpers';
 import { PermissionInterface } from '../entities/permission.interface';
 import {
   PermissionAction,
