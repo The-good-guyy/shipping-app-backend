@@ -10,17 +10,27 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
-import { CreateRoleDto, UpdateRoleDto } from './dto';
-import { AtGuard, PermissionsGuard, VerifiedGuard } from '../common/guard';
+import { CreateRoleDto, SearchRoleDto, UpdateRoleDto } from './dto';
+import {
+  PermissionsGuard,
+  VerifiedGuard,
+  AtCookieGuard,
+} from '../common/guard';
 import { PermissionAction, PermissionObject } from '../common/constants';
 import { Permissions } from '../common/decorators';
 import { NotFoundInterceptor } from '../common/interceptors';
+import {
+  OffsetPaginationOptionDto,
+  SearchOffsetPaginationDto,
+  OffsetPaginationDto,
+} from '../common/dto';
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.CREATE,
     object: PermissionObject.ROLE,
@@ -33,11 +43,52 @@ export class RoleController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll() {
-    return true;
+  async findAll(@Query() query: SearchRoleDto) {
+    const filterQuery = { ...query };
+    const excludedFields = [
+      'page',
+      'sort',
+      'limit',
+      'fields',
+      'searchTerm',
+      'password',
+      'skip',
+    ];
+    excludedFields.forEach((el) => delete filterQuery[el]);
+    const sortQuery: { orderBy: string; order: string }[] = [];
+    if (query.sort) {
+      const sortObj = query.sort.split(',');
+      for (const obj of sortObj) {
+        const [orderBy, order] = obj.split(':');
+        sortQuery.push({
+          orderBy,
+          order: order ? order.toUpperCase() : order,
+        });
+      }
+    }
+    let fieldsQuery: string[] = [];
+    if (query.fields) {
+      fieldsQuery = query.fields.split(',');
+    }
+    const offset = new OffsetPaginationDto();
+    offset.pageNumber = query.page || offset.pageNumber;
+    offset.limit = query.limit || offset.limit;
+    offset.skip = query.skip || undefined;
+    const options = new OffsetPaginationOptionDto();
+    options.isGetAll = query.getAll || undefined;
+    const searchOffset = new SearchOffsetPaginationDto();
+    searchOffset.pagination = offset;
+    searchOffset.options = options;
+    return await this.roleService.search(
+      searchOffset,
+      filterQuery,
+      fieldsQuery,
+      sortQuery,
+      query.searchTerm,
+    );
   }
 
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.READ,
     object: PermissionObject.ROLE,
@@ -59,20 +110,24 @@ export class RoleController {
   //   return this.roleService.findByName(findOneByNameDto.name);
   // }
 
-  // Update role is obselete ,please use updatePermission instead
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({
+    action: PermissionAction.UPDATE,
+    object: PermissionObject.ROLE,
+  })
   @Patch()
-  @UseInterceptors(NotFoundInterceptor)
   @HttpCode(HttpStatus.OK)
   async update(@Body() UpdateRoleDto: UpdateRoleDto) {
     return this.roleService.update(UpdateRoleDto);
   }
 
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.UPDATE,
     object: PermissionObject.ROLE,
   })
   @Patch(':id')
+  @UseInterceptors(NotFoundInterceptor)
   @HttpCode(HttpStatus.OK)
   async updatePermission(
     @Body() updatePermissionDto: { permissionCode: string[] },
@@ -84,7 +139,7 @@ export class RoleController {
     );
   }
 
-  @UseGuards(AtGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.DELETE,
     object: PermissionObject.ROLE,

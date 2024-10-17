@@ -66,6 +66,7 @@ export class UsersController {
   async createUser(@Body() CreateUserDto: CreateUserDto) {
     return this.userService.create(CreateUserDto);
   }
+
   @UseGuards(AtCookieGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.READ,

@@ -18,3 +18,9 @@ export enum RoleFilterSearch {
   PERMISSION_OBJECT = 'permission_object',
   PERMISSION_POSSESSION = 'permission_possession',
 }
+export enum RoleFieldSearch {
+  ROLE = 'role',
+  CREATED_AT = 'createdAt',
+  UPDATED_AT = 'updatedAt',
+  PERMISSION = 'permission',
+}

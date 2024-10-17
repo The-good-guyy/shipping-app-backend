@@ -119,14 +119,8 @@ export class AuthController {
     return this.authService.logout(userId);
   }
 
-  @Post('/verify/:token')
-  @HttpCode(HttpStatus.OK)
-  verify(@Param('token') token: string): Promise<boolean> {
-    return this.authService.confirmEmail(token);
-  }
-
-  @UseGuards(AtGuard)
-  @Get('/verify')
+  @UseGuards(AtCookieGuard)
+  @Post('/verify')
   @HttpCode(HttpStatus.OK)
   resendEmail(@GetCurrentUser('sub') userId: string) {
     return this.authService.resendEmail(userId);

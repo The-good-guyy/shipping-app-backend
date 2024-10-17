@@ -1,19 +1,18 @@
-import { IsString, IsNotEmpty, ValidateNested, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty, IsUUID, IsOptional } from 'class-validator';
+import { PartialPick } from '../../common/types';
 import { RoleInterface } from '../entities/role.interface';
-import { Type } from 'class-transformer';
-import { Permission } from '../../permission/entities/permission.entity';
 export class UpdateRoleDto
-  implements Pick<RoleInterface, 'id' | 'role' | 'permission'>
+  implements PartialPick<Pick<RoleInterface, 'id' | 'role'>, 'role'>
 {
   @IsNotEmpty()
   @IsUUID()
   id: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  role: string;
+  role?: string;
 
-  @ValidateNested({ each: true })
-  @Type(() => Permission)
-  permission: Permission[];
+  @IsOptional()
+  @IsUUID('4', { each: true })
+  permissionId?: string[];
 }
