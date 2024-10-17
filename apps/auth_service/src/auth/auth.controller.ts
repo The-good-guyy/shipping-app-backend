@@ -37,8 +37,6 @@ import { PermissionAction, PermissionObject } from '../common/constants';
 import { Response, Request } from 'express';
 import { User } from '../users/entities/user.entity';
 import { RtGuardExceptionFilter } from '../common/exceptions';
-// import { KafkaService } from '../kafka';
-// import { SubscribeTo } from '../kafka';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
