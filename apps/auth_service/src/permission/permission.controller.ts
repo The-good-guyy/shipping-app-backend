@@ -89,6 +89,11 @@ export class PermissionController {
     return this.permissionService.remove(id);
   }
 
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({
+    action: PermissionAction.SEARCH,
+    object: PermissionObject.PERMISSION,
+  })
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(

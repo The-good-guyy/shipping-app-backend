@@ -13,7 +13,6 @@ export class RoleSeeder implements Seeder {
       read_users,
       read_own_users,
       create_routes,
-      create_users,
       delete_users,
       delete_own_users,
       delete_routes,
@@ -29,7 +28,7 @@ export class RoleSeeder implements Seeder {
       delete_permissions,
       update_permissions,
       update_profiles,
-      update_user_roles,
+      update_users,
       update_own_profiles,
       search_users,
       search_routes,
@@ -54,11 +53,6 @@ export class RoleSeeder implements Seeder {
       permissionRepository.findOne({
         where: {
           permission: 'create_routes',
-        },
-      }),
-      permissionRepository.findOne({
-        where: {
-          permission: 'create_users',
         },
       }),
       permissionRepository.findOne({
@@ -138,7 +132,7 @@ export class RoleSeeder implements Seeder {
       }),
       permissionRepository.findOne({
         where: {
-          permission: 'update_user_roles',
+          permission: 'update_users',
         },
       }),
       permissionRepository.findOne({
@@ -181,12 +175,11 @@ export class RoleSeeder implements Seeder {
     admin_role.permission = [
       read_routes,
       read_users,
-      create_users,
       create_routes,
       delete_users,
       delete_routes,
       update_profiles,
-      update_user_roles,
+      update_users,
       update_routes,
       search_users,
       search_routes,
@@ -197,11 +190,10 @@ export class RoleSeeder implements Seeder {
     sysadmin_role.permission = [
       read_routes,
       read_users,
-      create_users,
       create_routes,
       delete_users,
       delete_routes,
-      update_user_roles,
+      update_users,
       update_profiles,
       search_users,
       search_routes,

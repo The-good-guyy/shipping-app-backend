@@ -106,14 +106,6 @@ export const permissionData: Array<
     updatedAt: new Date(),
   },
   {
-    permission: 'create_users',
-    action: PermissionAction.CREATE,
-    object: PermissionObject.USER,
-    possession: PermissionPossession.ANY,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
     permission: 'create_routes',
     action: PermissionAction.CREATE,
     object: PermissionObject.ROUTE,
@@ -146,9 +138,9 @@ export const permissionData: Array<
     updatedAt: new Date(),
   },
   {
-    permission: 'update_user_roles',
+    permission: 'update_users',
     action: PermissionAction.UPDATE,
-    object: PermissionObject.USER_ROLE,
+    object: PermissionObject.USER,
     possession: PermissionPossession.ANY,
     createdAt: new Date(),
     updatedAt: new Date(),

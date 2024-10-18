@@ -11,6 +11,7 @@ import {
   Query,
   UseGuards,
   UseInterceptors,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UserService } from './users.service';
 import {
@@ -26,13 +27,18 @@ import {
   AtCookieGuard,
 } from 'libs/common/guard';
 import { PermissionAction, PermissionObject } from '../common/constants';
-import { Permissions, Possessions } from 'libs/common/decorators';
+import {
+  Permissions,
+  Possessions,
+  GetCurrentUser,
+} from 'libs/common/decorators';
 import {
   OffsetPaginationDto,
   OffsetPaginationOptionDto,
   SearchOffsetPaginationDto,
 } from '../common/dto';
 import { NotFoundInterceptor } from '../common/interceptors';
+import { EErrorMessage } from 'libs/common/error';
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
@@ -44,7 +50,13 @@ export class UsersController {
   @Possessions('body.id')
   @Patch('/role')
   @HttpCode(HttpStatus.OK)
-  async updateRole(@Body() UpdateUserRoleDto: UpdateUserRoleDto) {
+  async updateRole(
+    @Body() UpdateUserRoleDto: UpdateUserRoleDto,
+    @GetCurrentUser('sub') userId: string,
+  ) {
+    if (UpdateUserRoleDto.id === userId) {
+      throw new ForbiddenException(EErrorMessage.NO_ASSIGN_YOURSELF);
+    }
     return this.userService.updateRole(UpdateUserRoleDto);
   }
 
@@ -82,7 +94,7 @@ export class UsersController {
   @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.UPDATE,
-    object: PermissionObject.USER,
+    object: PermissionObject.PROFILE,
   })
   @Possessions('body.id')
   @Patch('/profile')
@@ -99,7 +111,10 @@ export class UsersController {
   @Possessions('params.id')
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @GetCurrentUser('sub') userId: string) {
+    if (id === userId) {
+      throw new ForbiddenException(EErrorMessage.NO_DELETE_YOURSELF);
+    }
     return this.userService.remove(id);
   }
 
@@ -120,6 +135,11 @@ export class UsersController {
     return this.userService.updatePassword(id, password);
   }
 
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({
+    action: PermissionAction.SEARCH,
+    object: PermissionObject.USER,
+  })
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() query: SearchUsersDto) {

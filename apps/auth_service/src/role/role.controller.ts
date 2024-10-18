@@ -41,6 +41,11 @@ export class RoleController {
     return this.roleService.create(CreateRoleDto);
   }
 
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({
+    action: PermissionAction.SEARCH,
+    object: PermissionObject.ROLE,
+  })
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() query: SearchRoleDto) {

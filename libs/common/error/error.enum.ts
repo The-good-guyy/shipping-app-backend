@@ -49,7 +49,8 @@ export enum EErrorMessage {
   TOKEN_INVALID = 'Token is invalid or expired',
   EMAIL_ALREADY_VERIFIED = 'email is already verified',
   PASSWORD_NOT_MATCH = 'Password and Confirm Password must match',
-
+  NO_DELETE_YOURSELF = 'You are not permitted to delete your own account. If you need assistance with your account, please contact our support team.',
+  NO_ASSIGN_YOURSELF = 'You are not permitted to assign yourself to this role. If you need assistance with your account, please contact our support team.',
   //Route Error
   ROUTE_NOT_FOUND = 'route not found',
   ROUTE_EXISTED = 'route is already existed',

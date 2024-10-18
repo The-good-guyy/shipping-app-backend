@@ -73,7 +73,8 @@ export class AuthService {
         },
       ],
     });
-    return { token };
+    // return { token };
+    return true;
   }
   async confirmForgotPasswordEmail(id: string, token: string) {
     const savedToken = await this.redisService.get(

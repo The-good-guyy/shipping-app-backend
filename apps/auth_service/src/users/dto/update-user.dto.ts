@@ -24,7 +24,7 @@ export class UpdateUserDto
   username?: string;
 
   @IsOptional()
-  @IsUUID()
+  @IsUUID(4)
   roleId?: string;
 
   @IsOptional()
