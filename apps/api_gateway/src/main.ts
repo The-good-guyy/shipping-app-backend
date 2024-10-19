@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
   const configService = app.get(ConfigService);
-  const whitelist = ['http://localhost:2999'];
   const corsOptions = {
     origin: 'http://localhost:2999',
     credentials: true,

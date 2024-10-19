@@ -14,7 +14,6 @@ import { GetUserRequestDto } from './dto/getUserRequest.dto';
 import { Http2gRPCExceptionFilter } from '../common/exceptions';
 import { Validator } from 'class-validator';
 import { plainToClass } from 'class-transformer';
-import { status } from '@grpc/grpc-js';
 @UseFilters(new Http2gRPCExceptionFilter())
 @Controller()
 @UsersServiceControllerMethods()

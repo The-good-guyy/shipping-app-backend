@@ -6,7 +6,7 @@ import { POSSESSION_KEY } from 'libs/common/decorators/possession.decorator';
 import { deepGet } from 'libs/common/helpers';
 @Injectable()
 export class PermissionsGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const requiredPermissions = this.reflector.getAllAndOverride<

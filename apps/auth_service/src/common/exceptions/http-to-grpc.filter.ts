@@ -12,7 +12,7 @@ import { Observable, throwError } from 'rxjs';
  */
 @Catch(HttpException)
 export class Http2gRPCExceptionFilter implements ExceptionFilter {
-  static HttpStatusCode: Record<number, number> = {
+  static readonly HttpStatusCode: Record<number, number> = {
     [HttpStatus.BAD_REQUEST]: status.INVALID_ARGUMENT,
     [HttpStatus.UNAUTHORIZED]: status.UNAUTHENTICATED,
     [HttpStatus.FORBIDDEN]: status.PERMISSION_DENIED,

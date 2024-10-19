@@ -30,7 +30,7 @@ export class AuthService {
     private readonly roleService: RoleService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
-    @Inject('AUTH_SERVICE') private client: KafkaService,
+    @Inject('AUTH_SERVICE') private readonly client: KafkaService,
   ) {}
   hashData(data: string) {
     return bcrypt.hash(data, 10);
@@ -138,7 +138,7 @@ export class AuthService {
   async getTokens(
     userId: string,
     email: string,
-    isVerified: boolean = false,
+    isVerified: boolean,
     role: string,
     permissions: Partial<Permission>[],
   ): Promise<Tokens> {

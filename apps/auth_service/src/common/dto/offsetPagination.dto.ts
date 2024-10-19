@@ -1,5 +1,4 @@
-import { IsOptional, Min } from 'class-validator';
-import { IsInt } from 'class-validator';
+import { IsOptional, Min, IsInt } from 'class-validator';
 export class OffsetPaginationDto {
   @IsInt()
   @Min(1)

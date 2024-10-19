@@ -24,14 +24,14 @@ import { SUBSCRIBER_MAP, SUBSCRIBER_OBJECT_MAP } from './kafka.decorator';
 
 @Injectable()
 export class KafkaService implements OnModuleInit, OnModuleDestroy {
-  private kafka: Kafka;
-  private producer: Producer;
-  private consumer: Consumer;
-  private admin: Admin;
+  private readonly kafka: Kafka;
+  private readonly producer: Producer;
+  private readonly consumer: Consumer;
+  private readonly admin: Admin;
   private deserializer: Deserializer;
   private serializer: Serializer;
-  private autoConnect: boolean;
-  private options: KafkaModuleOption['options'];
+  private readonly autoConnect: boolean;
+  private readonly options: KafkaModuleOption['options'];
 
   protected topicOffsets: Map<
     string,
