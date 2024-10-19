@@ -20,7 +20,7 @@ import {
   confirmationEmailPrefix,
   forgotPasswordEmailPrefix,
   forgotPasswordFormPrefix,
-} from '../common/constants';
+} from 'libs/common/constants';
 import { User } from '../users/entities/user.entity';
 @Injectable()
 export class AuthService {

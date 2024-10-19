@@ -19,7 +19,7 @@ import {
   VerifiedGuard,
   AtCookieGuard,
 } from 'libs/common/guard';
-import { PermissionAction, PermissionObject } from '../common/constants';
+import { PermissionAction, PermissionObject } from 'libs/common/constants';
 import { Permissions } from 'libs/common/decorators';
 import { NotFoundInterceptor } from '../common/interceptors';
 import {

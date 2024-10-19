@@ -2,7 +2,7 @@ import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
-} from '../../common/constants';
+} from 'libs/common/constants';
 export interface PermissionInterface {
   id: string;
   permission: string;

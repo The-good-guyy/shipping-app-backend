@@ -13,7 +13,7 @@ import {
   RoleOrderBySearch,
   RoleFieldSearch,
   RoleFilterSearch,
-} from '../common/constants';
+} from '/libs/common/constants';
 @Injectable()
 export class RoleService {
   constructor(

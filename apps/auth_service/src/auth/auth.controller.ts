@@ -33,7 +33,7 @@ import {
   Permissions,
   Possessions,
 } from 'libs/common/decorators';
-import { PermissionAction, PermissionObject } from '../common/constants';
+import { PermissionAction, PermissionObject } from 'libs/common/constants';
 import { Response, Request } from 'express';
 import { User } from '../users/entities/user.entity';
 import { RtGuardExceptionFilter } from '../common/exceptions';

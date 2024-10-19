@@ -14,7 +14,7 @@ import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
-} from '../../common/constants';
+} from 'libs/common/constants';
 import { PartialPick } from '../../common/types';
 export class SearchPermissionsDto
   implements

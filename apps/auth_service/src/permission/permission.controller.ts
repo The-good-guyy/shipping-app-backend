@@ -24,7 +24,7 @@ import {
   SearchExcludePermissionsDto,
 } from './dto';
 import { Permissions } from 'libs/common/decorators';
-import { PermissionAction, PermissionObject } from '../common/constants';
+import { PermissionAction, PermissionObject } from 'libs/common/constants';
 import {
   OffsetPaginationDto,
   OffsetPaginationOptionDto,

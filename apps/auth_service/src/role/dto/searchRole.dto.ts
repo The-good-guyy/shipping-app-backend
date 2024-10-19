@@ -15,7 +15,7 @@ import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
-} from '../../common/constants';
+} from 'libs/common/constants';
 export class SearchRoleDto
   implements PartialPick<Pick<RoleInterface, 'id' | 'role'>, 'id' | 'role'>
 {

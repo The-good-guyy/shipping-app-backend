@@ -12,7 +12,7 @@ import {
   PermissionFieldSearch,
   PermissionOrderBySearch,
   SortOrder,
-} from '../common/constants';
+} from 'libs/common/constants';
 import { EErrorMessage } from 'libs/common/error';
 import { Permission } from './entities/permission.entity';
 import { SearchOffsetPaginationDto } from '../common/dto';
