@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PortService } from 'apps/route_service/src/port/port.service';
 import { CreateRouteDto } from 'apps/route_service/src/route/dto/create-route.dto';
@@ -10,6 +15,7 @@ import { FilterRouteDto } from 'apps/route_service/src/route/dto/filter-route.dt
 import { ScheduleService } from 'apps/route_service/src/schedule/schedule.service';
 import { Route } from 'apps/route_service/src/route/entity/route.entity';
 import { ClientGrpc } from '@nestjs/microservices';
+import { RouteStatus } from 'apps/route_service/src/route/enums/route-status.enum';
 
 @Injectable()
 export class RouteService {
@@ -21,13 +27,11 @@ export class RouteService {
     @Inject('USER_PACKAGE') private readonly grpcClient: ClientGrpc,
   ) {}
 
-
   async create(createRouteDto: CreateRouteDto): Promise<Route> {
-    const { startPort_address, endPort_address, departureDate } =
-      createRouteDto;
+    const { startPort_id, endPort_id, departureDate } = createRouteDto;
     const departureDateObj = new Date(departureDate);
-    const startPort = await this.portService.findByAddress(startPort_address);
-    const endPort = await this.portService.findByAddress(endPort_address);
+    const startPort = await this.portService.findOne(startPort_id);
+    const endPort = await this.portService.findOne(endPort_id);
     if (!startPort || !endPort) {
       throw new NotFoundException(EErrorMessage.PORT_NOT_FOUND);
     }
@@ -50,7 +54,7 @@ export class RouteService {
         arrivalDate,
       },
     });
-    console.log(existingRoute);
+    // console.log(existingRoute);
     if (existingRoute) {
       throw new NotFoundException(EErrorMessage.ROUTE_EXISTED);
     }
@@ -63,7 +67,7 @@ export class RouteService {
       arrivalDate,
       distance: roundedDistance,
     });
-    // console.log(newRoute);
+    console.log(newRoute);
     return this.routeRepository.save(newRoute);
   }
 
@@ -74,7 +78,7 @@ export class RouteService {
     const keyword = (query.search || '').trim().toLowerCase();
 
     const sortBy = query.sortBy || 'createdAt';
-    const order: 'ASC' | 'DESC' =
+    const sortOrder: 'ASC' | 'DESC' =
       query.order?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     const queryBuilder = this.routeRepository
@@ -86,29 +90,32 @@ export class RouteService {
         { keyword: `%${keyword.replace(/\s+/g, '')}%` },
       );
 
-    if (query.createdAt) {
-      queryBuilder.andWhere('route.createdAt >= :createdAt', {
-        createdAt: query.createdAt,
-      });
-    }
-    if (query.updatedAt) {
-      queryBuilder.andWhere('route.updatedAt >= :updatedAt', {
-        updatedAt: query.updatedAt,
-      });
-    }
+    // if (query.createdAt) {
+    //   queryBuilder.andWhere('route.createdAt >= :createdAt', {
+    //     createdAt: query.createdAt,
+    //   });
+    // }
+    // if (query.updatedAt) {
+    //   queryBuilder.andWhere('route.updatedAt >= :updatedAt', {
+    //     updatedAt: query.updatedAt,
+    //   });
+    // }
 
     switch (sortBy) {
       case 'startPort':
-        queryBuilder.orderBy('startPort.address', order);
+        queryBuilder.orderBy('startPort.address', sortOrder);
         break;
       case 'endPort':
-        queryBuilder.orderBy('endPort.address', order);
+        queryBuilder.orderBy('endPort.address', sortOrder);
         break;
       case 'updatedAt':
-        queryBuilder.orderBy('route.updatedAt', order);
+        queryBuilder.orderBy('route.updatedAt', sortOrder);
+        break;
+      case 'status':
+        queryBuilder.orderBy('route.status', sortOrder);
         break;
       default:
-        queryBuilder.orderBy('route.createdAt', order);
+        queryBuilder.orderBy('route.createdAt', sortOrder);
         break;
     }
 
@@ -116,6 +123,7 @@ export class RouteService {
     queryBuilder
       .skip(skip)
       .take(limit)
+      .orderBy(`route.${sortBy}`, sortOrder)
       .select([
         'route.id',
         'route.createdAt',
@@ -134,7 +142,7 @@ export class RouteService {
     const lastPage = Math.ceil(total / limit);
     const nextPage = page + 1 > lastPage ? null : page + 1;
     const prevPage = page - 1 < 1 ? null : page - 1;
-    console.log(result);
+    // console.log(result);
     return {
       data: result,
       total,
@@ -184,7 +192,30 @@ export class RouteService {
 
     return this.routeRepository.save(route);
   }
+  async updateRouteStatus(id: string): Promise<Route> {
+    const route = await this.routeRepository.findOneBy({ id });
 
+    if (!route) {
+      throw new NotFoundException(EErrorMessage.ROUTE_NOT_FOUND);
+    }
+
+    switch (route.status) {
+      case RouteStatus.AVAILABLE:
+        route.status = RouteStatus.TRANSIT;
+        break;
+      case RouteStatus.TRANSIT:
+        route.status = RouteStatus.COMPLETED;
+        break;
+      case RouteStatus.COMPLETED:
+        throw new BadRequestException(
+          'Route is already completed and cannot be updated further.',
+        );
+      default:
+        throw new BadRequestException('Invalid route status');
+    }
+
+    return this.routeRepository.save(route);
+  }
   async remove(id: string): Promise<void> {
     const route = await this.routeRepository.findOneBy({ id });
     if (!route) {

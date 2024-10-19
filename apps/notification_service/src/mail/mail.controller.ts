@@ -1,23 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { User } from 'apps/notification_service/src/mail/user.entity';
 @Controller()
 export class MailController {
   constructor(private mailService: MailService) {}
-  generateToken(): string {
-    return Math.random().toString(36).substring(2, 15);
-  }
   @MessagePattern('send-confirmation-email')
-  async sendUserConfirmation(@Payload() data: any) {
-    const { email, username } = data; 
+  async sendUserConfirmation(@Payload() emailData: any) {
+    const { email, url, ttl } = emailData;
 
     try {
-      const token = this.generateToken();
-      const user: User = { email, username };
-      console.log(token);
-      console.log(user);
-      await this.mailService.sendUserConfirmation(user, token);
+      await this.mailService.sendUserConfirmation(email, url, ttl);
+      console.log('oke');
       return { message: 'Confirmation email sent successfully' };
     } catch (error) {
       return {
@@ -26,10 +19,12 @@ export class MailController {
       };
     }
   }
-  @MessagePattern('send-password-reset-email')
+  @MessagePattern('send-forgot-password-email')
   async handleSendPasswordResetEmail(@Payload() data: any) {
+    const { email, id, url, ttl } = data;
+    console.log('okeforgot');
     try {
-      await this.mailService.sendPasswordResetEmail(data.email, data.otp);
+      await this.mailService.sendResetPasswordEmail(email, id, url, ttl);
       return { message: 'Confirmation email sent successfully' };
     } catch (error) {
       return {
@@ -39,3 +34,16 @@ export class MailController {
     }
   }
 }
+// @MessagePattern('send-forgot-password-email')
+// async handleSendForgotPasswordEmail(@Payload() data: any) {
+//   const { id, url, ttl } = data;
+//   try {
+//     await this.mailService.sendForgotPasswordEmail(id, url, ttl);
+//     return { message: 'Confirmation email sent successfully' };
+//   } catch (error) {
+//     return {
+//       message: 'Failed to send confirmation email',
+//       error: error.message,
+//     };
+//   }
+// }

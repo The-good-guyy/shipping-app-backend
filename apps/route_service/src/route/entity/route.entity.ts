@@ -41,3 +41,5 @@ export class Route {
   @Column({ type: 'enum', enum: RouteStatus, default: RouteStatus.AVAILABLE })
   status: RouteStatus;
 }
+
+export { RouteStatus };

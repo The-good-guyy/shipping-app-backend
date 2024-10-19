@@ -57,8 +57,10 @@ export class AuthService {
       token,
       Number(time),
     );
-    const forgotPasswordURL =
-      this.config.get<string>('AUTH_SERVICE_URL') + '/forgot-password/' + token;
+    // const forgotPasswordURL =
+    //   this.config.get<string>('AUTH_SERVICE_URL') + '/forgot-password/' + token;
+    const forgotPasswordURL = 'http://localhost:2999/forgot-password/' + token;
+
     this.client.send({
       topic: 'send-forgot-password-email',
       messages: [
@@ -104,8 +106,10 @@ export class AuthService {
       email,
       Number(time),
     );
-    const emailConfirmationURL =
-      this.config.get<string>('AUTH_SERVICE_API_URL') + '/verify/' + token;
+    // const emailConfirmationURL =
+    //   this.config.get<string>('AUTH_SERVICE_API_URL') + '/verify/' + token;
+    const emailConfirmationURL = 'http://localhost:2999/confirm/' + token;
+
     this.client.send({
       topic: 'send-confirmation-email',
       messages: [
