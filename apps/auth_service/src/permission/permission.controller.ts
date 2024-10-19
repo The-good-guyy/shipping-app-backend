@@ -25,11 +25,7 @@ import {
 } from './dto';
 import { Permissions } from 'libs/common/decorators';
 import { PermissionAction, PermissionObject } from 'libs/common/constants';
-import {
-  OffsetPaginationDto,
-  OffsetPaginationOptionDto,
-  SearchOffsetPaginationDto,
-} from '../common/dto';
+import { queryHandle } from '../common/helper/queryHandle.helper';
 
 @Controller('permission')
 export class PermissionController {
@@ -100,42 +96,8 @@ export class PermissionController {
     @Query() query: SearchPermissionsDto,
     @Body() body: SearchExcludePermissionsDto,
   ) {
-    const filterQuery = { ...query };
-    console.log(filterQuery);
-    const excludedFields = [
-      'page',
-      'sort',
-      'limit',
-      'fields',
-      'searchTerm',
-      'password',
-      'skip',
-    ];
-    excludedFields.forEach((el) => delete filterQuery[el]);
-    const sortQuery: { orderBy: string; order: string }[] = [];
-    if (query.sort) {
-      const sortObj = query.sort.split(',');
-      for (const obj of sortObj) {
-        const [orderBy, order] = obj.split(':');
-        sortQuery.push({
-          orderBy,
-          order: order ? order.toUpperCase() : order,
-        });
-      }
-    }
-    let fieldsQuery: string[] = [];
-    if (query.fields) {
-      fieldsQuery = query.fields.split(',');
-    }
-    const offset = new OffsetPaginationDto();
-    offset.pageNumber = query.page || offset.pageNumber;
-    offset.limit = query.limit || offset.limit;
-    offset.skip = query.skip || undefined;
-    const options = new OffsetPaginationOptionDto();
-    options.isGetAll = query.getAll || undefined;
-    const searchOffset = new SearchOffsetPaginationDto();
-    searchOffset.pagination = offset;
-    searchOffset.options = options;
+    const { searchOffset, filterQuery, fieldsQuery, sortQuery } =
+      queryHandle(query);
     return await this.permissionService.search(
       searchOffset,
       filterQuery,

@@ -32,13 +32,9 @@ import {
   Possessions,
   GetCurrentUser,
 } from 'libs/common/decorators';
-import {
-  OffsetPaginationDto,
-  OffsetPaginationOptionDto,
-  SearchOffsetPaginationDto,
-} from '../common/dto';
 import { NotFoundInterceptor } from '../common/interceptors';
 import { EErrorMessage } from 'libs/common/error';
+import { queryHandle } from '../common/helper/queryHandle.helper';
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
@@ -143,41 +139,8 @@ export class UsersController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() query: SearchUsersDto) {
-    const filterQuery = { ...query };
-    const excludedFields = [
-      'page',
-      'sort',
-      'limit',
-      'fields',
-      'searchTerm',
-      'password',
-      'skip',
-    ];
-    excludedFields.forEach((el) => delete filterQuery[el]);
-    const sortQuery: { orderBy: string; order: string }[] = [];
-    if (query.sort) {
-      const sortObj = query.sort.split(',');
-      for (const obj of sortObj) {
-        const [orderBy, order] = obj.split(':');
-        sortQuery.push({
-          orderBy,
-          order: order ? order.toUpperCase() : order,
-        });
-      }
-    }
-    let fieldsQuery: string[] = [];
-    if (query.fields) {
-      fieldsQuery = query.fields.split(',');
-    }
-    const offset = new OffsetPaginationDto();
-    offset.pageNumber = query.page || offset.pageNumber;
-    offset.limit = query.limit || offset.limit;
-    offset.skip = query.skip || undefined;
-    const options = new OffsetPaginationOptionDto();
-    options.isGetAll = query.getAll || undefined;
-    const searchOffset = new SearchOffsetPaginationDto();
-    searchOffset.pagination = offset;
-    searchOffset.options = options;
+    const { searchOffset, filterQuery, fieldsQuery, sortQuery } =
+      queryHandle(query);
     return await this.userService.search(
       searchOffset,
       filterQuery,
