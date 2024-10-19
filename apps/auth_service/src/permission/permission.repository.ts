@@ -10,18 +10,8 @@ import {
 } from './dto';
 import { EErrorMessage } from 'libs/common/error';
 import { getCols } from 'libs/common/helpers';
-import { filterHandle } from '../common/helper';
-import {
-  MoreThan,
-  LessThan,
-  LessThanOrEqual,
-  MoreThanOrEqual,
-  ILike,
-  Like,
-  Not,
-  In,
-  Repository,
-} from 'typeorm';
+import { filterHandle, sortHandle } from '../common/helper';
+import { Like, Not, In, Repository } from 'typeorm';
 import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()
 export class PermissionRepository {
@@ -83,17 +73,7 @@ export class PermissionRepository {
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll } = offset.options ?? {};
     const newFilters = filterHandle(filters);
-    const sortOrder = {};
-    sort.forEach((obj) => {
-      const sortOrderBy = obj.orderBy.split('.');
-      let object = sortOrder;
-      for (let i = 0; i < sortOrderBy.length - 1; i++) {
-        const prop = sortOrderBy[i];
-        object[prop] = {};
-        object = object[prop];
-      }
-      object[sortOrderBy[sortOrderBy.length - 1]] = obj.order;
-    });
+    const sortOrder = sortHandle(sort);
     newFilters['id'] = body.exclude
       ? Not(In(body.exclude))
       : newFilters['id'] || undefined;

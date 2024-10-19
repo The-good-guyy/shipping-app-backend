@@ -10,7 +10,7 @@ import { User } from './entities/user.entity';
 import { EErrorMessage } from 'libs/common/error';
 import { getCols } from 'libs/common/helpers';
 import { ILike, Repository } from 'typeorm';
-import { filterHandle } from '../common/helper';
+import { filterHandle, sortHandle } from '../common/helper';
 import { Role } from '../role/entities/role.entity';
 import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()
@@ -133,17 +133,7 @@ export class UserRepository {
     const { isGetAll } = offset.options ?? {};
     const newFields = fields.filter((obj) => obj != 'password');
     const newFilters = filterHandle(filters);
-    const sortOrder = {};
-    sort.forEach((obj) => {
-      const sortOrderBy = obj.orderBy.split('.');
-      let object = sortOrder;
-      for (let i = 0; i < sortOrderBy.length - 1; i++) {
-        const prop = sortOrderBy[i];
-        object[prop] = {};
-        object = object[prop];
-      }
-      object[sortOrderBy[sortOrderBy.length - 1]] = obj.order;
-    });
+    const sortOrder = sortHandle(sort);
     const newFilterGroup = search
       ? [
           { username: ILike(`%${search}%`), ...newFilters },

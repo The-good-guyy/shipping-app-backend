@@ -6,7 +6,7 @@ import { UpdateRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
 import { getCols } from 'libs/common/helpers';
 import { SearchOffsetPaginationDto } from '../common/dto';
-import { filterHandle } from '../common/helper';
+import { filterHandle, sortHandle } from '../common/helper';
 import { ILike, Repository } from 'typeorm';
 import { SearchRoleFilterDto, SortRoleDto } from './dto';
 @Injectable()
@@ -80,17 +80,7 @@ export class RoleRepository {
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll } = offset.options ?? {};
     const newFilters = filterHandle(filters);
-    const sortOrder = {};
-    sort.forEach((obj) => {
-      const sortOrderBy = obj.orderBy.split('.');
-      let object = sortOrder;
-      for (let i = 0; i < sortOrderBy.length - 1; i++) {
-        const prop = sortOrderBy[i];
-        object[prop] = {};
-        object = object[prop];
-      }
-      object[sortOrderBy[sortOrderBy.length - 1]] = obj.order;
-    });
+    const sortOrder = sortHandle(sort);
     const newFilterGroup = search
       ? { role: ILike(`%${search}%`), ...newFilters }
       : newFilters;
