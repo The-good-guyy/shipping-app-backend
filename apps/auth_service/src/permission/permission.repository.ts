@@ -10,6 +10,7 @@ import {
 } from './dto';
 import { EErrorMessage } from 'libs/common/error';
 import { getCols } from 'libs/common/helpers';
+import { filterHandle } from '../common/helper';
 import {
   MoreThan,
   LessThan,
@@ -45,12 +46,6 @@ export class PermissionRepository {
     });
     if (permission) this.permissionRepository.delete(permission);
   }
-  // async update(permissionId: string, input: Partial<UdpatePermissionDto>) {
-  //   return await this.permissionRepository.update(permissionId, {
-  //     ...input,
-  //     updatedAt: new Date(),
-  //   });
-  // }
   async update(permission: Permission, input: Partial<UdpatePermissionDto>) {
     if (input.id) {
       delete input['id'];
@@ -87,35 +82,7 @@ export class PermissionRepository {
   ) {
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll } = offset.options ?? {};
-    const newFilters = {};
-    for (const key in filters) {
-      const value = filters[key];
-      if (typeof value === 'object' && value !== null) {
-        if (value.gte !== null && value.gte !== undefined) {
-          filters[key] = MoreThanOrEqual(value.gte);
-        } else if (value.gt !== null && value.gt !== undefined) {
-          filters[key] = MoreThan(value.gt);
-        } else if (value.lte !== null && value.lte !== undefined)
-          filters[key] = LessThanOrEqual(value.lte);
-        else if (value.lt !== null && value.lt !== undefined)
-          filters[key] = LessThan(value.lt);
-        else if (value.ne !== null && value.ne !== undefined)
-          filters[key] = Not(value.ne);
-        else if (value.il !== null && value.il !== undefined)
-          filters[key] = ILike(`%${value.ilike}%`);
-        else if (value.like !== null && value.like !== undefined)
-          filters[key] = Like(`%${value.like}%`);
-      }
-      const newValues = filters[key];
-      const keyValue = key.split('_');
-      let o = newFilters;
-      for (let i = 0; i < keyValue.length - 1; i++) {
-        const prop = keyValue[i];
-        o[prop] = o[prop] || {};
-        o = o[prop];
-      }
-      o[keyValue[keyValue.length - 1]] = newValues;
-    }
+    const newFilters = filterHandle(filters);
     const sortOrder = {};
     sort.forEach((obj) => {
       const sortOrderBy = obj.orderBy.split('.');
