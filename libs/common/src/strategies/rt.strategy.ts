@@ -48,7 +48,7 @@ export class RtCookieStrategy extends PassportStrategy(
 
   validate(req: Request, payload: any) {
     const refreshToken = req.cookies['refresh_token'];
-
+    console.log('refreshToken validate');
     if (!refreshToken) throw new ForbiddenException('Refresh token malformed');
 
     return {

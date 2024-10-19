@@ -2,16 +2,25 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateUserDto,
   UpdateUserDto,
-  SearchUsersOffsetDto,
   SortUserDto,
   SearchUsersFilterDto,
 } from './dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { EErrorMessage } from '../common/constants';
-import { getCols } from '../common/helpers';
-import { MoreThan, LessThan, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { EErrorMessage } from 'libs/common/error';
+import { getCols } from 'libs/common/helpers';
+import {
+  MoreThan,
+  LessThan,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  ILike,
+  Like,
+  Not,
+} from 'typeorm';
+import { Role } from '../role/entities/role.entity';
+import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()
 export class UserRepository {
   constructor(
@@ -34,13 +43,21 @@ export class UserRepository {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
     });
-    if (user) this.usersRepository.delete(user);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    await this.usersRepository.delete(user);
   }
   async update(user: User, input: Partial<UpdateUserDto>) {
     if (input.id) {
       delete input['id'];
     }
     const updatedUser = this.usersRepository.create({ ...user, ...input });
+    return await this.usersRepository.save(updatedUser);
+  }
+  async updateRole(user: User, role: Role) {
+    const updatedUser = this.usersRepository.create({
+      ...user,
+      role: role,
+    });
     return await this.usersRepository.save(updatedUser);
   }
   async findByCode(userId: string, fields: (keyof User)[] = []) {
@@ -105,13 +122,21 @@ export class UserRepository {
     await this.usersRepository.save(updatedUser);
     return true;
   }
-
+  async updateVerifiedStatus(user: User, isVerified: boolean) {
+    const updatedUser = this.usersRepository.create({
+      ...user,
+      isVerified,
+    });
+    return await this.usersRepository.save(updatedUser);
+  }
   async search(
-    offset: SearchUsersOffsetDto,
+    offset: SearchOffsetPaginationDto,
     filters: SearchUsersFilterDto,
     fields: (keyof User)[],
     sort: SortUserDto[],
+    search: string,
   ) {
+    // console.log('fields', fields);
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll } = offset.options ?? {};
     const newFilters = {};
@@ -127,6 +152,12 @@ export class UserRepository {
           filters[key] = LessThanOrEqual(value.lte);
         else if (value.lt !== null && value.lt !== undefined)
           filters[key] = LessThan(value.lt);
+        else if (value.ne !== null && value.ne !== undefined)
+          filters[key] = Not(value.ne);
+        else if (value.il !== null && value.il !== undefined)
+          filters[key] = ILike(`%${value.ilike}%`);
+        else if (value.like !== null && value.like !== undefined)
+          filters[key] = Like(`%${value.like}%`);
       }
       const newValues = filters[key];
       const keyValue = key.split('_');
@@ -149,10 +180,16 @@ export class UserRepository {
       }
       object[sortOrderBy[sortOrderBy.length - 1]] = obj.order;
     });
+    const newFilterGroup = search
+      ? [
+          { username: ILike(`%${search}%`), ...newFilters },
+          { email: ILike(`%${search}%`), ...newFilters },
+        ]
+      : newFilters;
     if (isGetAll) {
       const entities = await this.usersRepository.find({
         select: newFields,
-        where: newFilters ? newFilters : undefined,
+        where: newFilterGroup ? newFilterGroup : undefined,
         relations: newFields.includes('role')
           ? { role: { permission: true } }
           : undefined,
@@ -167,7 +204,7 @@ export class UserRepository {
       skip: skip || limit * (pageNumber - 1),
       take: limit,
       select: newFields,
-      where: newFilters ? newFilters : undefined,
+      where: newFilterGroup ? newFilterGroup : undefined,
       relations: newFields.includes('role')
         ? { role: { permission: true } }
         : undefined,

@@ -1,35 +1,54 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
-import { User } from 'apps/notification_service/src/mail/user.entity';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  async sendUserConfirmation(user: User, token: string) {
-    const url = `http://localhost:3000/auth/confirm?token=${token}`;
-
+  async sendUserConfirmation(email: string, url: string, ttl: string) {
     await this.mailerService.sendMail({
-      to: user.email,
-      subject: 'Welcome to Nice App! Confirm your Email',
+      to: email,
+      subject: 'Welcome to SSMS App! Confirm your Email',
       template: './confirmation',
       context: {
-        name: user.name,
+        email,
         url,
+        ttl,
         currentYear: new Date().getFullYear(),
       },
     });
   }
 
-  async sendPasswordResetEmail(user: User, otp: string) {
+  async sendResetPasswordEmail(
+    email: string,
+    id: string,
+    url: string,
+    ttl: string,
+  ) {
     await this.mailerService.sendMail({
-      to: user.email,
+      to: email,
       subject: 'Password Reset Request',
       template: './password-reset',
       context: {
-        name: user.name,
-        otp: otp,
+        email,
+        id,
+        url,
+        ttl,
         currentYear: new Date().getFullYear(),
       },
     });
   }
+
+  // async sendForgotPasswordEmail(id: string, url: string, ttl: string) {
+  //   await this.mailerService.sendMail({
+  //     to: email,
+  //     subject: 'Password Reset Request',
+  //     template: './password-reset',
+  //     context: {
+  //       id,
+  //       url
+  //       ttl,
+  //       currentYear: new Date().getFullYear(),
+  //     },
+  //   });
 }

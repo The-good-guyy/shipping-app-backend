@@ -4,7 +4,7 @@ import {
   NotFoundException,
   Inject,
 } from '@nestjs/common';
-import { CreateUserDto, LoginUserDto } from './dto';
+import { CreateUserDto, LoginUserDto, ChangePasswordDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service';
@@ -12,17 +12,15 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 import { RoleService } from '../role/role.service';
 import { Tokens } from './types';
-import { EErrorMessage } from '../common/constants';
+import { EErrorMessage } from 'libs/common/error';
 import { KafkaService } from '../kafka';
 import { randomBytes } from 'crypto';
 import { Permission } from '../permission/entities/permission.entity';
 import {
   confirmationEmailPrefix,
-  resetPasswordEmailPrefix,
   forgotPasswordEmailPrefix,
   forgotPasswordFormPrefix,
 } from '../common/constants';
-import { getRandomIntInclusive } from '../common/helpers';
 import { User } from '../users/entities/user.entity';
 @Injectable()
 export class AuthService {
@@ -59,18 +57,26 @@ export class AuthService {
       token,
       Number(time),
     );
-    const forgotPasswordURL =
-      this.config.get<string>('AUTH_SERVICE_URL') + '/forgot-password/' + token;
+    // const forgotPasswordURL =
+    //   this.config.get<string>('AUTH_SERVICE_URL') + '/forgot-password/' + token;
+    const forgotPasswordURL = 'http://localhost:2999/forgot-password/' + token;
+
     this.client.send({
       topic: 'send-forgot-password-email',
       messages: [
         {
-          value: JSON.stringify({ id, url: forgotPasswordURL, ttl: time }),
-          key: id,
+          value: JSON.stringify({
+            id,
+            url: forgotPasswordURL,
+            ttl: time,
+            email: user.email,
+          }),
+          key: user.email,
         },
       ],
     });
-    return { token };
+    // return { token };
+    return true;
   }
   async confirmForgotPasswordEmail(id: string, token: string) {
     const savedToken = await this.redisService.get(
@@ -100,8 +106,10 @@ export class AuthService {
       email,
       Number(time),
     );
-    const emailConfirmationURL =
-      this.config.get<string>('AUTH_SERVICE_URL') + '/confirm-email/' + token;
+    // const emailConfirmationURL =
+    //   this.config.get<string>('AUTH_SERVICE_API_URL') + '/verify/' + token;
+    const emailConfirmationURL = 'http://localhost:2999/confirm/' + token;
+
     this.client.send({
       topic: 'send-confirmation-email',
       messages: [
@@ -127,24 +135,6 @@ export class AuthService {
     if (!email) throw new NotFoundException(EErrorMessage.TOKEN_INVALID);
     return await this.usersService.updateVerificationStatus(email);
   }
-  async sendResetPasswordEmail(email: string) {
-    const user = await this.usersService.findByEmail(email);
-    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
-    const time = this.config.get<number>('EXPIRE_RESET_PASSWORD_EMAIL_TIME');
-    const otp = getRandomIntInclusive(10000000, 99999999).toString();
-    this.redisService.insert(
-      resetPasswordEmailPrefix + otp,
-      email,
-      Number(time),
-    );
-    this.client.send({
-      topic: 'send-reset-password-email',
-      messages: [
-        { value: JSON.stringify({ email, otp, ttl: time }), key: email },
-      ],
-    });
-    return true;
-  }
   async getTokens(
     userId: string,
     email: string,
@@ -167,7 +157,7 @@ export class AuthService {
         {
           secret: this.config.get<string>('RT_SECRET'),
           expiresIn: RT_TIME,
-          notBefore: AT_TIME - 30,
+          // notBefore: AT_TIME - 30,
         },
       ),
     ]);
@@ -286,5 +276,23 @@ export class AuthService {
       return p;
     });
     return user;
+  }
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<boolean> {
+    const user = await this.usersService.findByIdWithSensitiveInfo(userId);
+    if (!user) throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    const passwordMatches = await bcrypt.compare(
+      changePasswordDto.password,
+      user.password,
+    );
+    if (!passwordMatches)
+      throw new ForbiddenException(EErrorMessage.USER_PASSWORD_INCORRECT);
+    if (changePasswordDto.newPassword !== changePasswordDto.confirmPassword)
+      throw new ForbiddenException(EErrorMessage.PASSWORD_NOT_MATCH);
+    const hashPassword = await this.hashData(changePasswordDto.newPassword);
+    await this.usersService.updatePassword(user.id, hashPassword);
+    return true;
   }
 }

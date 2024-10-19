@@ -10,6 +10,7 @@ import { UserModule } from './users/users.module';
 import { RedisModule } from './redis/redis.module';
 import { LoggerModule } from 'nestjs-pino';
 import { GrpcModule } from './grpc/grpc.module';
+import { CommonModule } from '@app/common';
 // to integrate redis and cache-manager, now install `pnpm install cache-manager-redis-store@^2.0.0`
 // Don't update cache manager , redis only compatible with cache-manager version 2.0.0
 @Module({
@@ -39,6 +40,7 @@ import { GrpcModule } from './grpc/grpc.module';
     UserModule,
     AuthModule,
     GrpcModule,
+    CommonModule,
   ],
   controllers: [AuthServiceController],
   providers: [AuthServiceService],

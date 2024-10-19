@@ -1,7 +1,14 @@
 import { Gte, Lt, Lte, Gt } from '../../common/types';
 import { Transform } from 'class-transformer';
-import { IsInt, IsOptional, IsString, IsUUID, IsEnum } from 'class-validator';
-import { IsType } from '../../common/helpers';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  IsEnum,
+  IsBoolean,
+} from 'class-validator';
+import { IsType } from 'libs/common/helpers';
 import { PermissionInterface } from '../entities/permission.interface';
 import {
   PermissionAction,
@@ -87,5 +94,21 @@ export class SearchPermissionsDto
   fields?: string;
 
   @IsOptional()
+  @IsString()
   searchTerm?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    return value == 'true' || value == 'True';
+  })
+  @IsBoolean()
+  getAll?: boolean;
+
+  @IsOptional()
+  @IsUUID()
+  role_id?: string;
+
+  @IsOptional()
+  @IsString()
+  role_role?: string;
 }

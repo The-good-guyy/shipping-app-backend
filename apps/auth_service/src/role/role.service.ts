@@ -1,11 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RoleRepository } from './role.repository';
-import { CreateRoleDto } from './dto';
+import { CreateRoleDto, SearchRoleFilterDto, SortRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
 import { Role } from './entities/role.entity';
 import { PermissionService } from '../permission/permission.service';
-import { EErrorMessage } from '../common/constants';
+import { EErrorMessage } from 'libs/common/error';
 import { UpdateRoleDto } from './dto';
+import { SearchOffsetPaginationDto } from '../common/dto';
+import { stringToEnum } from 'libs/common/helpers';
+import {
+  SortOrder,
+  RoleOrderBySearch,
+  RoleFieldSearch,
+  RoleFilterSearch,
+} from '../common/constants';
 @Injectable()
 export class RoleService {
   constructor(
@@ -13,10 +21,10 @@ export class RoleService {
     private readonly permissionService: PermissionService,
   ) {}
   async create(CreateRoleDto: CreateRoleDto) {
-    const permission = CreateRoleDto.permission;
+    const permission = CreateRoleDto.permissionId;
     const permissions: Permission[] = [];
     for await (const p of permission) {
-      const searchPermission = await this.permissionService.findById(p.id);
+      const searchPermission = await this.permissionService.findById(p);
       if (!searchPermission) {
         throw new NotFoundException(EErrorMessage.SOME_PERMISSIONS_NOT_FOUND);
       }
@@ -26,6 +34,18 @@ export class RoleService {
       ...CreateRoleDto,
       permission: permissions,
     });
+  }
+  async update(role: UpdateRoleDto) {
+    const permission = role.permissionId;
+    const permissions: Permission[] = [];
+    for await (const p of permission) {
+      const searchPermission = await this.permissionService.findById(p);
+      if (!searchPermission) {
+        throw new NotFoundException(EErrorMessage.SOME_PERMISSIONS_NOT_FOUND);
+      }
+      permissions.push(searchPermission);
+    }
+    return await this.roleRepository.update(role, permissions);
   }
   async remove(roleId: string) {
     await this.roleRepository.findByCode(roleId);
@@ -39,28 +59,7 @@ export class RoleService {
     const role = await this.roleRepository.findByName(roleName);
     return role;
   }
-  async update(UpdateRoleDto: UpdateRoleDto) {
-    const role = await this.roleRepository.findByCode(UpdateRoleDto.id);
-    if (!role) {
-      throw new NotFoundException(EErrorMessage.ENTITY_NOT_FOUND);
-    }
-    const permission = UpdateRoleDto.permission;
-    const permissions: Permission[] = [];
-    for await (const p of permission) {
-      const searchPermission = await this.permissionService.findById(p.id);
-      if (!searchPermission) {
-        throw new NotFoundException(EErrorMessage.SOME_PERMISSIONS_NOT_FOUND);
-      }
-      permissions.push(searchPermission);
-    }
 
-    return await this.roleRepository.update({
-      id: UpdateRoleDto.id,
-      role: UpdateRoleDto.role,
-      permission: permissions,
-    });
-    // return await this.roleRepository.findByCode(UpdateRoleDto.id);
-  }
   // async updatePermission(
   //   roleId: string,
   //   permissionsCode: string[],
@@ -117,5 +116,49 @@ export class RoleService {
       permissions.push(searchPermission);
     }
     return this.roleRepository.updatePermissionOnRole(role, permissions);
+  }
+  async search(
+    offset: SearchOffsetPaginationDto,
+    filters: object,
+    fields: string[],
+    sort: { orderBy: string; order: string }[],
+    search: string,
+  ) {
+    const roleCols = this.roleRepository.getColsRole();
+    let userFields = fields.filter(
+      (field) =>
+        roleCols.includes(field as keyof Role) &&
+        stringToEnum(RoleFieldSearch, field),
+    ) as (keyof Role)[];
+    userFields =
+      userFields.length > 0 ? userFields : (roleCols as (keyof Role)[]);
+    let sortObj: SortRoleDto[] = [];
+    if (!Array.isArray(sort) || !sort.length) {
+      sortObj = [new SortRoleDto()];
+    } else {
+      for (const obj of sort) {
+        const { orderBy, order } = obj;
+        if (stringToEnum(RoleOrderBySearch, orderBy)) {
+          sortObj.push({
+            orderBy: stringToEnum(RoleOrderBySearch, orderBy),
+            order: stringToEnum(SortOrder, order) || SortOrder.desc,
+          });
+        }
+      }
+    }
+    sortObj = sortObj.length > 0 ? sortObj : [new SortRoleDto()];
+    const filtersObject = new SearchRoleFilterDto();
+    for (const k in filters) {
+      if (stringToEnum(RoleFilterSearch, k)) {
+        filtersObject[k] = filters[k];
+      }
+    }
+    return await this.roleRepository.search(
+      offset,
+      filtersObject,
+      userFields,
+      sortObj,
+      search,
+    );
   }
 }

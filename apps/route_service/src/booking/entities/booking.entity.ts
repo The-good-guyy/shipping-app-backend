@@ -24,13 +24,6 @@ export class Booking {
   createdAt: Date;
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
-  // @Column({ type: 'timestamp' })
-  // departureDate: Date;
-
-  // @Column({ type: 'timestamp' })
-  // arrivalDate: Date;
-  // @Column({ type: 'float' })
-  // travelTime: number;
   @Column({ type: 'enum', enum: BookingStatus, default: BookingStatus.PENDING })
   status: BookingStatus;
 }

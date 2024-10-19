@@ -1,8 +1,8 @@
 import { AuthGuard } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { EErrorMessage } from '../constants';
+import { EErrorMessage } from 'libs/common/error';
 @Injectable()
-export class RtGuard extends AuthGuard('jwt-refresh') {
+export class AtGuard extends AuthGuard('jwt') {
   constructor() {
     super();
   }
@@ -16,7 +16,7 @@ export class RtGuard extends AuthGuard('jwt-refresh') {
 }
 
 @Injectable()
-export class RtCookieGuard extends AuthGuard('jwt-refresh-cookie') {
+export class AtCookieGuard extends AuthGuard('jwt-cookie') {
   constructor() {
     super();
   }

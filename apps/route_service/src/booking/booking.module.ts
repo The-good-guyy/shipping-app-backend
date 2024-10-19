@@ -19,6 +19,7 @@ import { join } from 'path';
         options: {
           package: 'user',
           protoPath: join(__dirname, '../auth_service/auth.proto'),
+           url: 'localhost:5002',
         },
       },
     ]),

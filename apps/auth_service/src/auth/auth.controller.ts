@@ -7,34 +7,36 @@ import {
   UseGuards,
   Get,
   Param,
-  Inject,
   Req,
   Res,
   UseFilters,
+  Patch,
 } from '@nestjs/common';
-import { Tokens } from './types';
 import { AuthService } from './auth.service';
 import {
   CreateUserDto,
   LoginUserDto,
-  ResetForgotPassword,
+  ResetForgotPasswordDto,
   ForgotPasswordEmailDto,
+  ChangePasswordDto,
 } from './dto';
 import {
   AtGuard,
   AtCookieGuard,
-  RtGuard,
+  RtCookieGuard,
   PermissionsGuard,
   VerifiedGuard,
   ForgotPasswordGuard,
-} from '../common/guard';
-import { GetCurrentUser, Permissions, Possessions } from '../common/decorators';
+} from 'libs/common/guard';
+import {
+  GetCurrentUser,
+  Permissions,
+  Possessions,
+} from 'libs/common/decorators';
 import { PermissionAction, PermissionObject } from '../common/constants';
 import { Response, Request } from 'express';
 import { User } from '../users/entities/user.entity';
 import { RtGuardExceptionFilter } from '../common/exceptions';
-// import { KafkaService } from '../kafka';
-// import { SubscribeTo } from '../kafka';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -58,12 +60,6 @@ export class AuthController {
     });
     return user;
   }
-
-  // @Post('local/signin')
-  // @HttpCode(HttpStatus.OK)
-  // siginLocal(@Body() LoginUserDto: LoginUserDto) {
-  //   return this.authService.signInLocal(LoginUserDto);
-  // }
 
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
@@ -98,29 +94,30 @@ export class AuthController {
     return this.authService.logout(userId);
   }
 
-  @UseGuards(AtGuard)
-  @Get('/verify')
+  @UseGuards(AtCookieGuard)
+  @Post('/verify')
   @HttpCode(HttpStatus.OK)
   resendEmail(@GetCurrentUser('sub') userId: string) {
     return this.authService.resendEmail(userId);
   }
-  @UseGuards(AtGuard)
-  @Post('/reset-password')
-  @HttpCode(HttpStatus.OK)
-  forgotPassword(@GetCurrentUser('email') email: string): Promise<boolean> {
-    return this.authService.sendResetPasswordEmail(email);
-  }
-  // @UseGuards(RtGuard)
-  // @Post('/refresh')
-  // @HttpCode(HttpStatus.OK)
-  // refreshTokens(
-  //   @GetCurrentUser('sub') userId: string,
-  //   @GetCurrentUser('refreshToken') refreshToken: string,
-  // ): Promise<Tokens> {
-  //   return this.authService.refreshTokens(userId, refreshToken);
-  // }
 
-  @UseGuards(RtGuard)
+  @Get('/verify/:token')
+  @HttpCode(HttpStatus.OK)
+  confirmEmail(@Param('token') token: string) {
+    return this.authService.confirmEmail(token);
+  }
+
+  @UseGuards(AtCookieGuard)
+  @Patch('/password')
+  @HttpCode(HttpStatus.OK)
+  forgotPassword(
+    @GetCurrentUser('sub') userId: string,
+    @Body() ChangePasswordDto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(userId, ChangePasswordDto);
+  }
+
+  @UseGuards(RtCookieGuard)
   @Post('/refresh')
   @UseFilters(RtGuardExceptionFilter)
   @HttpCode(HttpStatus.OK)
@@ -130,6 +127,7 @@ export class AuthController {
     @GetCurrentUser('sub') userId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ) {
+    console.log('refreshTokens');
     const { user, tokens } = await this.authService.refreshTokens(
       userId,
       refreshToken,
@@ -183,11 +181,11 @@ export class AuthController {
   @Post('/reset-forgot-password/:token')
   resetPassword(
     @Param('token') token: string,
-    @Body() ResetForgotPassword: ResetForgotPassword,
+    @Body() ResetForgotPasswordDto: ResetForgotPasswordDto,
   ) {
     return this.authService.resetForgotPassword(
       token,
-      ResetForgotPassword.password,
+      ResetForgotPasswordDto.password,
     );
   }
 

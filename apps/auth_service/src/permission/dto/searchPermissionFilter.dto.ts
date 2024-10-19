@@ -1,6 +1,6 @@
 import { Gte, Lt, Lte, Gt } from '../../common/types';
 import { IsOptional, IsString, IsUUID, IsEnum } from 'class-validator';
-import { IsType } from '../../common/helpers';
+import { IsType } from 'libs/common/helpers';
 import { PermissionInterface } from '../entities/permission.interface';
 import {
   PermissionAction,
@@ -18,7 +18,6 @@ export class SearchPermissionsFilterDto
       'permission' | 'action' | 'object' | 'possession'
     >
 {
-
   @IsUUID()
   @IsOptional()
   id?: string;
@@ -46,5 +45,12 @@ export class SearchPermissionsFilterDto
   @IsOptional()
   @IsType(['date', 'gteDate', 'lteDate', 'ltDate', 'gtDate'])
   updatedAt?: Date | Gte<Date> | Lte<Date> | Lt<Date> | Gt<Date>;
-\
+
+  @IsOptional()
+  @IsUUID()
+  role_id?: string;
+
+  @IsOptional()
+  @IsString()
+  role_role?: string;
 }
