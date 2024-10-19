@@ -2,7 +2,7 @@ import { Global, Module, OnApplicationShutdown } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ModuleRef } from '@nestjs/core';
 import { Redis } from 'ioredis';
-import { IORedisKey } from '../common/constants';
+import { IORedisKey } from 'libs/common/constants';
 import { RedisService } from './redis.service';
 
 @Global()

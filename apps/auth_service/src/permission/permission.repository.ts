@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entities/permission.entity';
 import {
@@ -19,13 +18,15 @@ import {
   ILike,
   Like,
   Not,
+  In,
+  Repository,
 } from 'typeorm';
 import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()
 export class PermissionRepository {
   constructor(
     @InjectRepository(Permission)
-    private permissionRepository: Repository<Permission>,
+    private readonly permissionRepository: Repository<Permission>,
   ) {}
   async create(CreatePermissionDto: CreatePermissionDto) {
     const permission = await this.permissionRepository.findOne({

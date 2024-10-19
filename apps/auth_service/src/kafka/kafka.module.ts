@@ -6,7 +6,7 @@ import {
   KafkaOptionsFactory,
 } from './interfaces';
 import { KafkaModuleOptionsProvider } from './kafka-module-options.provider';
-import { KAFKA_MODULE_OPTIONS } from '../common/constants';
+import { KAFKA_MODULE_OPTIONS } from 'libs/common/constants';
 
 @Global()
 @Module({})

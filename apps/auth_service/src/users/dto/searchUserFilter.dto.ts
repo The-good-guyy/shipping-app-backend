@@ -7,14 +7,22 @@ import {
   IsEnum,
 } from 'class-validator';
 import { IsType } from 'libs/common/helpers';
-import { Gte, Lte, Lt, Gt, Ne, Il, Like } from '../../common/types';
-import { PartialPick } from '../../common/types';
+import {
+  Gte,
+  Lte,
+  Lt,
+  Gt,
+  Ne,
+  Il,
+  Like,
+  PartialPick,
+} from '../../common/types';
 import { UserInterface } from '../entities/user.interface';
 import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
-} from '../../common/constants';
+} from 'libs/common/constants';
 export class SearchUsersFilterDto
   implements
     PartialPick<

@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
 import { EErrorMessage } from 'libs/common/error';
@@ -15,6 +14,7 @@ import {
   ILike,
   Like,
   Not,
+  Repository,
 } from 'typeorm';
 import { SearchRoleFilterDto, SortRoleDto } from './dto';
 @Injectable()

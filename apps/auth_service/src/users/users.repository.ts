@@ -5,7 +5,6 @@ import {
   SortUserDto,
   SearchUsersFilterDto,
 } from './dto';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { EErrorMessage } from 'libs/common/error';
@@ -18,6 +17,7 @@ import {
   ILike,
   Like,
   Not,
+  Repository,
 } from 'typeorm';
 import { Role } from '../role/entities/role.entity';
 import { SearchOffsetPaginationDto } from '../common/dto';
@@ -25,7 +25,7 @@ import { SearchOffsetPaginationDto } from '../common/dto';
 export class UserRepository {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private readonly usersRepository: Repository<User>,
   ) {}
   async create(CreateUserDto: CreateUserDto) {
     const user = await this.usersRepository.findOne({

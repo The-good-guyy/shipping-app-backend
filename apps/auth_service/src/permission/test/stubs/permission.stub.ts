@@ -3,7 +3,7 @@ import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
-} from 'apps/auth_service/src/common/constants';
+} from 'libs/common/constants';
 export const permissionStub = (): PermissionInterface => {
   return {
     id: '0f7427fd-3d6b-4f89-abae-2542855f2d30',

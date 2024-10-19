@@ -4,7 +4,7 @@ import {
   SortOrder,
   UserOrderBySearch,
   UserFieldSearch,
-} from '../common/constants';
+} from 'libs/common/constants';
 import { EErrorMessage } from 'libs/common/error';
 import { UserRepository } from './users.repository';
 import {

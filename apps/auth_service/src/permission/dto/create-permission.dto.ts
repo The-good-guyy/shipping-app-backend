@@ -3,7 +3,7 @@ import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
-} from '../../common/constants';
+} from 'libs/common/constants';
 import { PermissionInterface } from '../entities/permission.interface';
 export class CreatePermissionDto
   implements

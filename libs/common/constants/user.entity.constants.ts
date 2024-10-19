@@ -19,7 +19,6 @@ export enum PermissionObject {
   ROLE = 'role',
   PERMISSION = 'permission',
   PROFILE = 'profile',
-  USER_ROLE = 'user_role',
   NONE = 'none',
 }
 export enum UserOrderBySearch {

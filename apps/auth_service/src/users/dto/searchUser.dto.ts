@@ -1,4 +1,13 @@
-import { Gte, Lt, Lte, Gt, Ne, Il, Like } from '../../common/types';
+import {
+  Gte,
+  Lt,
+  Lte,
+  Gt,
+  Ne,
+  Il,
+  Like,
+  PartialPick,
+} from '../../common/types';
 import { Transform } from 'class-transformer';
 import {
   IsInt,
@@ -9,13 +18,12 @@ import {
   IsEnum,
 } from 'class-validator';
 import { IsType } from 'libs/common/helpers';
-import { PartialPick } from '../../common/types';
 import { UserInterface } from '../entities/user.interface';
 import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
-} from '../../common/constants';
+} from 'libs/common/constants';
 export class SearchUsersDto
   implements
     PartialPick<

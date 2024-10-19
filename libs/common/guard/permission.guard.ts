@@ -1,9 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import {
-  PermissionAction,
-  PermissionObject,
-} from '../../../apps/auth_service/src/common/constants';
+import { PermissionAction, PermissionObject } from '../constants';
 import { PERMISSIONS_KEY } from 'libs/common/decorators/permission.decorator';
 import { POSSESSION_KEY } from 'libs/common/decorators/possession.decorator';
 import { deepGet } from 'libs/common/helpers';
