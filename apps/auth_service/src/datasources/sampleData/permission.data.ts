@@ -1,6 +1,9 @@
 import { PermissionInterface } from '../../permission/entities/permission.interface';
-import { PermissionAction, PermissionPossession } from 'libs/common/constants';
-import { PermissionObject } from 'libs/common/constants';
+import {
+  PermissionAction,
+  PermissionPossession,
+  PermissionObject,
+} from 'libs/common/constants';
 export const oldPermissionData: Array<
   Pick<
     PermissionInterface,

@@ -9,16 +9,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { EErrorMessage } from 'libs/common/error';
 import { getCols } from 'libs/common/helpers';
-import {
-  MoreThan,
-  LessThan,
-  LessThanOrEqual,
-  MoreThanOrEqual,
-  ILike,
-  Like,
-  Not,
-  Repository,
-} from 'typeorm';
+import { ILike, Repository } from 'typeorm';
+import { filterHandle, sortHandle } from '../common/helper';
 import { Role } from '../role/entities/role.entity';
 import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()
@@ -136,50 +128,11 @@ export class UserRepository {
     sort: SortUserDto[],
     search: string,
   ) {
-    // console.log('fields', fields);
     const { limit, pageNumber, skip } = offset.pagination;
     const { isGetAll } = offset.options ?? {};
-    const newFilters = {};
     const newFields = fields.filter((obj) => obj != 'password');
-    for (const key in filters) {
-      const value = filters[key];
-      if (typeof value === 'object' && value !== null) {
-        if (value.gte !== null && value.gte !== undefined) {
-          filters[key] = MoreThanOrEqual(value.gte);
-        } else if (value.gt !== null && value.gt !== undefined) {
-          filters[key] = MoreThan(value.gt);
-        } else if (value.lte !== null && value.lte !== undefined)
-          filters[key] = LessThanOrEqual(value.lte);
-        else if (value.lt !== null && value.lt !== undefined)
-          filters[key] = LessThan(value.lt);
-        else if (value.ne !== null && value.ne !== undefined)
-          filters[key] = Not(value.ne);
-        else if (value.il !== null && value.il !== undefined)
-          filters[key] = ILike(`%${value.ilike}%`);
-        else if (value.like !== null && value.like !== undefined)
-          filters[key] = Like(`%${value.like}%`);
-      }
-      const newValues = filters[key];
-      const keyValue = key.split('_');
-      let o = newFilters;
-      for (let i = 0; i < keyValue.length - 1; i++) {
-        const prop = keyValue[i];
-        o[prop] = o[prop] || {};
-        o = o[prop];
-      }
-      o[keyValue[keyValue.length - 1]] = newValues;
-    }
-    const sortOrder = {};
-    sort.forEach((obj) => {
-      const sortOrderBy = obj.orderBy.split('.');
-      let object = sortOrder;
-      for (let i = 0; i < sortOrderBy.length - 1; i++) {
-        const prop = sortOrderBy[i];
-        object[prop] = {};
-        object = object[prop];
-      }
-      object[sortOrderBy[sortOrderBy.length - 1]] = obj.order;
-    });
+    const newFilters = filterHandle(filters);
+    const sortOrder = sortHandle(sort);
     const newFilterGroup = search
       ? [
           { username: ILike(`%${search}%`), ...newFilters },
