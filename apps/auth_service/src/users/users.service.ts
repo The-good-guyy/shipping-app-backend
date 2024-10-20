@@ -20,11 +20,14 @@ import { User } from './entities/user.entity';
 import { stringToEnum } from 'libs/common/helpers';
 import { RoleService } from '../role/role.service';
 import { SearchOffsetPaginationDto } from '../common/dto';
+import { UploadService } from '../upload/upload.service';
+import { randomBytes } from 'crypto';
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly roleService: RoleService,
+    private readonly uploadService: UploadService,
   ) {}
   async create(input: CreateUserDto) {
     const newUser = await this.userRepository.create(input);
@@ -84,6 +87,16 @@ export class UserService {
       user,
       input.isVerified,
     );
+  }
+  async uploadAvatar(userId: string, file: Buffer, originalname: string) {
+    const user = await this.userRepository.findByCode(userId);
+    if (!user) {
+      throw new NotFoundException(EErrorMessage.USER_NOT_FOUND);
+    }
+    const token = randomBytes(16).toString('hex');
+    const newfileName = userId + token + originalname;
+    const fileName = await this.uploadService.upload(newfileName, file);
+    return await this.userRepository.updateAvatar(user, fileName);
   }
   async search(
     offset: SearchOffsetPaginationDto,

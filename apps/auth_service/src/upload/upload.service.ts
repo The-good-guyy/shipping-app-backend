@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
-import { AWS_PREFIX } from '../common/constants';
+import { AWS_PREFIX } from 'libs/common/constants';
 @Injectable()
 export class UploadService {
   private readonly s3Client = new S3Client({

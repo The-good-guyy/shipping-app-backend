@@ -12,14 +12,19 @@ import {
   UseGuards,
   UseInterceptors,
   ForbiddenException,
+  ParseFilePipe,
+  FileTypeValidator,
+  UploadedFile,
 } from '@nestjs/common';
 import { UserService } from './users.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   CreateUserDto,
   UpdateUserDto,
   SearchUsersDto,
   UpdateUserRoleDto,
   UpdateUserVerifiedDto,
+  UpdateUserAvatarDto,
 } from './dto';
 import {
   PermissionsGuard,
@@ -147,6 +152,33 @@ export class UsersController {
       fieldsQuery,
       sortQuery,
       query.searchTerm,
+    );
+  }
+
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({
+    action: PermissionAction.UPDATE,
+    object: PermissionObject.PROFILE,
+  })
+  @Possessions('body.id')
+  @Post('/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.OK)
+  async uploadAvatar(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @Body() UpdateUserAvatarDto: UpdateUserAvatarDto,
+  ) {
+    return await this.userService.uploadAvatar(
+      UpdateUserAvatarDto.id,
+      file.buffer,
+      file.originalname,
     );
   }
 }
