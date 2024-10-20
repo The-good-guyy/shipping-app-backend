@@ -170,4 +170,11 @@ export class UserRepository {
       users: entities,
     };
   }
+  async updateAvatar(user: User, avatar: string) {
+    const updatedUser = this.usersRepository.create({
+      ...user,
+      profileImage: avatar,
+    });
+    return await this.usersRepository.save(updatedUser);
+  }
 }

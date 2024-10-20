@@ -57,3 +57,8 @@ export class UpdateUserVerifiedDto
   @IsBoolean()
   isVerified: boolean;
 }
+export class UpdateUserAvatarDto implements Pick<UserInterface, 'id'> {
+  @IsNotEmpty()
+  @IsUUID()
+  id: string;
+}
