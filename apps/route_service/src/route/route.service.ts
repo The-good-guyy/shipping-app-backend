@@ -16,7 +16,6 @@ import { ScheduleService } from 'apps/route_service/src/schedule/schedule.servic
 import { Route } from 'apps/route_service/src/route/entity/route.entity';
 import { ClientGrpc } from '@nestjs/microservices';
 import { RouteStatus } from 'apps/route_service/src/route/enums/route-status.enum';
-
 @Injectable()
 export class RouteService {
   constructor(
@@ -27,6 +26,72 @@ export class RouteService {
     @Inject('USER_PACKAGE') private readonly grpcClient: ClientGrpc,
   ) {}
 
+  // async create(createRouteDto: CreateRouteDto): Promise<Route> {
+  //   const { startPort_id, endPort_id, departureDate, waypoints } =
+  //     createRouteDto;
+  //   const departureDateObj = new Date(departureDate);
+
+  //   // console.log(departureDateObj);
+  //   const startPort = await this.portService.findOne(startPort_id);
+  //   const endPort = await this.portService.findOne(endPort_id);
+  //   if (!startPort || !endPort) {
+  //     throw new NotFoundException(EErrorMessage.PORT_NOT_FOUND);
+  //   }
+  //   let totalDistance = calculateDistance(
+  //     startPort.lat,
+  //     startPort.lon,
+  //     endPort.lat,
+  //     endPort.lon,
+  //   );
+  //   if (waypoints && waypoints.length > 0) {
+  //     let lastWaypoint = { lat: startPort.lat, lon: startPort.lon };
+
+  //     for (const waypoint of waypoints) {
+  //       totalDistance += calculateDistance(
+  //         lastWaypoint.lat,
+  //         lastWaypoint.lon,
+  //         waypoint.lat,
+  //         waypoint.lon,
+  //       );
+  //       lastWaypoint = waypoint;
+  //     }
+
+  //     totalDistance += calculateDistance(
+  //       lastWaypoint.lat,
+  //       lastWaypoint.lon,
+  //       endPort.lat,
+  //       endPort.lon,
+  //     );
+  //   }
+  //   const roundedDistance = parseFloat(totalDistance.toFixed(2));
+  //   const travelTime = this.scheduleService.calculateTravelTime(totalDistance);
+  //   const arrivalDate = this.scheduleService.calculateArrivalDate(
+  //     departureDateObj,
+  //     travelTime,
+  //   );
+  //   const existingRoute = await this.routeRepository.findOne({
+  //     where: {
+  //       startPort: { id: startPort.id },
+  //       endPort: { id: endPort.id },
+  //       arrivalDate,
+  //     },
+  //   });
+  //   // console.log(existingRoute);
+  //   if (existingRoute) {
+  //     throw new NotFoundException(EErrorMessage.ROUTE_EXISTED);
+  //   }
+
+  //   const newRoute = this.routeRepository.create({
+  //     ...createRouteDto,
+  //     departureDate: departureDateObj,
+  //     startPort,
+  //     endPort,
+  //     travelTime,
+  //     arrivalDate,
+  //     distance: roundedDistance,
+  //   });
+  //   return this.routeRepository.save(newRoute);
+  // }
   async create(createRouteDto: CreateRouteDto): Promise<Route> {
     const { startPort_id, endPort_id, departureDate } = createRouteDto;
     const departureDateObj = new Date(departureDate);
@@ -61,6 +126,7 @@ export class RouteService {
 
     const newRoute = this.routeRepository.create({
       ...createRouteDto,
+      departureDate: departureDateObj,
       startPort,
       endPort,
       travelTime,
@@ -70,7 +136,6 @@ export class RouteService {
     console.log(newRoute);
     return this.routeRepository.save(newRoute);
   }
-
   async findAll(query: FilterRouteDto): Promise<any> {
     const limit = Number(query.limit) || 10;
     const page = Number(query.page) || 1;
@@ -156,6 +221,7 @@ export class RouteService {
   async findOne(id: string): Promise<Route> {
     const route = this.routeRepository.findOneBy({ id });
     if (!route) throw new NotFoundException(EErrorMessage.ROUTE_NOT_FOUND);
+    console.log((await route).departureDate);
     return route;
   }
 

@@ -8,7 +8,7 @@ import {
   IsBoolean,
   IsEnum,
 } from 'class-validator';
-import { IsType } from '../../common/helpers';
+import { IsType } from 'libs/common/helpers';
 import { PartialPick } from '../../common/types';
 import { UserInterface } from '../entities/user.interface';
 import {

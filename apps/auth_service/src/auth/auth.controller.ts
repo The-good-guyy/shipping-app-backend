@@ -7,13 +7,11 @@ import {
   UseGuards,
   Get,
   Param,
-  Inject,
   Req,
   Res,
   UseFilters,
   Patch,
 } from '@nestjs/common';
-import { Tokens } from './types';
 import { AuthService } from './auth.service';
 import {
   CreateUserDto,
@@ -29,9 +27,12 @@ import {
   PermissionsGuard,
   VerifiedGuard,
   ForgotPasswordGuard,
-  RtGuard,
-} from '../common/guard';
-import { GetCurrentUser, Permissions, Possessions } from '../common/decorators';
+} from 'libs/common/guard';
+import {
+  GetCurrentUser,
+  Permissions,
+  Possessions,
+} from 'libs/common/decorators';
 import { PermissionAction, PermissionObject } from '../common/constants';
 import { Response, Request } from 'express';
 import { User } from '../users/entities/user.entity';
@@ -105,7 +106,6 @@ export class AuthController {
   @Get('/verify/:token')
   @HttpCode(HttpStatus.OK)
   confirmEmail(@Param('token') token: string) {
-    console.log('ok');
     return this.authService.confirmEmail(token);
   }
 

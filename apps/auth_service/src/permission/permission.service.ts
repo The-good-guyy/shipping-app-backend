@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { getChangedFields, stringToEnum } from '../common/helpers';
+import { getChangedFields, stringToEnum } from 'libs/common/helpers';
 import {
   CreatePermissionDto,
   SearchExcludePermissionsDto,
@@ -9,11 +9,11 @@ import {
 } from './dto';
 import { PermissionRepository } from './permission.repository';
 import {
-  EErrorMessage,
   PermissionFieldSearch,
   PermissionOrderBySearch,
   SortOrder,
 } from '../common/constants';
+import { EErrorMessage } from 'libs/common/error';
 import { Permission } from './entities/permission.entity';
 import { SearchOffsetPaginationDto } from '../common/dto';
 @Injectable()

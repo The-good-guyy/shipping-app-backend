@@ -12,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 import { RoleService } from '../role/role.service';
 import { Tokens } from './types';
-import { EErrorMessage } from '../common/constants';
+import { EErrorMessage } from 'libs/common/error';
 import { KafkaService } from '../kafka';
 import { randomBytes } from 'crypto';
 import { Permission } from '../permission/entities/permission.entity';
@@ -59,14 +59,19 @@ export class AuthService {
     );
     // const forgotPasswordURL =
     //   this.config.get<string>('AUTH_SERVICE_URL') + '/forgot-password/' + token;
-    const forgotPasswordURL = 'http://localhost:2999/forgot-password/' + token;
+    const forgotPasswordURL = 'http://localhost:2999/reset/' + token;
 
     this.client.send({
       topic: 'send-forgot-password-email',
       messages: [
         {
-          value: JSON.stringify({ id, url: forgotPasswordURL, ttl: time }),
-          key: id,
+          value: JSON.stringify({
+            id,
+            url: forgotPasswordURL,
+            ttl: time,
+            email: user.email,
+          }),
+          key: user.email,
         },
       ],
     });

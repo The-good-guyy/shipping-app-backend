@@ -6,7 +6,15 @@ import {
   isInt,
   isDate,
 } from 'class-validator';
-import { Gte, Lt, Lte, Gt, Ne, Il, Like } from '../types';
+import {
+  Gte,
+  Lt,
+  Lte,
+  Gt,
+  Ne,
+  Il,
+  Like,
+} from '../../../apps/auth_service/src/common/types';
 const typeValidator = {
   string: function (value: any, args: ValidationArguments) {
     return isString(value); // Use the imported isString function

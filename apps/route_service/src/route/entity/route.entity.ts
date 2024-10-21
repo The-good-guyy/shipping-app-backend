@@ -1,5 +1,6 @@
 import { Booking } from 'apps/route_service/src/booking/entities/booking.entity';
 import { Port } from 'apps/route_service/src/port/entity/port.entity';
+// import { Waypoint } from 'apps/route_service/src/route/entity/waypoint.entity';
 import { RouteStatus } from 'apps/route_service/src/route/enums/route-status.enum';
 import {
   Entity,
@@ -24,22 +25,24 @@ export class Route {
   @ManyToOne(() => Port, { eager: true })
   @JoinColumn({ name: 'endPort_id' })
   endPort: Port;
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
+  @UpdateDateColumn()
   updatedAt: Date;
   @Column({ type: 'float' })
   distance: number;
-  @Column({ type: 'timestamp' })
+  @Column()
   departureDate: Date;
-  @Column({ type: 'timestamp' })
+  @Column()
   arrivalDate: Date;
   @Column({ type: 'float' })
   travelTime: number;
 
   @Column({ type: 'enum', enum: RouteStatus, default: RouteStatus.AVAILABLE })
   status: RouteStatus;
+  // @OneToMany(() => Waypoint, (waypoint) => waypoint.route, { cascade: true })
+  // waypoints: Waypoint[];
 }
 
 export { RouteStatus };

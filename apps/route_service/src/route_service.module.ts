@@ -11,11 +11,17 @@ import { Route } from 'apps/route_service/src/route/entity/route.entity';
 import { ConfigService } from '@nestjs/config';
 import { BookingModule } from './booking/booking.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { CommonModule } from '@app/common';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['./env/postgres.env', './env/ggkey.env'],
+      envFilePath: [
+        './env/postgres.env',
+        './env/ggkey.env',
+        './env/jwt.env',
+        './env/others.env',
+      ],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -36,6 +42,7 @@ import { ScheduleModule } from './schedule/schedule.module';
     NominatimModule,
     BookingModule,
     ScheduleModule,
+    CommonModule,
   ],
   controllers: [RouteServiceController],
   providers: [RouteServiceService],

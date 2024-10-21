@@ -2,10 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
-import { EErrorMessage } from '../common/constants';
+import { EErrorMessage } from 'libs/common/error';
 import { UpdateRoleDto } from './dto';
 import { Permission } from '../permission/entities/permission.entity';
-import { getCols } from '../common/helpers';
+import { getCols } from 'libs/common/helpers';
 import { SearchOffsetPaginationDto } from '../common/dto';
 import {
   MoreThan,

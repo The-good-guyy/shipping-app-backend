@@ -6,7 +6,7 @@ import {
   IsBoolean,
   IsEnum,
 } from 'class-validator';
-import { IsType } from '../../common/helpers';
+import { IsType } from 'libs/common/helpers';
 import { Gte, Lte, Lt, Gt, Ne, Il, Like } from '../../common/types';
 import { PartialPick } from '../../common/types';
 import { UserInterface } from '../entities/user.interface';

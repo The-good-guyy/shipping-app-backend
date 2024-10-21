@@ -8,8 +8,8 @@ import {
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { EErrorMessage } from '../common/constants';
-import { getCols } from '../common/helpers';
+import { EErrorMessage } from 'libs/common/error';
+import { getCols } from 'libs/common/helpers';
 import {
   MoreThan,
   LessThan,

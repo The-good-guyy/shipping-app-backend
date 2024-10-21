@@ -1,5 +1,21 @@
-import { IsNotEmpty, IsDate, IsNumber, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsDate,
+  IsNumber,
+  IsString,
+  ValidateNested,
+  IsArray,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+// class WaypointDto {
+//   @IsNumber()
+//   @IsNotEmpty()
+//   lat: number;
 
+//   @IsNumber()
+//   @IsNotEmpty()
+//   lon: number;
+// }
 export class CreateRouteDto {
   @IsNotEmpty()
   @IsString()
@@ -14,4 +30,8 @@ export class CreateRouteDto {
   distance: number;
   @IsDate()
   departureDate: Date;
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => WaypointDto)
+  // waypoints: WaypointDto[];
 }
