@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
   const configService = app.get(ConfigService);
   const corsOptions = {
-    origin: 'http://localhost:2999',
+    origin: ['http://localhost:2999', 'http://localhost:3000'],
     credentials: true,
     optionSuccessStatus: 200,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

@@ -3,7 +3,10 @@ import {
   ForbiddenException,
   NotFoundException,
   Inject,
+  Req,
+  Res,
 } from '@nestjs/common';
+import { Request, Response } from 'express';
 import {
   CreateUserDto,
   LoginUserDto,
@@ -240,7 +243,9 @@ export class AuthService {
     );
     return { user, tokens };
   }
-  async googleLogin(LoginGoogleUserDto: LoginGoogleUserDto) {
+  async googleLogin(
+    LoginGoogleUserDto: LoginGoogleUserDto,
+  ): Promise<{ user: User; tokens: Tokens }> {
     let existingUser = await this.usersService.findByEmail(
       LoginGoogleUserDto.email,
     );
@@ -253,7 +258,7 @@ export class AuthService {
       const password = await this.hashData(randomBytes(32).toString('hex'));
       const newUser = {
         email: LoginGoogleUserDto.email,
-        username = LoginGoogleUserDto.username,
+        username: LoginGoogleUserDto.username,
         password,
         profileImage: LoginGoogleUserDto.profileImage,
         role,
@@ -345,5 +350,23 @@ export class AuthService {
     const hashPassword = await this.hashData(changePasswordDto.newPassword);
     await this.usersService.updatePassword(user.id, hashPassword);
     return true;
+  }
+  applyAuthCookie(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
+    user: User,
+    tokens: Tokens,
+  ) {
+    response.cookie('access_token', tokens.access_token, {
+      expires: new Date(Date.now() + 900 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    response.cookie('refresh_token', tokens.refresh_token, {
+      expires: new Date(Date.now() + 2332800 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    return user;
   }
 }
