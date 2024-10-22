@@ -3,7 +3,7 @@ import {
   PermissionAction,
   PermissionPossession,
   PermissionObject,
-} from 'libs/common/constants';
+} from '../../common/constants';
 export const oldPermissionData: Array<
   Pick<
     PermissionInterface,

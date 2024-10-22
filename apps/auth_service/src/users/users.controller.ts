@@ -155,7 +155,7 @@ export class UsersController {
     );
   }
 
-  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  @UseGuards(AtCookieGuard, PermissionsGuard)
   @Permissions({
     action: PermissionAction.UPDATE,
     object: PermissionObject.PROFILE,
