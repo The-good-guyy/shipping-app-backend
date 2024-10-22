@@ -19,6 +19,7 @@ import {
   ResetForgotPasswordDto,
   ForgotPasswordEmailDto,
   ChangePasswordDto,
+  LoginGoogleUserDto,
 } from './dto';
 import {
   AtGuard,
@@ -27,6 +28,7 @@ import {
   PermissionsGuard,
   VerifiedGuard,
   ForgotPasswordGuard,
+  GoogleOAuthGuard,
 } from 'libs/common/guard';
 import {
   GetCurrentUser,
@@ -48,6 +50,24 @@ export class AuthController {
     @Body() CreateUserDto: CreateUserDto,
   ): Promise<User> {
     const { tokens, user } = await this.authService.signUpLocal(CreateUserDto);
+    return this.authService.applyAuthCookie(req, response, user, tokens);
+  }
+
+  @Get('/google/signin')
+  @UseGuards(GoogleOAuthGuard)
+  googleLogin() {
+    return true;
+  }
+
+  @Get('/google/redirect')
+  @UseGuards(GoogleOAuthGuard)
+  async handleRedirect(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { tokens } = await this.authService.googleLogin(
+      req.user as LoginGoogleUserDto,
+    );
     response.cookie('access_token', tokens.access_token, {
       expires: new Date(Date.now() + 900 * 1000),
       httpOnly: true,
@@ -58,7 +78,7 @@ export class AuthController {
       httpOnly: true,
       secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
     });
-    return user;
+    response.redirect('http://localhost:2999');
   }
 
   @Post('local/signin')
@@ -69,17 +89,7 @@ export class AuthController {
     @Body() LoginUserDto: LoginUserDto,
   ) {
     const { tokens, user } = await this.authService.signInLocal(LoginUserDto);
-    response.cookie('access_token', tokens.access_token, {
-      expires: new Date(Date.now() + 900 * 1000),
-      httpOnly: true,
-      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-    });
-    response.cookie('refresh_token', tokens.refresh_token, {
-      expires: new Date(Date.now() + 2332800 * 1000),
-      httpOnly: true,
-      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-    });
-    return user;
+    return this.authService.applyAuthCookie(req, response, user, tokens);
   }
 
   @UseGuards(AtCookieGuard)
@@ -127,22 +137,11 @@ export class AuthController {
     @GetCurrentUser('sub') userId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ) {
-    console.log('refreshTokens');
     const { user, tokens } = await this.authService.refreshTokens(
       userId,
       refreshToken,
     );
-    response.cookie('access_token', tokens.access_token, {
-      expires: new Date(Date.now() + 900 * 1000),
-      httpOnly: true,
-      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-    });
-    response.cookie('refresh_token', tokens.refresh_token, {
-      expires: new Date(Date.now() + 2332800 * 1000),
-      httpOnly: true,
-      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-    });
-    return user;
+    return this.authService.applyAuthCookie(req, response, user, tokens);
   }
 
   @UseGuards(AtCookieGuard)

@@ -11,7 +11,7 @@ import {
   PermissionAction,
   PermissionObject,
   PermissionPossession,
-} from 'libs/common/constants';
+} from '../../common/constants';
 import { Role } from '../../role/entities/role.entity';
 @Entity({ name: 'permission' })
 export class Permission {

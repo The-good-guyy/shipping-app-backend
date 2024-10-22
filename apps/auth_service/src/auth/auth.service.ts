@@ -3,8 +3,16 @@ import {
   ForbiddenException,
   NotFoundException,
   Inject,
+  Req,
+  Res,
 } from '@nestjs/common';
-import { CreateUserDto, LoginUserDto, ChangePasswordDto } from './dto';
+import { Request, Response } from 'express';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  ChangePasswordDto,
+  LoginGoogleUserDto,
+} from './dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service';
@@ -171,6 +179,10 @@ export class AuthService {
   ): Promise<{ user: User; tokens: Tokens }> {
     if (CreateUserDto.password !== CreateUserDto.confirmPassword)
       throw new ForbiddenException(EErrorMessage.PASSWORD_NOT_MATCH);
+    const existingUser = await this.usersService.findByEmail(
+      CreateUserDto.email,
+    );
+    if (existingUser) throw new ForbiddenException(EErrorMessage.USER_EXISTED);
     const role = await this.roleService.findByName('user');
     const hashPassword = await this.hashData(CreateUserDto.password);
     const newUser = { ...CreateUserDto, role, password: hashPassword };
@@ -230,6 +242,50 @@ export class AuthService {
       this.config.get<number>('RT_SECRET_TIME'),
     );
     return { user, tokens };
+  }
+  async googleLogin(
+    LoginGoogleUserDto: LoginGoogleUserDto,
+  ): Promise<{ user: User; tokens: Tokens }> {
+    let existingUser = await this.usersService.findByEmail(
+      LoginGoogleUserDto.email,
+    );
+    if (existingUser) {
+      if (existingUser.isVerified === false)
+        this.usersService.updateVerificationStatus(existingUser.email);
+      existingUser.isVerified = true;
+    } else {
+      const role = await this.roleService.findByName('user');
+      const password = await this.hashData(randomBytes(32).toString('hex'));
+      const newUser = {
+        email: LoginGoogleUserDto.email,
+        username: LoginGoogleUserDto.username,
+        password,
+        profileImage: LoginGoogleUserDto.profileImage,
+        role,
+        isVerified: true,
+      };
+      existingUser = await this.usersService.create(newUser);
+    }
+    existingUser.role.permission = existingUser.role.permission.map((p) => {
+      delete p.id;
+      delete p.permission;
+      delete p.createdAt;
+      delete p.updatedAt;
+      return p;
+    });
+    const tokens = await this.getTokens(
+      existingUser.id,
+      existingUser.email,
+      existingUser.isVerified,
+      existingUser.role.role,
+      existingUser.role.permission,
+    );
+    this.updateRtHash(
+      existingUser.id,
+      tokens.refresh_token,
+      this.config.get<number>('RT_SECRET_TIME'),
+    );
+    return { user: existingUser, tokens };
   }
   async logout(userId: string): Promise<boolean> {
     this.redisService.delete(userId);
@@ -294,5 +350,23 @@ export class AuthService {
     const hashPassword = await this.hashData(changePasswordDto.newPassword);
     await this.usersService.updatePassword(user.id, hashPassword);
     return true;
+  }
+  applyAuthCookie(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
+    user: User,
+    tokens: Tokens,
+  ) {
+    response.cookie('access_token', tokens.access_token, {
+      expires: new Date(Date.now() + 900 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    response.cookie('refresh_token', tokens.refresh_token, {
+      expires: new Date(Date.now() + 2332800 * 1000),
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+    return user;
   }
 }
