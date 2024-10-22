@@ -20,6 +20,7 @@ export enum EErrorMessage {
   TOKEN_EXPIRED = 'token is expired',
 
   // User errors
+  USER_EXISTED = 'user is already existed',
   USER_NOT_FOUND = 'user not found',
   USER_UNAUTHORIZED = 'user is not authorized',
   USER_PASSWORD_INVALID = 'password is invalid',
