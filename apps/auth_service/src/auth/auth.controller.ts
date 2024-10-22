@@ -19,6 +19,7 @@ import {
   ResetForgotPasswordDto,
   ForgotPasswordEmailDto,
   ChangePasswordDto,
+  LoginGoogleUserDto,
 } from './dto';
 import {
   AtGuard,
@@ -27,6 +28,7 @@ import {
   PermissionsGuard,
   VerifiedGuard,
   ForgotPasswordGuard,
+  GoogleOAuthGuard,
 } from 'libs/common/guard';
 import {
   GetCurrentUser,
@@ -59,6 +61,18 @@ export class AuthController {
       secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
     });
     return user;
+  }
+
+  @Get('/google/sigin')
+  @UseGuards(GoogleOAuthGuard)
+  googleLogin() {
+    return true;
+  }
+
+  @Get('/google/reirect')
+  @UseGuards(GoogleOAuthGuard)
+  async handleRedirect(@Req() req: LoginGoogleUserDto) {
+    return await this.authService.googleLogin(req);
   }
 
   @Post('local/signin')

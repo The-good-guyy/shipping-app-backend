@@ -5,6 +5,7 @@ import {
   AtCookieStrategy,
   RtCookieStrategy,
   ForgotPasswordStrategy,
+  GoogleStrategy,
 } from './strategies';
 @Module({
   providers: [
@@ -13,6 +14,7 @@ import {
     AtCookieStrategy,
     RtCookieStrategy,
     ForgotPasswordStrategy,
+    GoogleStrategy,
   ],
 })
 export class CommonModule {}
