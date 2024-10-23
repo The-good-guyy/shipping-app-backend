@@ -37,7 +37,7 @@ export class KafkaAvroRequestSerializer
   protected schemas: Map<string, KafkaSchemaMap> = new Map();
   protected separator: string;
   protected config: KafkaAvroRequestSerializerConfig;
-  private lastSchemaFetchInterval: Map<string, number> = new Map();
+  private readonly lastSchemaFetchInterval: Map<string, number> = new Map();
 
   constructor(options: KafkaAvroRequestSerializerConfig) {
     this.registry = new SchemaRegistry(options.config, options.options);

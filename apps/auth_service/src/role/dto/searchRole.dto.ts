@@ -1,4 +1,13 @@
-import { Gte, Lt, Lte, Gt, Ne, Il, Like } from '../../common/types';
+import {
+  Gte,
+  Lt,
+  Lte,
+  Gt,
+  Ne,
+  Il,
+  Like,
+  PartialPick,
+} from '../../common/types';
 import { Transform } from 'class-transformer';
 import {
   IsInt,
@@ -9,7 +18,6 @@ import {
   IsEnum,
 } from 'class-validator';
 import { IsType } from 'libs/common/helpers';
-import { PartialPick } from '../../common/types';
 import { RoleInterface } from '../entities/role.interface';
 import {
   PermissionAction,

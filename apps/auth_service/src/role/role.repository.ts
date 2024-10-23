@@ -12,7 +12,7 @@ import { SearchRoleFilterDto, SortRoleDto } from './dto';
 @Injectable()
 export class RoleRepository {
   constructor(
-    @InjectRepository(Role) private roleRepository: Repository<Role>,
+    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
   ) {}
   async create(CreateRoleDto: { role: string; permission: Permission[] }) {
     const role = await this.roleRepository.findOne({

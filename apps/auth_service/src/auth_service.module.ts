@@ -32,6 +32,7 @@ import { UploadModule } from './upload/upload.module';
         './env/redis.env',
         './env/others.env',
         './env/aws.env',
+        './env/gg.env',
       ],
     }),
     LoggerModule.forRoot(),

@@ -13,13 +13,14 @@ import { join } from 'path';
     TypeOrmModule.forFeature([Route, Port]),
     PortModule,
     ScheduleModule,
+
     ClientsModule.register([
       {
         name: 'USER_PACKAGE',
         transport: Transport.GRPC,
         options: {
           package: 'user',
-          protoPath: join(__dirname, '../auth_service/auth.proto'),
+          protoPath: join(__dirname, '../../../proto/auth.proto'),
         },
       },
     ]),

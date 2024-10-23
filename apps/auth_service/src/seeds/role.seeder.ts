@@ -16,9 +16,7 @@ export class RoleSeeder implements Seeder {
       delete_users,
       delete_own_users,
       delete_routes,
-      delete_own_routes,
       update_routes,
-      update_own_routes,
       read_roles,
       create_roles,
       delete_roles,
@@ -72,17 +70,7 @@ export class RoleSeeder implements Seeder {
       }),
       permissionRepository.findOne({
         where: {
-          permission: 'delete_own_routes',
-        },
-      }),
-      permissionRepository.findOne({
-        where: {
           permission: 'update_routes',
-        },
-      }),
-      permissionRepository.findOne({
-        where: {
-          permission: 'update_own_routes',
         },
       }),
       permissionRepository.findOne({
@@ -167,9 +155,7 @@ export class RoleSeeder implements Seeder {
       read_own_users,
       create_routes,
       delete_own_users,
-      delete_own_routes,
       update_own_profiles,
-      update_own_routes,
     ];
     const admin_role = roleData.find((role) => role.role === 'admin');
     admin_role.permission = [

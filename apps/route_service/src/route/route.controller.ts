@@ -89,8 +89,20 @@ export class RouteController {
     return this.routeService.updateRouteStatus(id);
   }
 
+  @UseGuards(AtCookieGuard, VerifiedGuard, PermissionsGuard)
+  @Permissions({
+    action: PermissionAction.DELETE,
+    object: PermissionObject.ROUTE,
+  })
+  @Possessions('params.id')
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
     return this.routeService.remove(id);
+  }
+
+  @UseGuards(AtCookieGuard)
+  @Get('search')
+  async searchRoutes() {
+    return true;
   }
 }

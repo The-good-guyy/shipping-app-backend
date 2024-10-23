@@ -10,7 +10,10 @@ import {
 import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['./env/gg.env'] }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['./env/jwt.env', './env/others.env', './env/gg.env'],
+    }),
   ],
   providers: [
     AtStrategy,
